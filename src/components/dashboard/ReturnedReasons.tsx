@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
-import { Progress } from '@/components/ui/progress';
 
 const reasonDataByPeriod: Record<string, { reason: string, percentage: number, color: string }[]> = {
   '30d': [
@@ -52,39 +51,49 @@ export const ReturnedReasons = () => {
   const reasonData = reasonDataByPeriod[selectedPeriod];
 
   return (
-    <Card cardTitle="Returned Reasons By Couriers" action={
-      <PeriodDropdown
-        periods={defaultPeriods}
-        selectedPeriod={selectedPeriod}
-        onPeriodChange={setSelectedPeriod}
-      />
-    }>
-      <div className="space-y-5 my-4">
-        {reasonData.map(({ reason, percentage, color }) => (
-          <div key={reason}>
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-medium text-[15px]">{reason}</span>
-              <span className="font-mono text-[15px]">{percentage}%</span>
+    <div>
+      <div className="font-bold text-2xl text-gray-900 mb-4">Returned Reasons By Couriers</div>
+      <Card action={
+        <PeriodDropdown
+          periods={defaultPeriods}
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={setSelectedPeriod}
+        />
+      }>
+        <div className="space-y-6 my-2">
+          {reasonData.map(({ reason, percentage, color }) => (
+            <div key={reason} className="flex items-center gap-4">
+              {/* Reason with color tag */}
+              <div className="min-w-[130px] flex items-center gap-2">
+                <span
+                  className="inline-block rounded-full w-2.5 h-2.5"
+                  style={{ backgroundColor: color }}
+                ></span>
+                <span className="text-sm font-medium text-gray-800">{reason}</span>
+              </div>
+              
+              {/* Bar background */}
+              <div className="relative flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="absolute top-0 left-0 h-full rounded-full transition-all"
+                  style={{
+                    width: `${percentage}%`,
+                    backgroundColor: color,
+                  }}
+                ></div>
+              </div>
+              
+              {/* Percentage */}
+              <div className="ml-4 min-w-[52px] text-right font-mono text-sm font-semibold text-gray-600">
+                {percentage}%
+              </div>
             </div>
-            <Progress 
-              value={percentage}
-              className="h-2.5 bg-gray-100"
-              style={{
-                backgroundColor: '#ececff'
-              }}
-            >
-              {/* color override for progress */}
-            </Progress>
-            <style>{`
-              [data-reason="${reason.replace(/\s/g, '-')}-bar"] .bg-primary {
-                background-color: ${color} !important;
-              }
-            `}</style>
-          </div>
-        ))}
-      </div>
-    </Card>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 };
 
 export default ReturnedReasons;
+
