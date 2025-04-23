@@ -23,7 +23,7 @@ export const SuccessRate = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0].key);
 
   return (
-    <Card title="Success Rate" action={
+    <Card cardTitle="Success Rate" action={
       <div className="relative">
         <select
           className="text-xs bg-transparent text-gray-500 pr-5 pl-1 focus:outline-none appearance-none"

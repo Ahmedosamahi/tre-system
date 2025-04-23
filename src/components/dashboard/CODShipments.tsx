@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { FinancialMetric } from '@/types';
@@ -29,7 +30,7 @@ const financialMetrics: FinancialMetric[] = [
 
 export const CODShipments = () => {
   return (
-    <Card title="COD Shipments" action={<ChevronDown size={16} className="text-gray-400" />} className="h-full">
+    <Card cardTitle="COD Shipments" action={<ChevronDown size={16} className="text-gray-400" />} className="h-full">
       <div className="text-sm text-gray-500 mb-4">LAST 30 DAYS</div>
       
       <div className="space-y-4">

@@ -56,7 +56,7 @@ export const TopCities = () => {
   
   return (
     <Card 
-      title="Top 5 Cities" 
+      cardTitle="Top 5 Cities" 
       action={
         <div className="relative">
           <select

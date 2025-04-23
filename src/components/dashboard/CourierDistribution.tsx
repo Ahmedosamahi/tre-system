@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { CourierData } from '@/types';
@@ -13,7 +14,7 @@ const courierData: CourierData[] = [
 
 export const CourierDistribution = () => {
   return (
-    <Card title="Distribution of Couriers" action={<ChevronDown size={16} className="text-gray-400" />} className="h-full">
+    <Card cardTitle="Distribution of Couriers" action={<ChevronDown size={16} className="text-gray-400" />} className="h-full">
       <div className="text-sm text-gray-500 mb-4">LAST 30 DAYS</div>
       
       <div className="h-64 flex items-end justify-between space-x-8">

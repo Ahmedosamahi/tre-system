@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { ChevronDown } from 'lucide-react';
 
 export const ReturnedReasons = () => {
   return (
-    <Card title="Returned Reasons By Couriers" action={<ChevronDown size={16} className="text-gray-400" />}>
+    <Card cardTitle="Returned Reasons By Couriers" action={<ChevronDown size={16} className="text-gray-400" />}>
       <div className="text-sm text-gray-500 mb-4">LAST 30 DAYS</div>
       
       <div className="h-64 relative overflow-hidden">
