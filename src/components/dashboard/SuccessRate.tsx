@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
@@ -25,7 +24,6 @@ export const SuccessRate = () => {
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-gray-500">{defaultPeriods.find(p => p.key === selectedPeriod)?.label.toUpperCase()}</div>
       </div>
-      
       <div className="flex flex-col items-center justify-center h-64">
         <div className="relative h-40 w-40">
           <svg className="h-full w-full" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">

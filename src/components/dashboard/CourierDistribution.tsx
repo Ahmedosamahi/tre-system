@@ -1,11 +1,7 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { CourierData } from '@/types';
-import { ChevronDown } from 'lucide-react';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
 
-// Sample data for different periods
 const courierDataByPeriod = {
   '30d': [
     { name: 'FedEx', delivered: 50, returned: 35 },
@@ -47,7 +43,7 @@ const courierDataByPeriod = {
 export const CourierDistribution = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const courierData = courierDataByPeriod[selectedPeriod];
-  
+
   return (
     <Card cardTitle="Distribution of Couriers" action={
       <PeriodDropdown 

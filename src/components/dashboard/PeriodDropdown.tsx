@@ -1,13 +1,10 @@
 
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Dropdown } from 'primereact/dropdown';
+import 'primereact/resources/themes/lara-light-blue/theme.css'; // Or select your preferred Prime theme
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
 
 export type Period = {
   key: string;
@@ -25,19 +22,20 @@ export const PeriodDropdown = ({
   selectedPeriod,
   onPeriodChange,
 }: PeriodDropdownProps) => {
+  const value = periods.find(p => p.key === selectedPeriod);
+
   return (
-    <Select value={selectedPeriod} onValueChange={onPeriodChange}>
-      <SelectTrigger className="h-8 text-xs border-none bg-transparent px-2 w-auto focus:ring-0">
-        <SelectValue placeholder="Select period" />
-      </SelectTrigger>
-      <SelectContent className="min-w-[140px]">
-        {periods.map((period) => (
-          <SelectItem key={period.key} value={period.key} className="text-xs">
-            {period.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Dropdown
+      value={value}
+      onChange={(e) => onPeriodChange(e.value.key)}
+      options={periods}
+      optionLabel="label"
+      style={{ minWidth: 140, fontSize: '12px', height: 32 }}
+      panelClassName="z-50"
+      className="text-xs border-0 bg-transparent p-0 w-auto focus:ring-0"
+      editable={false}
+      placeholder="Select period"
+    />
   );
 };
 

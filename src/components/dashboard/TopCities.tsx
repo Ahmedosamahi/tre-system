@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
@@ -61,7 +60,6 @@ export const TopCities = () => {
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-gray-500">{defaultPeriods.find(p => p.key === selectedPeriod)?.label.toUpperCase()}</div>
       </div>
-      
       <div className="h-64 flex items-end justify-between space-x-6">
         {cityData.map((city) => (
           <div key={city.name} className="flex flex-col items-center group relative">
@@ -74,7 +72,6 @@ export const TopCities = () => {
               </div>
             </div>
             <div className="text-xs font-medium mt-2">{city.name}</div>
-            <div className="text-xs text-gray-500">{city.value}</div>
           </div>
         ))}
       </div>
