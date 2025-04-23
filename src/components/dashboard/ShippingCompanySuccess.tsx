@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { ChevronDown } from 'lucide-react';
@@ -56,7 +57,15 @@ const ShippingCompanySuccess: React.FC = () => {
       <div className="mb-4">
         <h2 className="section-heading">Success Rate Comparison</h2>
       </div>
-      <Card
+      <Card 
+        cardTitle={
+          <div>
+            <div className="text-lg font-medium">Success Rate Comparison</div>
+            <div className="text-xs text-gray-400 font-normal leading-tight mt-1">
+              Shipping Companies Performance
+            </div>
+          </div>
+        }
         action={
           <div className="relative">
             <select

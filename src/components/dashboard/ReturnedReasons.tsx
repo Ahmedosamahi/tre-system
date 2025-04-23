@@ -52,18 +52,29 @@ export const ReturnedReasons = () => {
 
   return (
     <div>
-      <div className="font-bold text-2xl text-gray-900 mb-4">Returned Reasons By Couriers</div>
-      <Card action={
-        <PeriodDropdown
-          periods={defaultPeriods}
-          selectedPeriod={selectedPeriod}
-          onPeriodChange={setSelectedPeriod}
-        />
-      }>
+      <div className="mb-4">
+        <h2 className="section-heading">Returned Reasons By Couriers</h2>
+      </div>
+      <Card 
+        cardTitle={
+          <div>
+            <div className="text-lg font-medium">Returned Reasons By Couriers</div>
+            <div className="text-xs text-gray-400 font-normal leading-tight mt-1">
+              Shipment Return Analysis
+            </div>
+          </div>
+        } 
+        action={
+          <PeriodDropdown
+            periods={defaultPeriods}
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={setSelectedPeriod}
+          />
+        }
+      >
         <div className="space-y-6 my-2">
           {reasonData.map(({ reason, percentage, color }) => (
             <div key={reason} className="flex items-center gap-4">
-              {/* Reason with color tag */}
               <div className="min-w-[130px] flex items-center gap-2">
                 <span
                   className="inline-block rounded-full w-2.5 h-2.5"
@@ -72,7 +83,6 @@ export const ReturnedReasons = () => {
                 <span className="text-sm font-medium text-gray-800">{reason}</span>
               </div>
               
-              {/* Bar background */}
               <div className="relative flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className="absolute top-0 left-0 h-full rounded-full transition-all"
@@ -83,7 +93,6 @@ export const ReturnedReasons = () => {
                 ></div>
               </div>
               
-              {/* Percentage */}
               <div className="ml-4 min-w-[52px] text-right font-mono text-sm font-semibold text-gray-600">
                 {percentage}%
               </div>
@@ -96,4 +105,3 @@ export const ReturnedReasons = () => {
 };
 
 export default ReturnedReasons;
-
