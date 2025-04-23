@@ -1,7 +1,14 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { PiTruck, PiPackage, PiReturnDownBack, PiWarningCircle, PiArrowDownBold, PiArrowUpBold } from 'react-icons/pi';
+import { 
+  PiTruck, 
+  PiPackage, 
+  PiArrowLeft, 
+  PiWarningCircle, 
+  PiArrowDown, 
+  PiArrowUp 
+} from 'react-icons/pi';
 
 const metrics = [
   {
@@ -41,7 +48,7 @@ const metrics = [
     value: 26,
     subtitle: 'Orders',
     color: '#ef4444',
-    icon: <PiReturnDownBack size={28} color="#ef4444" />,
+    icon: <PiArrowLeft size={28} color="#ef4444" />,
     trend: { value: -2, up: false }
   }
 ];
@@ -52,7 +59,6 @@ export const MetricsCards = () => {
       {metrics.map((metric, index) => (
         <Card
           key={index}
-          cardTitle={metric.title}
           className="shadow border-0" 
           style={{ borderRadius: 14, minHeight: 115, padding: 0 }}
         >
@@ -71,7 +77,7 @@ export const MetricsCards = () => {
                   metric.trend.up ? 'text-green-600' : 'text-red-600'
                 }`}
               >
-                {metric.trend.up ? <PiArrowUpBold size={14} /> : <PiArrowDownBold size={14} />}
+                {metric.trend.up ? <PiArrowUp size={14} /> : <PiArrowDown size={14} />}
                 {metric.trend.value}%
               </span>
             </div>
