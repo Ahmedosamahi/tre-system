@@ -1,10 +1,13 @@
 
 import React from 'react';
-import { Dropdown } from 'primereact/dropdown';
-import 'primereact/resources/themes/lara-light-blue/theme.css'; // Or select your preferred Prime theme
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
-import 'primeflex/primeflex.css';
+import { 
+  DropdownMenu, 
+  DropdownMenuTrigger, 
+  DropdownMenuContent, 
+  DropdownMenuItem
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
 
 export type Period = {
   key: string;
@@ -22,20 +25,32 @@ export const PeriodDropdown = ({
   selectedPeriod,
   onPeriodChange,
 }: PeriodDropdownProps) => {
-  const value = periods.find(p => p.key === selectedPeriod);
+  const selectedLabel = periods.find(p => p.key === selectedPeriod)?.label || 'Select period';
 
   return (
-    <Dropdown
-      value={value}
-      onChange={(e) => onPeriodChange(e.value.key)}
-      options={periods}
-      optionLabel="label"
-      style={{ minWidth: 140, fontSize: '12px', height: 32 }}
-      panelClassName="z-50"
-      className="text-xs border-0 bg-transparent p-0 w-auto focus:ring-0"
-      editable={false}
-      placeholder="Select period"
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-xs h-8 px-3 border-gray-200 bg-white hover:bg-gray-50 flex items-center gap-1"
+        >
+          {selectedLabel}
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-[140px]">
+        {periods.map((period) => (
+          <DropdownMenuItem 
+            key={period.key}
+            onClick={() => onPeriodChange(period.key)}
+            className="text-xs cursor-pointer"
+          >
+            {period.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

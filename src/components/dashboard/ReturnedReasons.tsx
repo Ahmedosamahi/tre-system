@@ -1,9 +1,8 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
-import { Chart } from 'primereact/chart';
-// Don't forget to import Chart.js
-import 'chart.js/auto';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const reasonDataByPeriod: Record<string, { reason: string, percentage: number, color: string }[]> = {
   '30d': [
@@ -51,29 +50,18 @@ const reasonDataByPeriod: Record<string, { reason: string, percentage: number, c
 export const ReturnedReasons = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const reasonData = reasonDataByPeriod[selectedPeriod];
+  
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-  const chartData = {
-    labels: reasonData.map(r => r.reason),
-    datasets: [
-      {
-        data: reasonData.map(r => r.percentage),
-        backgroundColor: reasonData.map(r => r.color),
-        borderWidth: 0,
-      }
-    ]
-  };
-
-  const chartOptions = {
-    plugins: {
-      legend: {
-        position: 'left',
-        labels: {
-          color: '#222',
-          font: { size: 13 }
-        }
-      }
-    },
-    cutout: '65%',
+    return (
+      <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
   };
 
   return (
@@ -87,9 +75,34 @@ export const ReturnedReasons = () => {
       <div className="flex items-center justify-between">
         
       </div>
-      {/* Modern donut chart visual */}
       <div className="flex flex-col items-center justify-center min-h-[250px] py-2">
-        <Chart type="doughnut" data={chartData} options={chartOptions} style={{ width: 230, height: 230, margin: '0 auto' }} />
+        <ResponsiveContainer width="100%" height={230}>
+          <PieChart>
+            <Pie
+              data={reasonData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={renderCustomizedLabel}
+              outerRadius={80}
+              innerRadius={50}
+              fill="#8884d8"
+              dataKey="percentage"
+              nameKey="reason"
+            >
+              {reasonData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip formatter={(value) => `${value}%`} />
+            <Legend 
+              layout="vertical" 
+              verticalAlign="middle" 
+              align="right"
+              wrapperStyle={{ fontSize: '12px' }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     </Card>
   );
