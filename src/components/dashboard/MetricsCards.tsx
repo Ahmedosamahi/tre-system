@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { Card } from 'primereact/card';
-import { Badge } from 'primereact/badge';
-import { Chart } from 'primereact/chart';
+import { Card } from '@/components/ui/card';
 import { PiTruck, PiPackage, PiReturnDownBack, PiWarningCircle, PiArrowDownBold, PiArrowUpBold } from 'react-icons/pi';
 
 const metrics = [
@@ -54,32 +52,31 @@ export const MetricsCards = () => {
       {metrics.map((metric, index) => (
         <Card
           key={index}
-          title={null}
+          cardTitle={metric.title}
           className="shadow border-0" 
           style={{ borderRadius: 14, minHeight: 115, padding: 0 }}
-          content={
-            <div className="p-4 flex flex-col gap-2 items-center justify-between" style={{ minHeight: 110 }}>
-              <div className="flex items-center gap-3 w-full justify-between">
-                <span className="rounded-full p-2" style={{ background: metric.color + '22' }}>{metric.icon}</span>
-                <div className="flex items-end flex-col items-end">
-                  <span className="text-2xl font-bold" style={{ color: metric.color }}>{metric.value}</span>
-                  <span className="text-xs text-gray-400">{metric.subtitle}</span>
-                </div>
-              </div>
-              <div className="w-full flex justify-between items-center">
-                <span className="text-xs font-medium text-gray-700">{metric.title}</span>
-                <span
-                  className={`flex items-center gap-0.5 text-xs ${
-                    metric.trend.up ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {metric.trend.up ? <PiArrowUpBold size={14} /> : <PiArrowDownBold size={14} />}
-                  {metric.trend.value}%
-                </span>
+        >
+          <div className="p-4 flex flex-col gap-2 items-center justify-between" style={{ minHeight: 110 }}>
+            <div className="flex items-center gap-3 w-full justify-between">
+              <span className="rounded-full p-2" style={{ background: metric.color + '22' }}>{metric.icon}</span>
+              <div className="flex items-end flex-col items-end">
+                <span className="text-2xl font-bold" style={{ color: metric.color }}>{metric.value}</span>
+                <span className="text-xs text-gray-400">{metric.subtitle}</span>
               </div>
             </div>
-          }
-        />
+            <div className="w-full flex justify-between items-center">
+              <span className="text-xs font-medium text-gray-700">{metric.title}</span>
+              <span
+                className={`flex items-center gap-0.5 text-xs ${
+                  metric.trend.up ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {metric.trend.up ? <PiArrowUpBold size={14} /> : <PiArrowDownBold size={14} />}
+                {metric.trend.value}%
+              </span>
+            </div>
+          </div>
+        </Card>
       ))}
     </div>
   );
