@@ -1,0 +1,23 @@
+
+import { StatusBadgeProps } from '@/types';
+import { cn } from '@/lib/utils';
+
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) => {
+  const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
+  
+  const statusClasses = {
+    success: 'bg-success-light text-green-800',
+    warning: 'bg-warning-light text-yellow-800',
+    danger: 'bg-danger-light text-red-800',
+    info: 'bg-info-light text-blue-800',
+    default: 'bg-gray-100 text-gray-800'
+  };
+  
+  return (
+    <span className={cn(baseClasses, statusClasses[status])}>
+      {children}
+    </span>
+  );
+};
+
+export default StatusBadge;
