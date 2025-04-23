@@ -16,7 +16,9 @@ export const SuccessRate = () => {
 
   return (
     <div>
-      <div className="font-bold text-2xl text-gray-900 mb-4">Success Rate for All Shipping Companies</div>
+      <div className="mb-4">
+        <h2 className="section-heading">Success Rate Analysis</h2>
+      </div>
       <Card cardTitle={
         <div>
           <div className="text-lg font-medium">Success Rate</div>
@@ -63,4 +65,3 @@ export const SuccessRate = () => {
 };
 
 export default SuccessRate;
-
