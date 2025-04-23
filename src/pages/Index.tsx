@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
@@ -58,8 +57,8 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <SuccessRate />
             <div>
-              <h2 className="section-heading">Today's Activities</h2>
-              <MetricsCards />
+              <h2 className="section-heading">Shipping Company Success</h2>
+              <ShippingCompanySuccess />
             </div>
           </div>
           
@@ -82,4 +81,5 @@ const Index = () => {
   );
 };
 
+import ShippingCompanySuccess from '@/components/dashboard/ShippingCompanySuccess';
 export default Index;

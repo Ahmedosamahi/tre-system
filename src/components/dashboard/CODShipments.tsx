@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { FinancialMetric } from '@/types';
 import { ChevronDown, Box, TruckIcon, XCircle } from 'lucide-react';
 

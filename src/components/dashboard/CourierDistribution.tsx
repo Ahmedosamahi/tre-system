@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { CourierData } from '@/types';
 import { ChevronDown } from 'lucide-react';
 

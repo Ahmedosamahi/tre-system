@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { ChevronDown } from 'lucide-react';
 
 export const ReturnedReasons = () => {
