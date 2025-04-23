@@ -54,7 +54,6 @@ const ShippingCompanySuccess: React.FC = () => {
 
   return (
     <Card
-      title="Success Rate by Shipping Company"
       action={
         <div className="relative">
           <select
@@ -92,3 +91,4 @@ const ShippingCompanySuccess: React.FC = () => {
 };
 
 export default ShippingCompanySuccess;
+
