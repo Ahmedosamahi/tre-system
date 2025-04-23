@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
 import { Chart } from 'primereact/chart';
+// Don't forget to import Chart.js
+import 'chart.js/auto';
 
 const reasonDataByPeriod: Record<string, { reason: string, percentage: number, color: string }[]> = {
   '30d': [
@@ -82,8 +84,8 @@ export const ReturnedReasons = () => {
         onPeriodChange={setSelectedPeriod}
       />
     }>
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-500">{defaultPeriods.find(p => p.key === selectedPeriod)?.label.toUpperCase()}</div>
+      <div className="flex items-center justify-between">
+        
       </div>
       {/* Modern donut chart visual */}
       <div className="flex flex-col items-center justify-center min-h-[250px] py-2">

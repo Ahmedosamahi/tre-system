@@ -57,8 +57,7 @@ export const TopCities = () => {
       }
       className="h-full"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-500">{defaultPeriods.find(p => p.key === selectedPeriod)?.label.toUpperCase()}</div>
+      <div className="flex items-center justify-between">
       </div>
       <div className="h-64 flex items-end justify-between space-x-6">
         {cityData.map((city) => (
