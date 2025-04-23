@@ -1,11 +1,17 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  title?: React.ReactNode
+  action?: React.ReactNode
+}
+
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  CardProps
+>(({ className, title, action, children, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
@@ -13,7 +19,15 @@ const Card = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {(title || action) && (
+      <div className="flex items-center justify-between p-6">
+        {title && <h3 className="text-lg font-medium">{title}</h3>}
+        {action && <div>{action}</div>}
+      </div>
+    )}
+    <div className="p-6 pt-0">{children}</div>
+  </div>
 ))
 Card.displayName = "Card"
 

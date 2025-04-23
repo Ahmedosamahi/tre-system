@@ -8,7 +8,8 @@ import { CourierDistribution } from '@/components/dashboard/CourierDistribution'
 import { TopCities } from '@/components/dashboard/TopCities';
 import { CODShipments } from '@/components/dashboard/CODShipments';
 import { ReturnedReasons } from '@/components/dashboard/ReturnedReasons';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
+import ShippingCompanySuccess from '@/components/dashboard/ShippingCompanySuccess';
 
 const Index = () => {
   return (
@@ -81,5 +82,4 @@ const Index = () => {
   );
 };
 
-import ShippingCompanySuccess from '@/components/dashboard/ShippingCompanySuccess';
 export default Index;
