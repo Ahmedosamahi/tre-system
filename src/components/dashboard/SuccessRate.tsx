@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
@@ -14,7 +15,13 @@ export const SuccessRate = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
 
   return (
-    <Card cardTitle="Success Rate" action={
+    <Card cardTitle={
+      <div>
+        <div className="text-lg font-medium">Success Rate</div>
+        <div className="text-xs text-gray-400 font-normal leading-tight mt-1">All Shipping Companies</div>
+      </div>
+    }
+    action={
       <PeriodDropdown
         periods={defaultPeriods}
         selectedPeriod={selectedPeriod}

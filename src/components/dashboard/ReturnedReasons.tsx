@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { Progress } from '@/components/ui/progress';
 
 const reasonDataByPeriod: Record<string, { reason: string, percentage: number, color: string }[]> = {
   '30d': [
@@ -50,19 +50,6 @@ const reasonDataByPeriod: Record<string, { reason: string, percentage: number, c
 export const ReturnedReasons = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const reasonData = reasonDataByPeriod[selectedPeriod];
-  
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
 
   return (
     <Card cardTitle="Returned Reasons By Couriers" action={
@@ -72,37 +59,29 @@ export const ReturnedReasons = () => {
         onPeriodChange={setSelectedPeriod}
       />
     }>
-      <div className="flex items-center justify-between">
-        
-      </div>
-      <div className="flex flex-col items-center justify-center min-h-[250px] py-2">
-        <ResponsiveContainer width="100%" height={230}>
-          <PieChart>
-            <Pie
-              data={reasonData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={renderCustomizedLabel}
-              outerRadius={80}
-              innerRadius={50}
-              fill="#8884d8"
-              dataKey="percentage"
-              nameKey="reason"
+      <div className="space-y-5 my-4">
+        {reasonData.map(({ reason, percentage, color }) => (
+          <div key={reason}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-medium text-[15px]">{reason}</span>
+              <span className="font-mono text-[15px]">{percentage}%</span>
+            </div>
+            <Progress 
+              value={percentage}
+              className="h-2.5 bg-gray-100"
+              style={{
+                backgroundColor: '#ececff'
+              }}
             >
-              {reasonData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip formatter={(value) => `${value}%`} />
-            <Legend 
-              layout="vertical" 
-              verticalAlign="middle" 
-              align="right"
-              wrapperStyle={{ fontSize: '12px' }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+              {/* color override for progress */}
+            </Progress>
+            <style>{`
+              [data-reason="${reason.replace(/\s/g, '-')}-bar"] .bg-primary {
+                background-color: ${color} !important;
+              }
+            `}</style>
+          </div>
+        ))}
       </div>
     </Card>
   );

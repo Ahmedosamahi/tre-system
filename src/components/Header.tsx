@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell, Plus } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBox } from './ui/SearchBox';
 
@@ -19,21 +19,33 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
         </div>
         
         <Button className="bg-brand text-white hover:bg-brand-dark">
-          <Plus className="mr-2 h-4 w-4" /> Create Order
+          <span className="flex items-center"><Wallet className="mr-2 h-5 w-5" />$1199.00</span>
+        </Button>
+        
+        <Button className="bg-brand text-white hover:bg-brand-dark">
+          <span className="flex items-center">
+            <span className="mr-2">
+              <svg width="16" height="16" className="inline align-middle" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round"/>
+              </svg>
+            </span>
+            Create Order
+          </span>
         </Button>
         
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5 text-gray-500" />
+              <span className="sr-only">Notifications</span>
+              <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M12 22a2 2 0 1 0 4 0" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+              </svg>
               <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span>
             </Button>
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-brand-light">$1199.00</p>
-            </div>
             <div className="h-10 w-10 rounded-full bg-orange-100 overflow-hidden">
               <img 
                 src="/lovable-uploads/d596548d-f4b9-4003-a6a9-e24cd0ab7e3c.png" 
