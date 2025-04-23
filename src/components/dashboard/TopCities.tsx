@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { ChevronDown } from 'lucide-react';
+import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
 
 const cityDataSets = {
   '30d': [
@@ -41,16 +41,8 @@ const cityDataSets = {
   ]
 };
 
-const periods = [
-  { key: '30d', label: 'LAST 30 DAYS' },
-  { key: 'week', label: 'Last Week' },
-  { key: 'day', label: 'Day' },
-  { key: 'year', label: 'Year' },
-  { key: '3m', label: '3 Months' }
-];
-
 export const TopCities = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState(periods[0].key);
+  const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const cityData = cityDataSets[selectedPeriod];
   const maxValue = Math.max(...cityData.map(city => city.value));
   
@@ -58,28 +50,29 @@ export const TopCities = () => {
     <Card 
       cardTitle="Top 5 Cities" 
       action={
-        <div className="relative">
-          <select
-            className="text-xs bg-transparent text-gray-500 pr-5 pl-1 focus:outline-none appearance-none"
-            value={selectedPeriod}
-            onChange={e => setSelectedPeriod(e.target.value)}
-          >
-            {periods.map(period => (
-              <option key={period.key} value={period.key}>{period.label}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
+        <PeriodDropdown
+          periods={defaultPeriods}
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={setSelectedPeriod}
+        />
       }
       className="h-full"
     >
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-gray-500">{defaultPeriods.find(p => p.key === selectedPeriod)?.label.toUpperCase()}</div>
+      </div>
+      
       <div className="h-64 flex items-end justify-between space-x-6">
         {cityData.map((city) => (
-          <div key={city.name} className="flex flex-col items-center">
+          <div key={city.name} className="flex flex-col items-center group relative">
             <div 
-              className="w-12 bg-blue-500 rounded-sm" 
+              className="w-12 bg-blue-500 hover:bg-blue-600 rounded-t-md transition-all duration-200" 
               style={{ height: `${(city.value / maxValue) * 150}px` }}
-            ></div>
+            >
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                {city.value}
+              </div>
+            </div>
             <div className="text-xs font-medium mt-2">{city.name}</div>
             <div className="text-xs text-gray-500">{city.value}</div>
           </div>

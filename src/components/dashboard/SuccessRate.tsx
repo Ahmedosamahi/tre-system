@@ -1,15 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { ChevronDown } from 'lucide-react';
-
-const periods = [
-  { key: '30d', label: 'LAST 30 DAYS' },
-  { key: 'week', label: 'Last Week' },
-  { key: 'day', label: 'Day' },
-  { key: 'year', label: 'Year' },
-  { key: '3m', label: '3 Months' }
-];
+import PeriodDropdown, { defaultPeriods } from './PeriodDropdown';
 
 const dataByPeriod: Record<string, { percent: number }> = {
   '30d': { percent: 88 },
@@ -20,23 +12,20 @@ const dataByPeriod: Record<string, { percent: number }> = {
 };
 
 export const SuccessRate = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState(periods[0].key);
+  const [selectedPeriod, setSelectedPeriod] = useState('30d');
 
   return (
     <Card cardTitle="Success Rate" action={
-      <div className="relative">
-        <select
-          className="text-xs bg-transparent text-gray-500 pr-5 pl-1 focus:outline-none appearance-none"
-          value={selectedPeriod}
-          onChange={e => setSelectedPeriod(e.target.value)}
-        >
-          {periods.map(period => (
-            <option key={period.key} value={period.key}>{period.label}</option>
-          ))}
-        </select>
-        <ChevronDown size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-      </div>
+      <PeriodDropdown
+        periods={defaultPeriods}
+        selectedPeriod={selectedPeriod}
+        onPeriodChange={setSelectedPeriod}
+      />
     } className="h-full">
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-gray-500">{defaultPeriods.find(p => p.key === selectedPeriod)?.label.toUpperCase()}</div>
+      </div>
+      
       <div className="flex flex-col items-center justify-center h-64">
         <div className="relative h-40 w-40">
           <svg className="h-full w-full" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
