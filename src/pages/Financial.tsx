@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Download, Filter, ArrowUp, ArrowDown, DollarSign, CircleDollarSign } from 'lucide-react';
+import { Download, Filter, ArrowUp, ArrowDown, DollarSign, CircleDollarSign, Check } from 'lucide-react';
 
 // Sample financial data
 const codTransactions = [
@@ -146,7 +146,7 @@ const FinancialPage = () => {
                   <ArrowDown size={24} />
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
           
           <Tabs defaultValue="cod" className="mb-6">
