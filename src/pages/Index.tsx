@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
@@ -57,6 +58,9 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div className="flex flex-col">
+              <div className="mb-4">
+                <h2 className="section-heading">Success Rate Analysis</h2>
+              </div>
               <SuccessRate />
             </div>
             <ShippingCompanySuccess />

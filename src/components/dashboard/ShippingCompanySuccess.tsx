@@ -10,7 +10,6 @@ const periods = [
   { key: '3m', label: '3 Months' }
 ];
 
-// Example data: replace with API or dynamic data as needed
 const shippingCompaniesData: Record<
   string,
   { name: string; percent: number }[]
