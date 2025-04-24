@@ -28,7 +28,7 @@ const Index = () => {
           
           <MetricsCards />
           
-          <div className="mb-6">
+          <div className="mb-8">
             <Card className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none overflow-hidden relative">
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-3/4 p-6">
@@ -56,7 +56,9 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <SuccessRate />
+            <div className="flex flex-col">
+              <SuccessRate />
+            </div>
             <ShippingCompanySuccess />
           </div>
           
