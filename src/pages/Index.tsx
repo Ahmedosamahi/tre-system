@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
@@ -47,21 +46,21 @@ const Index = () => {
                 </div>
                 <div className="md:w-1/4 flex items-center justify-center py-4">
                   <img 
-                    src="https://images.unsplash.com/photo-1580674285058-2aab098a78bb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80"
+                    src="/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png"
                     alt="Delivery Person"
-                    className="h-40 object-contain"
+                    className="h-48 object-contain"
                   />
                 </div>
               </div>
             </Card>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <SuccessRate />
             <ShippingCompanySuccess />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <CourierDistribution />
             <TopCities />
           </div>
@@ -70,7 +69,7 @@ const Index = () => {
             <h2 className="section-heading">Overview of Finance</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <CODShipments />
             <ReturnedReasons />
           </div>
@@ -81,4 +80,3 @@ const Index = () => {
 };
 
 export default Index;
-
