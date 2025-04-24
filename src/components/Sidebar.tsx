@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavItem } from '@/types';
 import { 
   LayoutDashboard, 
@@ -10,10 +10,18 @@ import {
   DollarSign,
   BarChart,
   Settings,
-  HelpCircle
+  HelpCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const navItems: NavItem[] = [
   { title: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
@@ -33,10 +41,22 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const [activePath, setActivePath] = React.useState('/');
+  const [collapsed, setCollapsed] = React.useState(false);
   
-  React.useEffect(() => {
+  // Check for saved sidebar state in localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebar-collapsed');
+    if (savedState !== null) {
+      setCollapsed(savedState === 'true');
+    }
+    
     setActivePath(window.location.pathname);
   }, []);
+
+  // Save sidebar state when it changes
+  useEffect(() => {
+    localStorage.setItem('sidebar-collapsed', String(collapsed));
+  }, [collapsed]);
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -53,37 +73,72 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     }
   };
 
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+  };
+
   return (
-    <aside className={cn('w-64 bg-white border-r border-gray-200 h-screen fixed', className)}>
-      <div className="p-6">
-        <div className="flex items-center mb-8">
-          <h1 className="text-3xl font-bold text-brand">tredo</h1>
+    <aside 
+      className={cn(
+        'bg-white border-r border-gray-200 h-screen fixed transition-all duration-300 ease-in-out',
+        collapsed ? 'w-20' : 'w-64',
+        className
+      )}
+    >
+      <div className={cn("p-6", collapsed && "p-4")}>
+        <div className={cn("flex items-center mb-8", collapsed && "justify-center")}>
+          <h1 className={cn("text-3xl font-bold text-brand", collapsed && "text-2xl")}>
+            {collapsed ? 'T' : 'tredo'}
+          </h1>
         </div>
         
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const isActive = activePath === item.href;
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  'flex items-center px-3 py-3 text-base font-medium rounded-md transition-colors',
-                  isActive 
-                    ? 'bg-brand-light bg-opacity-10 text-brand-light' 
-                    : 'text-gray-700 hover:bg-gray-100'
-                )}
-                onClick={() => setActivePath(item.href)}
-              >
-                <span className={cn('mr-3', isActive ? 'text-brand-light' : 'text-gray-500')}>
-                  {getIcon(item.icon)}
-                </span>
-                {item.title}
-              </Link>
-            );
-          })}
-        </nav>
+        <TooltipProvider>
+          <nav className="space-y-1">
+            {navItems.map((item) => {
+              const isActive = activePath === item.href;
+              return (
+                <Tooltip key={item.href} delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        'flex items-center px-3 py-3 text-base font-medium rounded-md transition-colors',
+                        collapsed ? 'justify-center' : '',
+                        isActive 
+                          ? 'bg-brand-light bg-opacity-10 text-brand-light' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      )}
+                      onClick={() => setActivePath(item.href)}
+                    >
+                      <span className={cn('mr-3', collapsed ? 'mr-0' : '', isActive ? 'text-brand-light' : 'text-gray-500')}>
+                        {getIcon(item.icon)}
+                      </span>
+                      {!collapsed && item.title}
+                    </Link>
+                  </TooltipTrigger>
+                  {collapsed && (
+                    <TooltipContent side="right">
+                      {item.title}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              );
+            })}
+          </nav>
+        </TooltipProvider>
       </div>
+      
+      {/* Sidebar toggle button */}
+      <button 
+        onClick={toggleSidebar}
+        className={cn(
+          "absolute -right-3 top-20 bg-white border border-gray-200 rounded-full p-1.5 shadow-md hover:bg-gray-50 transition-all",
+          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-light"
+        )}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      </button>
     </aside>
   );
 };

@@ -1,298 +1,340 @@
 
 import React from 'react';
+import { Sidebar } from '@/components/Sidebar';
+import { Header } from '@/components/Header';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
-import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { SearchBox } from '@/components/ui/SearchBox';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { 
-  MessageCircle, Search, HelpCircle, FileText, BookOpen, 
-  Phone, Mail, PlusCircle, ArrowRight, ChevronDown, MessageSquare 
+  HelpCircle, 
+  MessageSquare, 
+  Phone, 
+  Mail, 
+  Search,
+  ChevronRight,
+  FileText,
+  Video,
+  Book,
+  Clock
 } from 'lucide-react';
 
+// Fixing the type issue by using proper status types
+type StatusType = "default" | "success" | "info" | "warning" | "danger";
+
+const faqItems = [
+  {
+    question: 'How do I create a new shipment?',
+    answer: 'To create a new shipment, navigate to the Orders page and click on the "Create Order" button. Fill in the required details like customer information, items, and shipping preferences.'
+  },
+  {
+    question: 'How can I track an existing order?',
+    answer: 'You can track an existing order by going to the Orders page, finding the specific order in the list, and clicking on the "Track" button. This will show you real-time updates on the order\'s location and status.'
+  },
+  {
+    question: 'What do I do if a customer wants to return an item?',
+    answer: 'For returns, go to the specific order in the Orders page, click on "Actions", and select "Create Return". Follow the prompts to generate a return label and instructions for the customer.'
+  },
+  {
+    question: 'How are COD payments processed?',
+    answer: 'COD payments are collected by the courier upon delivery. These payments are then transferred to your account based on your settlement cycle, which can be viewed and managed in the Financial section.'
+  },
+  {
+    question: 'Can I change the courier for an order that\'s already been created?',
+    answer: 'Yes, as long as the order hasn\'t been picked up yet. Go to the specific order, click on "Edit", and change the courier option. Note that this might affect pricing and delivery times.'
+  },
+];
+
+const guideCategories = [
+  {
+    title: 'Getting Started',
+    icon: <Book size={20} />,
+    count: 5,
+  },
+  {
+    title: 'Order Management',
+    icon: <FileText size={20} />,
+    count: 12,
+  },
+  {
+    title: 'Shipment Tracking',
+    icon: <Clock size={20} />,
+    count: 8,
+  },
+  {
+    title: 'Financial Management',
+    icon: <MessageSquare size={20} />,
+    count: 10,
+  },
+  {
+    title: 'Integration Guides',
+    icon: <Video size={20} />,
+    count: 7,
+  },
+];
+
+const popularArticles = [
+  {
+    title: 'Setting up your first warehouse location',
+    category: 'Getting Started',
+    status: "default" as StatusType
+  },
+  {
+    title: 'Integration with e-commerce platforms',
+    category: 'Integration Guides',
+    status: "success" as StatusType
+  },
+  {
+    title: 'Understanding COD reconciliation reports',
+    category: 'Financial Management',
+    status: "info" as StatusType
+  },
+  {
+    title: 'Bulk order upload via CSV',
+    category: 'Order Management',
+    status: "warning" as StatusType
+  },
+];
+
 const SupportPage = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+  
+  // Check if sidebar is collapsed from localStorage
+  React.useEffect(() => {
+    const savedState = localStorage.getItem('sidebar-collapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(savedState === 'true');
+    }
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1">
+      
+      <div 
+        className="flex-1 transition-all duration-300 ease-in-out"
+        style={{ marginLeft: sidebarCollapsed ? '5rem' : '16rem' }}
+      >
         <Header className="sticky top-0 z-10" />
+        
         <main className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Help & Support</h1>
-            <Button className="bg-brand text-white hover:bg-brand-dark flex items-center gap-2">
-              <MessageCircle size={18} /> Contact Support
-            </Button>
           </div>
           
-          <div className="max-w-4xl mx-auto">
-            <Card className="mb-6">
-              <div className="p-6">
-                <h2 className="text-xl font-medium mb-4 text-center">How can we help you today?</h2>
-                <div className="max-w-xl mx-auto">
-                  <SearchBox placeholder="Search for help articles, topics, or questions..." />
-                </div>
+          <Card className="mb-6">
+            <div className="p-6 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-t-lg text-white">
+              <h2 className="text-2xl font-semibold mb-2">How can we help you today?</h2>
+              <p className="opacity-90 mb-4">Search our knowledge base or browse through common questions</p>
+              
+              <div className="flex items-center bg-white rounded-lg pl-4 pr-2 py-2 max-w-2xl">
+                <Search className="text-gray-400 mr-2" size={20} />
+                <Input 
+                  type="text" 
+                  placeholder="Search for help articles, guides, or topics..." 
+                  className="flex-grow border-none shadow-none focus-visible:ring-0"
+                />
+                <Button className="ml-2">Search</Button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="flex items-center mb-2">
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                      <HelpCircle size={20} />
+                    </div>
+                    <h3 className="text-lg font-medium">Knowledge Base</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">Find articles and guides on how to use our platform</p>
+                </Card>
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                  {[
-                    { icon: <FileText size={24} />, label: 'Guides' },
-                    { icon: <BookOpen size={24} />, label: 'Documentation' },
-                    { icon: <MessageSquare size={24} />, label: 'Live Chat' },
-                    { icon: <Phone size={24} />, label: 'Call Support' }
-                  ].map((item, index) => (
-                    <Card key={index} className="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-gray-50 transition-colors">
-                      <div className="w-12 h-12 rounded-full bg-brand-light/20 flex items-center justify-center text-brand mb-3">
-                        {item.icon}
-                      </div>
-                      <p className="font-medium">{item.label}</p>
+                <Card className="p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="flex items-center mb-2">
+                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                      <MessageSquare size={20} />
+                    </div>
+                    <h3 className="text-lg font-medium">Chat with Us</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">Get instant help from our support team via live chat</p>
+                </Card>
+                
+                <Card className="p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="flex items-center mb-2">
+                    <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 mr-3">
+                      <Phone size={20} />
+                    </div>
+                    <h3 className="text-lg font-medium">Contact Support</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">Reach out via email or phone for personalized assistance</p>
+                </Card>
+              </div>
+            </div>
+          </Card>
+          
+          <Tabs defaultValue="faq" className="mb-6">
+            <TabsList className="mb-4">
+              <TabsTrigger value="faq">Frequently Asked Questions</TabsTrigger>
+              <TabsTrigger value="guides">Guides & Tutorials</TabsTrigger>
+              <TabsTrigger value="contact">Contact Us</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="faq">
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Common Questions</h3>
+                
+                <div className="space-y-4">
+                  {faqItems.map((item, i) => (
+                    <Card key={i} className="p-4 border border-gray-200">
+                      <h4 className="text-lg font-medium mb-2 text-gray-800">{item.question}</h4>
+                      <p className="text-gray-600">{item.answer}</p>
                     </Card>
                   ))}
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </TabsContent>
             
-            <Tabs defaultValue="faq" className="mb-6">
-              <TabsList className="grid grid-cols-3 w-full">
-                <TabsTrigger value="faq">FAQs</TabsTrigger>
-                <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
-                <TabsTrigger value="contact">Contact Us</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="faq">
-                <Card>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium mb-6">Frequently Asked Questions</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      <Card className="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="font-medium">Getting Started</div>
-                        <div className="text-sm text-gray-500">Platform basics</div>
-                      </Card>
-                      <Card className="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="font-medium">Orders & Shipping</div>
-                        <div className="text-sm text-gray-500">Managing orders</div>
-                      </Card>
-                      <Card className="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="font-medium">Courier Integrations</div>
-                        <div className="text-sm text-gray-500">API connections</div>
-                      </Card>
-                    </div>
-                    
-                    <div className="space-y-4 mt-8">
-                      <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <div className="font-medium">How do I create a new shipping order?</div>
-                          <ChevronDown size={20} className="text-gray-500" />
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <div className="font-medium">How to connect a courier API?</div>
-                          <ChevronDown size={20} className="text-gray-500" />
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <div className="font-medium">Can I bulk import orders from a spreadsheet?</div>
-                          <ChevronDown size={20} className="text-gray-500" />
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <div className="font-medium">How do I track COD payments?</div>
-                          <ChevronDown size={20} className="text-gray-500" />
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <div className="font-medium">How to generate shipping labels?</div>
-                          <ChevronDown size={20} className="text-gray-500" />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-center mt-8">
-                      <Button variant="outline" className="flex items-center gap-2">
-                        View All FAQs <ArrowRight size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="tickets">
-                <Card className="mb-6">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-medium">Your Support Tickets</h3>
-                      <Button className="bg-brand text-white hover:bg-brand-dark flex items-center gap-2">
-                        <PlusCircle size={16} /> New Ticket
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {[
-                        { 
-                          id: 'TKT-1234', 
-                          subject: 'Issue with FedEx API Integration',
-                          status: 'Open',
-                          priority: 'High',
-                          date: '2025-04-22T14:30:00Z',
-                          lastUpdate: '2025-04-23T09:15:00Z' 
-                        },
-                        { 
-                          id: 'TKT-1233', 
-                          subject: 'Cannot generate monthly report',
-                          status: 'In Progress',
-                          priority: 'Medium',
-                          date: '2025-04-20T11:45:00Z',
-                          lastUpdate: '2025-04-22T16:30:00Z' 
-                        },
-                        { 
-                          id: 'TKT-1232', 
-                          subject: 'Adding custom field to order form',
-                          status: 'Closed',
-                          priority: 'Low',
-                          date: '2025-04-18T09:30:00Z',
-                          lastUpdate: '2025-04-19T14:20:00Z' 
-                        }
-                      ].map((ticket) => {
-                        const statusColor = 
-                          ticket.status === 'Open' ? 'warning' : 
-                          ticket.status === 'In Progress' ? 'info' : 
-                          'success';
-                          
-                        const priorityColor = 
-                          ticket.priority === 'High' ? 'bg-danger-light text-red-800' : 
-                          ticket.priority === 'Medium' ? 'bg-warning-light text-yellow-800' : 
-                          'bg-info-light text-blue-800';
-                          
-                        return (
-                          <div key={ticket.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">{ticket.id}</span>
-                                  <Badge variant="outline" className={priorityColor}>
-                                    {ticket.priority}
-                                  </Badge>
-                                </div>
-                                <div className="font-medium mt-1">{ticket.subject}</div>
-                              </div>
-                              
-                              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                                <StatusBadge status={statusColor.toLowerCase()}>
-                                  {ticket.status}
-                                </StatusBadge>
-                                <div className="text-sm text-gray-500">
-                                  Updated: {new Date(ticket.lastUpdate).toLocaleDateString()}
-                                </div>
-                              </div>
-                            </div>
+            <TabsContent value="guides">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Categories</h3>
+                  
+                  <Card className="p-4">
+                    {guideCategories.map((category, i) => (
+                      <div 
+                        key={i} 
+                        className="flex items-center justify-between py-3 px-2 hover:bg-gray-50 cursor-pointer rounded-md"
+                      >
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded bg-gray-100 flex items-center justify-center text-gray-600 mr-3">
+                            {category.icon}
                           </div>
-                        );
-                      })}
-                    </div>
-                    
-                    <div className="mt-6 flex items-center justify-center">
-                      <Button variant="ghost" className="text-gray-500">View Archived Tickets</Button>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="contact">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card className="p-6 flex flex-col items-center text-center">
-                    <div className="w-12 h-12 rounded-full bg-info-light flex items-center justify-center text-info mb-3">
-                      <MessageCircle size={24} />
-                    </div>
-                    <h3 className="text-lg font-medium mb-2">Live Chat</h3>
-                    <p className="text-gray-500 mb-6">Chat with our support team in real-time</p>
-                    <Badge>Available 24/7</Badge>
-                    <Button className="mt-4 w-full">Start Chat</Button>
-                  </Card>
-                  
-                  <Card className="p-6 flex flex-col items-center text-center">
-                    <div className="w-12 h-12 rounded-full bg-warning-light flex items-center justify-center text-warning mb-3">
-                      <Mail size={24} />
-                    </div>
-                    <h3 className="text-lg font-medium mb-2">Email Support</h3>
-                    <p className="text-gray-500 mb-6">Send us an email and we'll get back to you</p>
-                    <a href="mailto:support@tredo.com" className="text-info">support@tredo.com</a>
-                    <Button variant="outline" className="mt-4 w-full">Compose Email</Button>
-                  </Card>
-                  
-                  <Card className="p-6 flex flex-col items-center text-center">
-                    <div className="w-12 h-12 rounded-full bg-success-light flex items-center justify-center text-success mb-3">
-                      <Phone size={24} />
-                    </div>
-                    <h3 className="text-lg font-medium mb-2">Phone Support</h3>
-                    <p className="text-gray-500 mb-6">Talk directly to our support specialists</p>
-                    <a href="tel:+18005551234" className="text-info">+1 800 555 1234</a>
-                    <div className="mt-2 text-xs text-gray-500">
-                      Mon-Fri: 9AM-6PM ET
-                    </div>
-                    <Button variant="outline" className="mt-4 w-full">Call Support</Button>
+                          <span>{category.title}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-sm text-gray-500 mr-2">{category.count} guides</span>
+                          <ChevronRight size={16} className="text-gray-400" />
+                        </div>
+                      </div>
+                    ))}
                   </Card>
                 </div>
                 
-                <Card className="mt-6">
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium mb-6">Send us a Message</h3>
+                <div className="md:col-span-2">
+                  <h3 className="text-lg font-semibold mb-4">Popular Articles</h3>
+                  
+                  <Card className="p-4">
+                    <div className="space-y-3">
+                      {popularArticles.map((article, i) => (
+                        <div 
+                          key={i} 
+                          className="p-3 border border-gray-200 rounded-md hover:shadow-sm cursor-pointer"
+                        >
+                          <h4 className="font-medium mb-1">{article.title}</h4>
+                          <div className="flex items-center text-sm">
+                            <span className={`px-2 py-0.5 rounded-full text-xs bg-${article.status === 'default' ? 'gray' : article.status}-100 text-${article.status === 'default' ? 'gray' : article.status}-800 mr-2`}>
+                              {article.category}
+                            </span>
+                            <span className="text-gray-500">5 min read</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="contact">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-start">
+                      <Mail className="text-gray-500 mt-1 mr-3" size={20} />
+                      <div>
+                        <p className="font-medium">Email Us</p>
+                        <a href="mailto:support@tredo.com" className="text-blue-600 hover:underline">
+                          support@tredo.com
+                        </a>
+                      </div>
+                    </div>
                     
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="name">Your Name</Label>
-                          <Input id="name" placeholder="Enter your name" />
-                        </div>
-                        <div>
-                          <Label htmlFor="email">Email Address</Label>
-                          <Input id="email" type="email" placeholder="Enter your email" />
-                        </div>
-                      </div>
-                      
+                    <div className="flex items-start">
+                      <Phone className="text-gray-500 mt-1 mr-3" size={20} />
                       <div>
-                        <Label htmlFor="subject">Subject</Label>
-                        <Input id="subject" placeholder="What's your message about?" />
+                        <p className="font-medium">Call Us</p>
+                        <a href="tel:+18001234567" className="text-blue-600 hover:underline">
+                          +1 (800) 123-4567
+                        </a>
+                        <p className="text-sm text-gray-500">Mon-Fri: 9AM - 6PM</p>
                       </div>
-                      
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <MessageSquare className="text-gray-500 mt-1 mr-3" size={20} />
                       <div>
-                        <Label htmlFor="message">Message</Label>
-                        <textarea
-                          id="message"
-                          className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-32"
-                          placeholder="How can we help you?"
-                        ></textarea>
-                      </div>
-                      
-                      <div>
-                        <Button className="bg-brand text-white hover:bg-brand-dark">
-                          Submit Message
+                        <p className="font-medium">Live Chat</p>
+                        <p className="text-sm text-gray-500">Available 24/7</p>
+                        <Button variant="outline" size="sm" className="mt-1">
+                          Start Chat
                         </Button>
                       </div>
                     </div>
                   </div>
                 </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
+                
+                <Card className="p-6 md:col-span-2">
+                  <h3 className="text-lg font-semibold mb-4">Send us a Message</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1" htmlFor="name">
+                          Name
+                        </label>
+                        <Input id="name" placeholder="Your name" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-1" htmlFor="email">
+                          Email
+                        </label>
+                        <Input id="email" type="email" placeholder="Your email" />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1" htmlFor="subject">
+                        Subject
+                      </label>
+                      <Input id="subject" placeholder="How can we help you?" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1" htmlFor="message">
+                        Message
+                      </label>
+                      <Textarea 
+                        id="message" 
+                        placeholder="Please describe your issue in detail" 
+                        rows={5}
+                      />
+                    </div>
+                    
+                    <Button>Submit Request</Button>
+                  </div>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </main>
       </div>
     </div>
   );
 };
-
-// Import once at the top
-import StatusBadge from '@/components/ui/StatusBadge';
 
 export default SupportPage;

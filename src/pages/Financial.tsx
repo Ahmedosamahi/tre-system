@@ -84,10 +84,23 @@ const statusClasses: Record<string, string> = {
 };
 
 const FinancialPage = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+  
+  // Check if sidebar is collapsed from localStorage
+  React.useEffect(() => {
+    const savedState = localStorage.getItem('sidebar-collapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(savedState === 'true');
+    }
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1">
+      <div 
+        className="flex-1 transition-all duration-300 ease-in-out"
+        style={{ marginLeft: sidebarCollapsed ? '5rem' : '16rem' }}
+      >
         <Header className="sticky top-0 z-10" />
         <main className="p-6">
           <div className="flex justify-between items-center mb-6">

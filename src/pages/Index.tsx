@@ -13,11 +13,24 @@ import { Card } from '@/components/ui/card';
 import ShippingCompanySuccess from '@/components/dashboard/ShippingCompanySuccess';
 
 const Index = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+  
+  // Check if sidebar is collapsed from localStorage
+  React.useEffect(() => {
+    const savedState = localStorage.getItem('sidebar-collapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(savedState === 'true');
+    }
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       
-      <div className="flex-1 ml-64">
+      <div 
+        className="flex-1 transition-all duration-300 ease-in-out"
+        style={{ marginLeft: sidebarCollapsed ? '5rem' : '16rem' }}
+      >
         <Header />
         
         <main className="px-6 py-6">
