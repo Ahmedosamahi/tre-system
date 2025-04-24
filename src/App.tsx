@@ -5,6 +5,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Orders from "./pages/Orders";
+import Warehouse from "./pages/Warehouse";
+import Customers from "./pages/Customers";
+import Couriers from "./pages/Couriers";
+import Financial from "./pages/Financial";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,15 +26,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Index />} />
-          {/* These routes will be implemented in future iterations */}
-          <Route path="/orders" element={<NotFound />} />
-          <Route path="/warehouse" element={<NotFound />} />
-          <Route path="/customers" element={<NotFound />} />
-          <Route path="/couriers" element={<NotFound />} />
-          <Route path="/financial" element={<NotFound />} />
-          <Route path="/reports" element={<NotFound />} />
-          <Route path="/settings" element={<NotFound />} />
-          <Route path="/support" element={<NotFound />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/warehouse" element={<Warehouse />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/couriers" element={<Couriers />} />
+          <Route path="/financial" element={<Financial />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/support" element={<Support />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
