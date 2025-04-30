@@ -56,6 +56,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   // Save sidebar state when it changes
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', String(collapsed));
+    
+    // Dispatch an event so other components can react to sidebar changes
+    const event = new CustomEvent('sidebar-state-changed', { detail: { collapsed } });
+    window.dispatchEvent(event);
   }, [collapsed]);
 
   const getIcon = (iconName: string) => {
@@ -80,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   return (
     <aside 
       className={cn(
-        'bg-white border-r border-gray-200 h-screen fixed transition-all duration-300 ease-in-out',
+        'bg-white border-r border-gray-200 h-screen fixed transition-all duration-300 ease-in-out z-20',
         collapsed ? 'w-20' : 'w-64',
         className
       )}
