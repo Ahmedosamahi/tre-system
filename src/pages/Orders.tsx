@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -25,6 +26,22 @@ interface Order {
   status: 'pending' | 'in-transit' | 'delivered' | 'returned';
   shippingCompany: string;
 }
+
+// Helper function to map order status to StatusBadge status
+const mapOrderStatusToBadgeStatus = (orderStatus: Order['status']): 'success' | 'warning' | 'danger' | 'info' | 'default' => {
+  switch (orderStatus) {
+    case 'pending':
+      return 'warning';
+    case 'in-transit':
+      return 'info';
+    case 'delivered':
+      return 'success';
+    case 'returned':
+      return 'danger';
+    default:
+      return 'default';
+  }
+};
 
 const Orders = () => {
   // Use the initial orders or load from localStorage if available
@@ -118,7 +135,7 @@ const Orders = () => {
                     <TableCell>{order.date}</TableCell>
                     <TableCell>{order.shippingCompany}</TableCell>
                     <TableCell>
-                      <StatusBadge status={order.status}>{order.status}</StatusBadge>
+                      <StatusBadge status={mapOrderStatusToBadgeStatus(order.status)}>{order.status}</StatusBadge>
                     </TableCell>
                   </TableRow>
                 ))}
