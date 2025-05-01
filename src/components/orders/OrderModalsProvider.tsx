@@ -18,17 +18,24 @@ export const OrderModalsProvider = () => {
   // Log modal states outside of the JSX to avoid TypeScript errors
   console.log("Modal states:", { isSingleOrderOpen, isBulkOrderOpen, isPickupRequestOpen });
 
+  // Important: We always render the modal components but control their open state
+  // This ensures proper mounting/unmounting of internal Radix UI components
   return (
     <>
-      {isSingleOrderOpen && (
-        <SingleOrderModal isOpen={isSingleOrderOpen} onClose={closeSingleOrderModal} />
-      )}
-      {isBulkOrderOpen && (
-        <BulkOrderModal isOpen={isBulkOrderOpen} onClose={closeBulkOrderModal} />
-      )}
-      {isPickupRequestOpen && (
-        <PickupRequestModal isOpen={isPickupRequestOpen} onClose={closePickupRequestModal} />
-      )}
+      <SingleOrderModal 
+        isOpen={isSingleOrderOpen} 
+        onClose={closeSingleOrderModal} 
+      />
+      
+      <BulkOrderModal 
+        isOpen={isBulkOrderOpen} 
+        onClose={closeBulkOrderModal} 
+      />
+      
+      <PickupRequestModal 
+        isOpen={isPickupRequestOpen} 
+        onClose={closePickupRequestModal} 
+      />
     </>
   );
 };

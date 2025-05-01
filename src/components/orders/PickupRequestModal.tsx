@@ -156,7 +156,9 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
   console.log("Rendering PickupRequestModal content");
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
       <DialogContent className="max-w-2xl w-full z-50">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Schedule Pickup Request</DialogTitle>

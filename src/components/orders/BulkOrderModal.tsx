@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -136,7 +135,9 @@ export const BulkOrderModal = ({ isOpen, onClose }: BulkOrderModalProps) => {
   console.log("Rendering BulkOrderModal content");
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
       <DialogContent className="sm:max-w-md z-50">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Bulk Order Import</DialogTitle>
