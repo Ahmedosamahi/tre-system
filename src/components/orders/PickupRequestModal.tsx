@@ -7,8 +7,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 interface PickupRequestModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface PickupRequestModalProps {
 
 export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps) => {
   const [date, setDate] = useState<Date>();
+  const [time, setTime] = useState<string>('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   
@@ -48,13 +50,81 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
   };
   
   const handleSubmit = () => {
+    if (!selectedCompany) {
+      toast({
+        title: "Selection Required",
+        description: "Please select a shipping company to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!date) {
+      toast({
+        title: "Date Required",
+        description: "Please select a pickup date.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!time) {
+      toast({
+        title: "Time Required",
+        description: "Please select a pickup time.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (isRecurring && selectedDays.length === 0) {
+      toast({
+        title: "Days Required",
+        description: "Please select at least one day for recurring pickup.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     console.log({
       selectedCompany,
       date,
+      time,
       isRecurring,
       selectedDays: isRecurring ? selectedDays : [],
     });
+    
+    toast({
+      title: "Pickup Request Submitted",
+      description: isRecurring 
+        ? "Your recurring pickup has been scheduled." 
+        : "Your pickup request has been submitted.",
+    });
+    
     onClose();
+    
+    // Reset form state
+    setDate(undefined);
+    setTime('');
+    setIsRecurring(false);
+    setSelectedCompany(null);
+    setSelectedDays([]);
+  };
+  
+  const handleSaveRecurringSettings = () => {
+    if (selectedDays.length === 0) {
+      toast({
+        title: "Days Required",
+        description: "Please select at least one day for recurring pickup.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Settings Saved",
+      description: "Your recurring pickup settings have been saved.",
+    });
   };
   
   return (
@@ -93,6 +163,15 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
                         </span>
                       )}
                     </div>
+                    <div className="ml-auto">
+                      <input 
+                        type="radio" 
+                        name="shippingCompanyPickup" 
+                        checked={selectedCompany === company.id}
+                        onChange={() => setSelectedCompany(company.id)}
+                        className="w-5 h-5 text-brand focus:ring-brand border-gray-300"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -122,6 +201,7 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
                         onSelect={setDate}
                         initialFocus
                         className={cn("p-3 pointer-events-auto")}
+                        disabled={(date) => date < new Date()} // Disable past dates
                       />
                     </PopoverContent>
                   </Popover>
@@ -130,7 +210,7 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
               
               <div>
                 <h3 className="text-sm font-medium mb-3">Pickup Time</h3>
-                <Select>
+                <Select value={time} onValueChange={setTime}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select time" />
                   </SelectTrigger>
@@ -159,7 +239,7 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
               </div>
               
               {isRecurring && (
-                <div className="mt-4 pl-6">
+                <div className="mt-4 pl-6 border-l-2 border-gray-200">
                   <h4 className="text-sm font-medium mb-3">Select Days of Week</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                     {weekdays.map((day) => (
@@ -178,6 +258,16 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
                       </div>
                     ))}
                   </div>
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs"
+                      onClick={handleSaveRecurringSettings}
+                    >
+                      Save Recurring Settings
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -189,8 +279,9 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
           <Button 
             className="bg-brand text-white" 
             onClick={handleSubmit}
-            disabled={!selectedCompany || !date}
+            disabled={!selectedCompany || !date || !time || (isRecurring && selectedDays.length === 0)}
           >
+            <Truck className="mr-2 h-4 w-4" />
             Submit Pickup Request
           </Button>
         </div>

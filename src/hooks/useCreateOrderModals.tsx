@@ -8,6 +8,9 @@ export const useCreateOrderModals = () => {
   
   const openSingleOrderModal = () => {
     setIsSingleOrderOpen(true);
+    // Close other modals if open
+    setIsBulkOrderOpen(false);
+    setIsPickupRequestOpen(false);
   };
   
   const closeSingleOrderModal = () => {
@@ -16,6 +19,9 @@ export const useCreateOrderModals = () => {
   
   const openBulkOrderModal = () => {
     setIsBulkOrderOpen(true);
+    // Close other modals if open
+    setIsSingleOrderOpen(false);
+    setIsPickupRequestOpen(false);
   };
   
   const closeBulkOrderModal = () => {
@@ -24,6 +30,9 @@ export const useCreateOrderModals = () => {
   
   const openPickupRequestModal = () => {
     setIsPickupRequestOpen(true);
+    // Close other modals if open
+    setIsSingleOrderOpen(false);
+    setIsBulkOrderOpen(false);
   };
   
   const closePickupRequestModal = () => {

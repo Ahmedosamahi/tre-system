@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowRight, Box, MapPin, Send, User } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface SingleOrderModalProps {
   isOpen: boolean;
@@ -26,6 +27,47 @@ interface SingleOrderModalProps {
 
 export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => {
   const [step, setStep] = useState<'details' | 'shipping'>('details');
+  const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
+  
+  // Form state (in a real app, you would use a form library like react-hook-form)
+  const [formData, setFormData] = useState({
+    sender: {
+      name: '',
+      phone: '',
+      phone2: '',
+      province: '',
+      city: '',
+      area: '',
+      address: ''
+    },
+    receiver: {
+      name: '',
+      phone: '',
+      phone2: '',
+      province: '',
+      city: '',
+      area: '',
+      address: ''
+    },
+    shipment: {
+      reference: '',
+      insurance: '',
+      goodsType: '',
+      goodsName: '',
+      quantity: '',
+      weight: '',
+      allowOpen: false,
+      serviceType: '',
+      customerInfo: '',
+      notes: '',
+      cod: ''
+    }
+  });
+  
+  // Dummy data - in a real implementation these would come from API calls
+  const provinces = ['Cairo', 'Alexandria', 'Giza', 'Sharm El Sheikh'];
+  const cities = ['Downtown', 'East District', 'West District', 'North District'];
+  const areas = ['Area 1', 'Area 2', 'Area 3', 'Area 4'];
   
   // Dummy shipping companies data
   const shippingCompanies = [
@@ -34,20 +76,103 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
     { id: 3, name: 'Global Shipment', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', price: '$12.99', rating: 4.9 },
   ];
   
+  const handleInputChange = (section: 'sender' | 'receiver' | 'shipment', field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
+    }));
+  };
+  
   const goToShippingStep = () => {
+    // In a real app, you would validate the form here
+    const isValid = validateForm();
+    if (!isValid) {
+      toast({
+        title: "Form Validation",
+        description: "Please fill in all required fields before proceeding.",
+        variant: "destructive",
+      });
+      return;
+    }
     setStep('shipping');
   };
   
+  const validateForm = () => {
+    // Simple validation - check if required fields are filled
+    const requiredSenderFields = ['name', 'phone', 'province', 'city', 'address'];
+    const requiredReceiverFields = ['name', 'phone', 'province', 'city', 'address'];
+    const requiredShipmentFields = ['goodsType', 'goodsName', 'quantity', 'weight', 'serviceType'];
+    
+    const isSenderValid = requiredSenderFields.every(field => formData.sender[field as keyof typeof formData.sender]);
+    const isReceiverValid = requiredReceiverFields.every(field => formData.receiver[field as keyof typeof formData.receiver]);
+    const isShipmentValid = requiredShipmentFields.every(field => formData.shipment[field as keyof typeof formData.shipment]);
+    
+    return isSenderValid && isReceiverValid && isShipmentValid;
+  };
+  
   const handleSubmit = () => {
-    // Handle form submission
-    console.log('Order submitted');
-    onClose();
-    setStep('details'); // Reset step for next time
+    if (selectedCompany === null) {
+      toast({
+        title: "Selection Required",
+        description: "Please select a shipping company to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Here you would submit the order with the selected shipping company
+    console.log('Order submitted with shipping company:', selectedCompany);
+    console.log('Form data:', formData);
+    
+    toast({
+      title: "Order Created",
+      description: "Your order has been created successfully.",
+    });
+    
+    resetAndClose();
   };
   
   const resetAndClose = () => {
+    // Reset all state
+    setStep('details');
+    setSelectedCompany(null);
+    setFormData({
+      sender: {
+        name: '',
+        phone: '',
+        phone2: '',
+        province: '',
+        city: '',
+        area: '',
+        address: ''
+      },
+      receiver: {
+        name: '',
+        phone: '',
+        phone2: '',
+        province: '',
+        city: '',
+        area: '',
+        address: ''
+      },
+      shipment: {
+        reference: '',
+        insurance: '',
+        goodsType: '',
+        goodsName: '',
+        quantity: '',
+        weight: '',
+        allowOpen: false,
+        serviceType: '',
+        customerInfo: '',
+        notes: '',
+        cod: ''
+      }
+    });
     onClose();
-    setStep('details'); // Reset step for next time
   };
   
   const renderDetailsStep = () => (
@@ -64,56 +189,86 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
             <AccordionContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Sender Name</label>
-                  <Input placeholder="Enter sender name" />
+                  <label className="text-sm font-medium mb-1 block">Sender Name*</label>
+                  <Input 
+                    placeholder="Enter sender name" 
+                    value={formData.sender.name}
+                    onChange={(e) => handleInputChange('sender', 'name', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Sender Phone</label>
-                  <Input placeholder="Enter phone number" />
+                  <label className="text-sm font-medium mb-1 block">Sender Phone*</label>
+                  <Input 
+                    placeholder="Enter phone number"
+                    value={formData.sender.phone}
+                    onChange={(e) => handleInputChange('sender', 'phone', e.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Sender Phone 2</label>
-                  <Input placeholder="Enter alternate phone" />
+                  <Input 
+                    placeholder="Enter alternate phone"
+                    value={formData.sender.phone2}
+                    onChange={(e) => handleInputChange('sender', 'phone2', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Province</label>
-                  <Select>
+                  <label className="text-sm font-medium mb-1 block">Province*</label>
+                  <Select 
+                    value={formData.sender.province}
+                    onValueChange={(value) => handleInputChange('sender', 'province', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select province" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="province1">Province 1</SelectItem>
-                      <SelectItem value="province2">Province 2</SelectItem>
+                      {provinces.map(province => (
+                        <SelectItem key={province} value={province}>{province}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">City</label>
-                  <Select>
+                  <label className="text-sm font-medium mb-1 block">City*</label>
+                  <Select
+                    value={formData.sender.city}
+                    onValueChange={(value) => handleInputChange('sender', 'city', value)}
+                    disabled={!formData.sender.province}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="city1">City 1</SelectItem>
-                      <SelectItem value="city2">City 2</SelectItem>
+                      {cities.map(city => (
+                        <SelectItem key={city} value={city}>{city}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Area</label>
-                  <Select>
+                  <Select
+                    value={formData.sender.area}
+                    onValueChange={(value) => handleInputChange('sender', 'area', value)}
+                    disabled={!formData.sender.city}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select area" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="area1">Area 1</SelectItem>
-                      <SelectItem value="area2">Area 2</SelectItem>
+                      {areas.map(area => (
+                        <SelectItem key={area} value={area}>{area}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-sm font-medium mb-1 block">Shipping Address</label>
-                  <Textarea placeholder="Enter complete shipping address" />
+                  <label className="text-sm font-medium mb-1 block">Shipping Address*</label>
+                  <Textarea 
+                    placeholder="Enter complete shipping address"
+                    value={formData.sender.address}
+                    onChange={(e) => handleInputChange('sender', 'address', e.target.value)}
+                  />
                 </div>
               </div>
             </AccordionContent>
@@ -126,56 +281,86 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
             <AccordionContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Receiver Name</label>
-                  <Input placeholder="Enter receiver name" />
+                  <label className="text-sm font-medium mb-1 block">Receiver Name*</label>
+                  <Input 
+                    placeholder="Enter receiver name"
+                    value={formData.receiver.name}
+                    onChange={(e) => handleInputChange('receiver', 'name', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Receiver Phone</label>
-                  <Input placeholder="Enter phone number" />
+                  <label className="text-sm font-medium mb-1 block">Receiver Phone*</label>
+                  <Input 
+                    placeholder="Enter phone number"
+                    value={formData.receiver.phone}
+                    onChange={(e) => handleInputChange('receiver', 'phone', e.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Receiver Phone 2</label>
-                  <Input placeholder="Enter alternate phone" />
+                  <Input 
+                    placeholder="Enter alternate phone"
+                    value={formData.receiver.phone2}
+                    onChange={(e) => handleInputChange('receiver', 'phone2', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Province</label>
-                  <Select>
+                  <label className="text-sm font-medium mb-1 block">Province*</label>
+                  <Select
+                    value={formData.receiver.province}
+                    onValueChange={(value) => handleInputChange('receiver', 'province', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select province" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="province1">Province 1</SelectItem>
-                      <SelectItem value="province2">Province 2</SelectItem>
+                      {provinces.map(province => (
+                        <SelectItem key={province} value={province}>{province}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">City</label>
-                  <Select>
+                  <label className="text-sm font-medium mb-1 block">City*</label>
+                  <Select
+                    value={formData.receiver.city}
+                    onValueChange={(value) => handleInputChange('receiver', 'city', value)}
+                    disabled={!formData.receiver.province}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="city1">City 1</SelectItem>
-                      <SelectItem value="city2">City 2</SelectItem>
+                      {cities.map(city => (
+                        <SelectItem key={city} value={city}>{city}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Area</label>
-                  <Select>
+                  <Select
+                    value={formData.receiver.area}
+                    onValueChange={(value) => handleInputChange('receiver', 'area', value)}
+                    disabled={!formData.receiver.city}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select area" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="area1">Area 1</SelectItem>
-                      <SelectItem value="area2">Area 2</SelectItem>
+                      {areas.map(area => (
+                        <SelectItem key={area} value={area}>{area}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-sm font-medium mb-1 block">Shipping Address</label>
-                  <Textarea placeholder="Enter complete shipping address" />
+                  <label className="text-sm font-medium mb-1 block">Shipping Address*</label>
+                  <Textarea 
+                    placeholder="Enter complete shipping address"
+                    value={formData.receiver.address}
+                    onChange={(e) => handleInputChange('receiver', 'address', e.target.value)}
+                  />
                 </div>
               </div>
             </AccordionContent>
@@ -189,15 +374,27 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                 <div>
                   <label className="text-sm font-medium mb-1 block">Reference Number</label>
-                  <Input placeholder="Enter reference number" />
+                  <Input 
+                    placeholder="Enter reference number"
+                    value={formData.shipment.reference}
+                    onChange={(e) => handleInputChange('shipment', 'reference', e.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Insurance Fees</label>
-                  <Input type="number" placeholder="Enter insurance amount" />
+                  <Input 
+                    type="number" 
+                    placeholder="Enter insurance amount"
+                    value={formData.shipment.insurance}
+                    onChange={(e) => handleInputChange('shipment', 'insurance', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Goods Type</label>
-                  <Select>
+                  <label className="text-sm font-medium mb-1 block">Goods Type*</label>
+                  <Select
+                    value={formData.shipment.goodsType}
+                    onValueChange={(value) => handleInputChange('shipment', 'goodsType', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select goods type" />
                     </SelectTrigger>
@@ -214,20 +411,37 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
                   </Select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Goods Name</label>
-                  <Input placeholder="Enter goods name" />
+                  <label className="text-sm font-medium mb-1 block">Goods Name*</label>
+                  <Input 
+                    placeholder="Enter goods name"
+                    value={formData.shipment.goodsName}
+                    onChange={(e) => handleInputChange('shipment', 'goodsName', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Quantity</label>
-                  <Input type="number" placeholder="Enter quantity" />
+                  <label className="text-sm font-medium mb-1 block">Quantity*</label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter quantity"
+                    value={formData.shipment.quantity}
+                    onChange={(e) => handleInputChange('shipment', 'quantity', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Weight (kg)</label>
-                  <Input type="number" placeholder="Enter weight" />
+                  <label className="text-sm font-medium mb-1 block">Weight (kg)*</label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter weight"
+                    value={formData.shipment.weight}
+                    onChange={(e) => handleInputChange('shipment', 'weight', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Service Type</label>
-                  <Select>
+                  <label className="text-sm font-medium mb-1 block">Service Type*</label>
+                  <Select
+                    value={formData.shipment.serviceType}
+                    onValueChange={(value) => handleInputChange('shipment', 'serviceType', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select service type" />
                     </SelectTrigger>
@@ -240,21 +454,38 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">COD Amount</label>
-                  <Input type="number" placeholder="Enter COD amount" />
+                  <Input 
+                    type="number" 
+                    placeholder="Enter COD amount"
+                    value={formData.shipment.cod}
+                    onChange={(e) => handleInputChange('shipment', 'cod', e.target.value)}
+                  />
                 </div>
                 <div className="flex items-center space-x-2 mt-4">
-                  <Checkbox id="allow-open" />
+                  <Checkbox 
+                    id="allow-open" 
+                    checked={formData.shipment.allowOpen}
+                    onCheckedChange={(checked) => handleInputChange('shipment', 'allowOpen', checked)}
+                  />
                   <label htmlFor="allow-open" className="text-sm font-medium leading-none cursor-pointer">
                     Allow to open package
                   </label>
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-sm font-medium mb-1 block">Customer's Information</label>
-                  <Input placeholder="Enter customer information" />
+                  <Input 
+                    placeholder="Enter customer information"
+                    value={formData.shipment.customerInfo}
+                    onChange={(e) => handleInputChange('shipment', 'customerInfo', e.target.value)}
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-sm font-medium mb-1 block">Notes (Optional)</label>
-                  <Textarea placeholder="Enter any additional notes" />
+                  <Textarea 
+                    placeholder="Enter any additional notes"
+                    value={formData.shipment.notes}
+                    onChange={(e) => handleInputChange('shipment', 'notes', e.target.value)}
+                  />
                 </div>
               </div>
             </AccordionContent>
@@ -280,7 +511,11 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
       <div className="mt-4 max-h-[70vh] overflow-y-auto">
         <div className="space-y-4">
           {shippingCompanies.map((company) => (
-            <div key={company.id} className="flex items-center border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+            <div 
+              key={company.id} 
+              className={`flex items-center border rounded-lg p-4 hover:bg-gray-50 cursor-pointer ${selectedCompany === company.id ? 'border-brand bg-brand/5' : 'border-gray-200'}`}
+              onClick={() => setSelectedCompany(company.id)}
+            >
               <div className="w-12 h-12 mr-4 flex-shrink-0">
                 <img src={company.logo} alt={company.name} className="w-full h-full object-contain" />
               </div>
@@ -309,6 +544,8 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
                   type="radio" 
                   name="shippingCompany" 
                   value={company.id} 
+                  checked={selectedCompany === company.id}
+                  onChange={() => setSelectedCompany(company.id)}
                   className="w-5 h-5 text-brand focus:ring-brand border-gray-300"
                 />
               </div>
