@@ -18,10 +18,10 @@ export const OrderModalsProvider = () => {
   console.log("Modal states:", { isSingleOrderOpen, isBulkOrderOpen, isPickupRequestOpen });
 
   return (
-    <>
+    <div className="order-modals-container">
       <SingleOrderModal isOpen={isSingleOrderOpen} onClose={closeSingleOrderModal} />
       <BulkOrderModal isOpen={isBulkOrderOpen} onClose={closeBulkOrderModal} />
       <PickupRequestModal isOpen={isPickupRequestOpen} onClose={closePickupRequestModal} />
-    </>
+    </div>
   );
 };

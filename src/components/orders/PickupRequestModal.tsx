@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,8 @@ interface PickupRequestModalProps {
 }
 
 export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps) => {
+  console.log("PickupRequestModal rendering with isOpen:", isOpen);
+  
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string>('');
   const [isRecurring, setIsRecurring] = useState(false);
@@ -128,8 +129,9 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
   };
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl w-full">
+    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
+      <DialogContent className="max-w-2xl w-full z-50">
+        {console.log("Rendering PickupRequestModal content")}
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Schedule Pickup Request</DialogTitle>
         </DialogHeader>

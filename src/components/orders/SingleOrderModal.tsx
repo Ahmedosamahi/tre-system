@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -26,6 +25,8 @@ interface SingleOrderModalProps {
 }
 
 export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => {
+  console.log("SingleOrderModal rendering, isOpen:", isOpen);
+  
   const [step, setStep] = useState<'details' | 'shipping'>('details');
   const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
   
@@ -570,8 +571,9 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
   );
   
   return (
-    <Dialog open={isOpen} onOpenChange={resetAndClose}>
-      <DialogContent className="max-w-2xl w-full">
+    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
+      <DialogContent className="max-w-2xl w-full z-50">
+        {console.log("Rendering SingleOrderModal content")}
         {step === 'details' ? renderDetailsStep() : renderShippingStep()}
       </DialogContent>
     </Dialog>

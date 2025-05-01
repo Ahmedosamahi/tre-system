@@ -103,8 +103,9 @@ export const BulkOrderModal = ({ isOpen, onClose }: BulkOrderModalProps) => {
   const fileInputId = "bulk-order-file-input";
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
+      <DialogContent className="sm:max-w-md z-50">
+        {console.log("Rendering BulkOrderModal content")}
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Bulk Order Import</DialogTitle>
         </DialogHeader>
