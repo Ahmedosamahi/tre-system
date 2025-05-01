@@ -570,10 +570,11 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
     </>
   );
   
+  console.log("Rendering SingleOrderModal content");
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
       <DialogContent className="max-w-2xl w-full z-50">
-        {console.log("Rendering SingleOrderModal content")}
         {step === 'details' ? renderDetailsStep() : renderShippingStep()}
       </DialogContent>
     </Dialog>
