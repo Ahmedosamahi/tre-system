@@ -2,7 +2,7 @@
 import { StatusBadgeProps } from '@/types';
 import { cn } from '@/lib/utils';
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) => {
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) => {
   const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
   
   const statusClasses = {
@@ -20,4 +20,5 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) => {
   );
 };
 
+// Also export as default for backward compatibility
 export default StatusBadge;

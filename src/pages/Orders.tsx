@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -119,7 +118,7 @@ const Orders = () => {
                     <TableCell>{order.date}</TableCell>
                     <TableCell>{order.shippingCompany}</TableCell>
                     <TableCell>
-                      <StatusBadge status={order.status} />
+                      <StatusBadge status={order.status}>{order.status}</StatusBadge>
                     </TableCell>
                   </TableRow>
                 ))}
