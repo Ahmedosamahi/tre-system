@@ -31,20 +31,22 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
-      
-      <div 
-        className="flex-1 transition-all duration-300 ease-in-out"
-        style={{ marginLeft: sidebarCollapsed ? '5rem' : '16rem' }}
-      >
-        <Header />
-        <main className="px-6 py-6">
-          {children}
-        </main>
+    <>
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />
+        
+        <div 
+          className="flex-1 transition-all duration-300 ease-in-out"
+          style={{ marginLeft: sidebarCollapsed ? '5rem' : '16rem' }}
+        >
+          <Header />
+          <main className="px-6 py-6">
+            {children}
+          </main>
+        </div>
       </div>
       <OrderModalsProvider />
-    </div>
+    </>
   );
 };
 

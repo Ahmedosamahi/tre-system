@@ -17,6 +17,21 @@ export const CreateOrderButton = () => {
     openPickupRequestModal 
   } = useCreateOrderModals();
 
+  const handleSingleOrderClick = () => {
+    console.log("Single Order clicked");
+    openSingleOrderModal();
+  };
+
+  const handleBulkOrderClick = () => {
+    console.log("Bulk Order clicked");
+    openBulkOrderModal();
+  };
+
+  const handlePickupRequestClick = () => {
+    console.log("Pickup Request clicked");
+    openPickupRequestModal();
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,16 +46,16 @@ export const CreateOrderButton = () => {
           </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 animate-in fade-in-50 slide-in-from-top-5">
-        <DropdownMenuItem onClick={openSingleOrderModal} className="cursor-pointer py-3 flex items-center gap-2">
+      <DropdownMenuContent align="end" className="w-56 animate-in fade-in-50 slide-in-from-top-5 bg-white">
+        <DropdownMenuItem onClick={handleSingleOrderClick} className="cursor-pointer py-3 flex items-center gap-2">
           <FileText className="h-4 w-4" />
           <span>Single Order</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={openBulkOrderModal} className="cursor-pointer py-3 flex items-center gap-2">
+        <DropdownMenuItem onClick={handleBulkOrderClick} className="cursor-pointer py-3 flex items-center gap-2">
           <Upload className="h-4 w-4" />
           <span>Bulk Order</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={openPickupRequestModal} className="cursor-pointer py-3 flex items-center gap-2">
+        <DropdownMenuItem onClick={handlePickupRequestClick} className="cursor-pointer py-3 flex items-center gap-2">
           <Truck className="h-4 w-4" />
           <span>Pickup Request</span>
         </DropdownMenuItem>

@@ -15,6 +15,8 @@ export const OrderModalsProvider = () => {
     closePickupRequestModal
   } = useCreateOrderModals();
 
+  console.log("Modal states:", { isSingleOrderOpen, isBulkOrderOpen, isPickupRequestOpen });
+
   return (
     <>
       <SingleOrderModal isOpen={isSingleOrderOpen} onClose={closeSingleOrderModal} />

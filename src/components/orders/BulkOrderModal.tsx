@@ -11,6 +11,8 @@ interface BulkOrderModalProps {
 }
 
 export const BulkOrderModal = ({ isOpen, onClose }: BulkOrderModalProps) => {
+  console.log("BulkOrderModal rendering with isOpen:", isOpen);
+  
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   
