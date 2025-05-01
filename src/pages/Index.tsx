@@ -40,7 +40,7 @@ const Index = () => {
             </div>
             <div className="md:w-1/4 flex items-center justify-center py-4">
               <img 
-                src="/lovable-uploads/43d72cbc-bb29-42a7-933a-b020049d73b2.png"
+                src="/lovable-uploads/a3b0ea0c-decd-4657-802b-0a72815c2baf.png"
                 alt="Delivery Person"
                 className="h-48 object-contain"
               />
