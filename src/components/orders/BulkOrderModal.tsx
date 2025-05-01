@@ -11,6 +11,7 @@ interface BulkOrderModalProps {
 }
 
 export const BulkOrderModal = ({ isOpen, onClose }: BulkOrderModalProps) => {
+  // Log outside of JSX to avoid TypeScript errors
   console.log("BulkOrderModal rendering with isOpen:", isOpen);
   
   const [file, setFile] = useState<File | null>(null);
@@ -92,16 +93,46 @@ export const BulkOrderModal = ({ isOpen, onClose }: BulkOrderModalProps) => {
       return;
     }
     
-    // In a real app, you would upload the file to the server here
+    // Create dummy orders from bulk upload
+    const newOrders = [
+      {
+        id: `bulk-${Date.now()}-1`,
+        reference: `BULK-${Date.now().toString().slice(-6)}-1`,
+        customer: 'Bulk Customer 1',
+        destination: 'Cairo, Egypt',
+        date: new Date().toISOString().split('T')[0],
+        status: 'pending' as const,
+        shippingCompany: 'Aramex',
+      },
+      {
+        id: `bulk-${Date.now()}-2`,
+        reference: `BULK-${Date.now().toString().slice(-6)}-2`,
+        customer: 'Bulk Customer 2',
+        destination: 'Alexandria, Egypt',
+        date: new Date().toISOString().split('T')[0],
+        status: 'pending' as const,
+        shippingCompany: 'FedEx',
+      }
+    ];
+    
+    // Dispatch custom events to add the orders to the list
+    newOrders.forEach(order => {
+      const event = new CustomEvent('newOrder', { detail: order });
+      window.dispatchEvent(event);
+    });
+    
     toast({
       title: "Upload Successful",
-      description: "Your bulk order has been processed.",
+      description: `${newOrders.length} orders have been processed.`,
     });
+    
     onClose();
+    setFile(null);
   };
   
   const fileInputId = "bulk-order-file-input";
   
+  // Log outside of JSX to avoid TypeScript errors
   console.log("Rendering BulkOrderModal content");
   
   return (

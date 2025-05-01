@@ -70,11 +70,12 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
   const cities = ['Downtown', 'East District', 'West District', 'North District'];
   const areas = ['Area 1', 'Area 2', 'Area 3', 'Area 4'];
   
-  // Dummy shipping companies data
+  // Updated shipping companies data with new names and logos
   const shippingCompanies = [
-    { id: 1, name: 'Express Logistics', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', price: '$10.99', rating: 4.8 },
-    { id: 2, name: 'Swift Couriers', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', price: '$8.99', rating: 4.5 },
-    { id: 3, name: 'Global Shipment', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', price: '$12.99', rating: 4.9 },
+    { id: 1, name: 'Aramex', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Aramex_logo.svg/512px-Aramex_logo.svg.png', price: '$10.99', rating: 4.8 },
+    { id: 2, name: 'FedEx', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/FedEx_express_logo.svg/512px-FedEx_express_logo.svg.png', price: '$12.99', rating: 4.9 },
+    { id: 3, name: 'Bosta', logo: 'https://bosta.co/wp-content/uploads/2019/08/bosta_logo_en_red.svg', price: '$8.99', rating: 4.5 },
+    { id: 4, name: 'ShipBlu', logo: 'https://shipblu.com/wp-content/uploads/2022/10/ShipBlu-Logo-1.png', price: '$9.99', rating: 4.7 },
   ];
   
   const handleInputChange = (section: 'sender' | 'receiver' | 'shipment', field: string, value: any) => {
@@ -127,6 +128,23 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
     // Here you would submit the order with the selected shipping company
     console.log('Order submitted with shipping company:', selectedCompany);
     console.log('Form data:', formData);
+    
+    // Create a new order
+    const selectedCompanyData = shippingCompanies.find(company => company.id === selectedCompany);
+    
+    const newOrder = {
+      id: `${Date.now()}`,
+      reference: formData.shipment.reference || `ORD-${Date.now().toString().slice(-6)}`,
+      customer: formData.receiver.name,
+      destination: `${formData.receiver.city}, ${formData.receiver.province}`,
+      date: new Date().toISOString().split('T')[0],
+      status: 'pending' as const,
+      shippingCompany: selectedCompanyData?.name || 'Unknown',
+    };
+    
+    // Dispatch custom event to add the order to the list
+    const event = new CustomEvent('newOrder', { detail: newOrder });
+    window.dispatchEvent(event);
     
     toast({
       title: "Order Created",
@@ -570,6 +588,7 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
     </>
   );
   
+  // Log outside of JSX to avoid TypeScript errors
   console.log("Rendering SingleOrderModal content");
   
   return (

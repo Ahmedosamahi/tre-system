@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,7 @@ interface PickupRequestModalProps {
 }
 
 export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps) => {
+  // Log outside of JSX to avoid TypeScript errors
   console.log("PickupRequestModal rendering with isOpen:", isOpen);
   
   const [date, setDate] = useState<Date>();
@@ -24,11 +24,12 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   
-  // Dummy shipping companies data
+  // Updated shipping companies data with new names and logos
   const shippingCompanies = [
-    { id: '1', name: 'Express Logistics', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', pendingShipments: 12 },
-    { id: '2', name: 'Swift Couriers', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', pendingShipments: 0 },
-    { id: '3', name: 'Global Shipment', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', pendingShipments: 5 },
+    { id: '1', name: 'Aramex', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Aramex_logo.svg/512px-Aramex_logo.svg.png', pendingShipments: 12 },
+    { id: '2', name: 'FedEx', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/FedEx_express_logo.svg/512px-FedEx_express_logo.svg.png', pendingShipments: 5 },
+    { id: '3', name: 'Bosta', logo: 'https://bosta.co/wp-content/uploads/2019/08/bosta_logo_en_red.svg', pendingShipments: 0 },
+    { id: '4', name: 'ShipBlu', logo: 'https://shipblu.com/wp-content/uploads/2022/10/ShipBlu-Logo-1.png', pendingShipments: 7 },
   ];
   
   const weekdays = [
@@ -96,6 +97,28 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
       selectedDays: isRecurring ? selectedDays : [],
     });
     
+    // Create a new pickup order
+    const selectedCompanyData = shippingCompanies.find(company => company.id === selectedCompany);
+    
+    if (selectedCompanyData && selectedCompanyData.pendingShipments > 0) {
+      // Create orders for pickup
+      for (let i = 0; i < Math.min(selectedCompanyData.pendingShipments, 3); i++) {
+        const newOrder = {
+          id: `pickup-${Date.now()}-${i}`,
+          reference: `PICKUP-${Date.now().toString().slice(-6)}-${i}`,
+          customer: `Pickup Customer ${i+1}`,
+          destination: 'To be picked up',
+          date: date.toISOString().split('T')[0],
+          status: 'pending' as const,
+          shippingCompany: selectedCompanyData.name,
+        };
+        
+        // Dispatch custom event to add the order to the list
+        const event = new CustomEvent('newOrder', { detail: newOrder });
+        window.dispatchEvent(event);
+      }
+    }
+    
     toast({
       title: "Pickup Request Submitted",
       description: isRecurring 
@@ -129,6 +152,7 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
     });
   };
   
+  // Log outside of JSX to avoid TypeScript errors
   console.log("Rendering PickupRequestModal content");
   
   return (

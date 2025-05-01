@@ -15,13 +15,20 @@ export const OrderModalsProvider = () => {
     closePickupRequestModal
   } = useCreateOrderModals();
 
+  // Log modal states outside of the JSX to avoid TypeScript errors
   console.log("Modal states:", { isSingleOrderOpen, isBulkOrderOpen, isPickupRequestOpen });
 
   return (
     <>
-      <SingleOrderModal isOpen={isSingleOrderOpen} onClose={closeSingleOrderModal} />
-      <BulkOrderModal isOpen={isBulkOrderOpen} onClose={closeBulkOrderModal} />
-      <PickupRequestModal isOpen={isPickupRequestOpen} onClose={closePickupRequestModal} />
+      {isSingleOrderOpen && (
+        <SingleOrderModal isOpen={isSingleOrderOpen} onClose={closeSingleOrderModal} />
+      )}
+      {isBulkOrderOpen && (
+        <BulkOrderModal isOpen={isBulkOrderOpen} onClose={closeBulkOrderModal} />
+      )}
+      {isPickupRequestOpen && (
+        <PickupRequestModal isOpen={isPickupRequestOpen} onClose={closePickupRequestModal} />
+      )}
     </>
   );
 };
