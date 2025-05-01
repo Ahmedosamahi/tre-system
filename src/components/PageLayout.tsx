@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
+import { OrderModalsProvider } from './orders/OrderModalsProvider';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -42,6 +43,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           {children}
         </main>
       </div>
+      <OrderModalsProvider />
     </div>
   );
 };

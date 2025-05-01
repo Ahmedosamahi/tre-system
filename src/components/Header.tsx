@@ -3,6 +3,7 @@ import React from 'react';
 import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBox } from './ui/SearchBox';
+import { CreateOrderButton } from './orders/CreateOrderButton';
 
 interface HeaderProps {
   className?: string;
@@ -25,16 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
             <span className="flex items-center"><Wallet className="mr-2 h-5 w-5" />$1199.00</span>
           </Button>
           
-          <Button className="bg-brand text-white hover:bg-brand-dark">
-            <span className="flex items-center">
-              <span className="mr-2">
-                <svg width="16" height="16" className="inline align-middle" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round"/>
-                </svg>
-              </span>
-              Create Order
-            </span>
-          </Button>
+          <CreateOrderButton />
           
           <div className="flex items-center space-x-4">
             <div className="relative">
