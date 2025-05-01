@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
             <div className="flex items-center gap-2">
               <div className="h-10 w-10 rounded-full overflow-hidden">
                 <img 
-                  src="/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png"
+                  src="/lovable-uploads/43d72cbc-bb29-42a7-933a-b020049d73b2.png"
                   alt="User Profile"
                   className="h-full w-full object-cover"
                 />
