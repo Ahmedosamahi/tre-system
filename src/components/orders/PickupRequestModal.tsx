@@ -24,12 +24,12 @@ export const PickupRequestModal = ({ isOpen, onClose }: PickupRequestModalProps)
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   
-  // Updated shipping companies data with new names and logos
+  // Updated shipping companies data with new uploaded images
   const shippingCompanies = [
-    { id: '1', name: 'Aramex', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Aramex_logo.svg/512px-Aramex_logo.svg.png', pendingShipments: 12 },
-    { id: '2', name: 'FedEx', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/FedEx_express_logo.svg/512px-FedEx_express_logo.svg.png', pendingShipments: 5 },
-    { id: '3', name: 'Bosta', logo: 'https://bosta.co/wp-content/uploads/2019/08/bosta_logo_en_red.svg', pendingShipments: 0 },
-    { id: '4', name: 'ShipBlu', logo: 'https://shipblu.com/wp-content/uploads/2022/10/ShipBlu-Logo-1.png', pendingShipments: 7 },
+    { id: '1', name: 'Aramex', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', pendingShipments: 12 },
+    { id: '2', name: 'FedEx', logo: '/lovable-uploads/d596548d-f4b9-4003-a6a9-e24cd0ab7e3c.png', pendingShipments: 5 },
+    { id: '3', name: 'Bosta', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', pendingShipments: 0 },
+    { id: '4', name: 'ShipBlu', logo: '/lovable-uploads/d596548d-f4b9-4003-a6a9-e24cd0ab7e3c.png', pendingShipments: 7 },
   ];
   
   const weekdays = [

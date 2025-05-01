@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -70,12 +71,12 @@ export const SingleOrderModal = ({ isOpen, onClose }: SingleOrderModalProps) => 
   const cities = ['Downtown', 'East District', 'West District', 'North District'];
   const areas = ['Area 1', 'Area 2', 'Area 3', 'Area 4'];
   
-  // Updated shipping companies data with new names and logos
+  // Updated shipping companies data with new uploaded images
   const shippingCompanies = [
-    { id: 1, name: 'Aramex', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Aramex_logo.svg/512px-Aramex_logo.svg.png', price: '$10.99', rating: 4.8 },
-    { id: 2, name: 'FedEx', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/FedEx_express_logo.svg/512px-FedEx_express_logo.svg.png', price: '$12.99', rating: 4.9 },
-    { id: 3, name: 'Bosta', logo: 'https://bosta.co/wp-content/uploads/2019/08/bosta_logo_en_red.svg', price: '$8.99', rating: 4.5 },
-    { id: 4, name: 'ShipBlu', logo: 'https://shipblu.com/wp-content/uploads/2022/10/ShipBlu-Logo-1.png', price: '$9.99', rating: 4.7 },
+    { id: 1, name: 'Aramex', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', price: '$10.99', rating: 4.8 },
+    { id: 2, name: 'FedEx', logo: '/lovable-uploads/d596548d-f4b9-4003-a6a9-e24cd0ab7e3c.png', price: '$12.99', rating: 4.9 },
+    { id: 3, name: 'Bosta', logo: '/lovable-uploads/d596548d-f4b9-4003-a6a9-e24cd0ab7e3c.png', price: '$8.99', rating: 4.5 },
+    { id: 4, name: 'ShipBlu', logo: '/lovable-uploads/9a486a82-ce61-4beb-8017-e0d55573ba2f.png', price: '$9.99', rating: 4.7 },
   ];
   
   const handleInputChange = (section: 'sender' | 'receiver' | 'shipment', field: string, value: any) => {

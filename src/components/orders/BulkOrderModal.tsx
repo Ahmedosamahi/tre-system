@@ -92,7 +92,7 @@ export const BulkOrderModal = ({ isOpen, onClose }: BulkOrderModalProps) => {
       return;
     }
     
-    // Create dummy orders from bulk upload
+    // Create dummy orders from bulk upload with updated shipping company names
     const newOrders = [
       {
         id: `bulk-${Date.now()}-1`,
