@@ -4,16 +4,50 @@ import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBox } from './ui/SearchBox';
 import { CreateOrderButton } from './orders/CreateOrderButton';
+import { useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   className?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ className }) => {
+  const location = useLocation();
+  
+  // Function to get the page title based on the current route
+  const getPageTitle = () => {
+    const path = location.pathname;
+    
+    switch(path) {
+      case '/':
+      case '/dashboard':
+        return 'Dashboard';
+      case '/orders':
+        return 'Orders';
+      case '/warehouse':
+        return 'Warehouse';
+      case '/customers':
+        return 'Customers';
+      case '/couriers':
+        return 'Couriers';
+      case '/financial':
+        return 'Financial';
+      case '/reports':
+        return 'Reports';
+      case '/settings':
+        return 'Settings';
+      case '/support':
+        return 'Help & Support';
+      case '/crm-customer-service':
+        return 'CRM Customer Service (Abnormal)';
+      default:
+        return 'Dashboard';
+    }
+  };
+
   return (
     <header className={`bg-white py-4 px-6 border-b border-gray-200 ${className}`}>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-800">{getPageTitle()}</h1>
         
         <div className="flex items-center space-x-4 flex-1 justify-center max-w-2xl mx-auto">
           <div className="w-full max-w-md">
