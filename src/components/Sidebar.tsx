@@ -12,7 +12,8 @@ import {
   Settings,
   HelpCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageSquare
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,7 @@ const navItems: NavItem[] = [
   { title: 'Couriers', href: '/couriers', icon: 'Truck' },
   { title: 'Financial', href: '/financial', icon: 'DollarSign' },
   { title: 'Reports', href: '/reports', icon: 'BarChart' },
+  { title: 'CRM Customer Service', href: '/crm-customer-service', icon: 'MessageSquare' },
   { title: 'Settings', href: '/settings', icon: 'Settings' },
   { title: 'Help & Support', href: '/support', icon: 'HelpCircle' },
 ];

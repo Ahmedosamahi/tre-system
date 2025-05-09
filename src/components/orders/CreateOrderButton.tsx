@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { FileText, Upload, Truck } from 'lucide-react';
 import { useCreateOrderModals } from '@/hooks/useCreateOrderModals';
+import { useLocation } from 'react-router-dom';
 
 export const CreateOrderButton = () => {
   const { 
@@ -16,6 +17,9 @@ export const CreateOrderButton = () => {
     openBulkOrderModal, 
     openPickupRequestModal 
   } = useCreateOrderModals();
+  
+  const location = useLocation();
+  const isDashboard = location.pathname === '/' || location.pathname === '/dashboard';
 
   const handleSingleOrderClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -37,6 +41,24 @@ export const CreateOrderButton = () => {
     console.log("Pickup Request clicked");
     openPickupRequestModal();
   };
+
+  if (!isDashboard) {
+    return (
+      <Button 
+        className="bg-brand text-white hover:bg-brand-dark transition-all"
+        onClick={handleSingleOrderClick}
+      >
+        <span className="flex items-center">
+          <span className="mr-2">
+            <svg width="16" height="16" className="inline align-middle" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round"/>
+            </svg>
+          </span>
+          Create Order
+        </span>
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>
