@@ -53,6 +53,12 @@ import {
   BadgePercent,
   Info,
   Check,
+  MapPin,
+  Truck,
+  ShieldCheck,
+  PenBox,
+  PackageCheck,
+  TicketIcon
 } from 'lucide-react';
 import { 
   Pagination, 
@@ -67,6 +73,7 @@ import {
 import { cn } from '@/lib/utils';
 import { StatusTabs } from '@/components/crm/StatusTabs';
 import { useCreateOrderModals } from '@/hooks/useCreateOrderModals';
+import { Separator } from '@/components/ui/separator';
 
 // Type definitions
 type OrderStatus = 
@@ -1236,7 +1243,7 @@ const Orders = () => {
       {/* Order Details Side Sheet */}
       {viewOrderId && (
         <Sheet open={!!viewOrderId} onOpenChange={() => setViewOrderId(null)}>
-          <SheetContent className="w-full sm:max-w-xl">
+          <SheetContent className="overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1254,183 +1261,248 @@ const Orders = () => {
             
             {viewedOrder && (
               <div className="mt-6 space-y-6">
-                {/* Order Header */}
-                <div className="bg-muted/20 p-4 rounded-md">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-bold text-lg">{viewedOrder.orderNumber}</h3>
-                      <p className="text-muted-foreground text-sm">Created on {viewedOrder.createdAt}</p>
-                    </div>
-                    <StatusBadge status={getStatusBadgeType(viewedOrder.status)}>
+                {/* Section 1: Shipment Summary */}
+                <div className="bg-muted/20 p-4 rounded-lg border">
+                  <h3 className="text-lg font-bold mb-2 flex items-center">
+                    <span className="mr-1">{viewedOrder.orderNumber}</span>
+                    <StatusBadge status={getStatusBadgeType(viewedOrder.status)} className="ml-2">
                       {viewedOrder.status.charAt(0).toUpperCase() + viewedOrder.status.slice(1).replace('-', ' ')}
                     </StatusBadge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mt-2">
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mt-3">
                     <div>
-                      <span className="text-muted-foreground">Reference #:</span> {viewedOrder.referenceNumber}
+                      <span className="text-muted-foreground">Created:</span> {viewedOrder.createdAt}
                     </div>
                     <div>
-                      <span className="text-muted-foreground">AWB #:</span> {viewedOrder.awbNumber}
+                      <span className="text-muted-foreground">Reference:</span> {viewedOrder.referenceNumber}
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Service:</span> {viewedOrder.serviceType.charAt(0).toUpperCase() + viewedOrder.serviceType.slice(1)}
+                      <span className="text-muted-foreground">AWB:</span> {viewedOrder.awbNumber}
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Warehouse:</span> {viewedOrder.warehouse}
+                      <span className="text-muted-foreground">From:</span> {viewedOrder.warehouse}
                     </div>
                   </div>
                 </div>
 
-                {/* Customer Information */}
-                <div>
-                  <h4 className="font-semibold mb-2 text-base">Customer Information</h4>
-                  <div className="bg-muted/10 p-4 rounded-md grid grid-cols-1 gap-y-2 text-sm">
-                    <div className="flex items-center">
-                      <span className="font-medium">{viewedOrder.receiverInfo.name}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                      {viewedOrder.receiverInfo.phone}
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground mb-1">Address:</p>
-                      <p>{viewedOrder.receiverInfo.address},</p>
-                      <p>{viewedOrder.receiverInfo.area}, {viewedOrder.receiverInfo.city},</p>
-                      <p>{viewedOrder.receiverInfo.province}</p>
+                {/* Section 2: Customer Information */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-base flex items-center">
+                    <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Customer Information
+                  </h4>
+                  <div className="bg-muted/10 p-4 rounded-lg border">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="font-medium">{viewedOrder.receiverInfo.name}</span>
+                        <span className="text-sm text-muted-foreground">{viewedOrder.receiverInfo.phone}</span>
+                      </div>
+                      
+                      <div className="flex items-start gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p>{viewedOrder.receiverInfo.address}</p>
+                          <p>{viewedOrder.receiverInfo.area}, {viewedOrder.receiverInfo.city}</p>
+                          <p>{viewedOrder.receiverInfo.province}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Financial Details */}
-                <div>
-                  <h4 className="font-semibold mb-2 text-base">Financial Details</h4>
-                  <div className="bg-muted/10 p-4 rounded-md grid grid-cols-1 gap-y-3 text-sm">
-                    <div className="flex items-center">
-                      {getPaymentMethodIcon(viewedOrder.paymentMethod)}
-                      <span className="font-medium">Payment Method: {viewedOrder.paymentMethod}</span>
+                {/* Section 3: Shipment Details */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-base flex items-center">
+                    <Package className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Shipment Details
+                  </h4>
+                  <div className="bg-muted/10 p-4 rounded-lg border">
+                    <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+                      <div>
+                        <span className="text-muted-foreground block">Service Type:</span>
+                        <span className="font-medium capitalize">{viewedOrder.serviceType}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block">Total Items:</span>
+                        <span className="font-medium">{viewedOrder.quantity} items</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block">Total Weight:</span>
+                        <span className="font-medium">{viewedOrder.weight} kg</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block">Value of Goods:</span>
+                        <span className="font-medium">{viewedOrder.valueOfGoods} EGP</span>
+                      </div>
                     </div>
-                    {viewedOrder.paymentStatus && (
-                      <div className="flex items-center">
-                        <span className="mr-2">Payment Status:</span>
-                        <StatusBadge status={getPaymentStatusBadge(viewedOrder.paymentStatus)}>
-                          {viewedOrder.paymentStatus.charAt(0).toUpperCase() + viewedOrder.paymentStatus.slice(1).replace('-', ' ')}
-                        </StatusBadge>
+                    
+                    <Separator className="my-3" />
+                    
+                    <div className="mt-3">
+                      <h5 className="font-medium mb-2">Order Items</h5>
+                      <div className="border rounded-md">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Item</TableHead>
+                              <TableHead className="text-right">Qty</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {viewedOrder.items.map((item, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  <div>
+                                    <div className="font-medium">{item.description}</div>
+                                    <div className="text-xs text-muted-foreground">SKU: {item.sku}</div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-right">{item.quantity}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                          <TableFooter>
+                            <TableRow>
+                              <TableCell>Total</TableCell>
+                              <TableCell className="text-right">{viewedOrder.quantity}</TableCell>
+                            </TableRow>
+                          </TableFooter>
+                        </Table>
                       </div>
-                    )}
-                    {viewedOrder.downPayment?.applied && (
-                      <div className="flex items-center">
-                        <BadgeDollarSign className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>Down Payment: {viewedOrder.downPayment.value} EGP</span>
-                      </div>
-                    )}
-                    {viewedOrder.discountCode && (
-                      <div className="flex items-center">
-                        <BadgePercent className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>Discount: {viewedOrder.discountCode.code} ({viewedOrder.discountCode.value} EGP)</span>
-                      </div>
-                    )}
-                    <div className="border-t pt-2 flex justify-between items-center">
-                      <span>COD Amount:</span>
-                      <span className="font-semibold">{viewedOrder.cod} EGP</span>
                     </div>
-                  </div>
-                </div>
-
-                {/* Order Items */}
-                <div>
-                  <h4 className="font-semibold mb-2 text-base">Order Items</h4>
-                  <div className="border rounded-md">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Item</TableHead>
-                          <TableHead className="text-right">Qty</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {viewedOrder.items.map((item, index) => (
-                          <TableRow key={index}>
-                            <TableCell>
-                              <div>
-                                <div className="font-medium">{item.description}</div>
-                                <div className="text-xs text-muted-foreground">SKU: {item.sku}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right">{item.quantity}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                      <TableFooter>
-                        <TableRow>
-                          <TableCell>Total</TableCell>
-                          <TableCell className="text-right">{viewedOrder.quantity}</TableCell>
-                        </TableRow>
-                      </TableFooter>
-                    </Table>
-                  </div>
-                  <div className="flex justify-between text-sm mt-3">
-                    <span>Total Value:</span>
-                    <span className="font-semibold">{viewedOrder.valueOfGoods} EGP</span>
-                  </div>
-                  <div className="flex justify-between text-sm mt-1">
-                    <span>Total Weight:</span>
-                    <span>{viewedOrder.weight} kg</span>
+                    
+                    {viewedOrder.notes && (
+                      <div className="mt-4">
+                        <h5 className="font-medium mb-1">Notes</h5>
+                        <div className="bg-muted/20 p-3 rounded-md text-sm">
+                          {viewedOrder.notes}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
-                {/* Shipping Details */}
-                <div>
-                  <h4 className="font-semibold mb-2 text-base">Shipping Details</h4>
-                  <div className="bg-muted/10 p-4 rounded-md grid grid-cols-1 gap-y-2 text-sm">
+                {/* Section 4: Financial Details */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-base flex items-center">
+                    <CreditCard className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Financial Details
+                  </h4>
+                  <div className="bg-muted/10 p-4 rounded-lg border">
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <div className="flex items-center gap-2 mr-3">
+                          {getPaymentMethodIcon(viewedOrder.paymentMethod)}
+                          <span className="font-medium">{viewedOrder.paymentMethod}</span>
+                        </div>
+                        
+                        {viewedOrder.paymentStatus && (
+                          <StatusBadge status={getPaymentStatusBadge(viewedOrder.paymentStatus)}>
+                            {viewedOrder.paymentStatus.charAt(0).toUpperCase() + viewedOrder.paymentStatus.slice(1).replace('-', ' ')}
+                          </StatusBadge>
+                        )}
+                      </div>
+                      
+                      {viewedOrder.downPayment?.applied && (
+                        <div className="flex justify-between items-center py-1 border-t">
+                          <span className="text-sm">Down Payment:</span>
+                          <span className="font-medium">{viewedOrder.downPayment.value} EGP</span>
+                        </div>
+                      )}
+                      
+                      {viewedOrder.discountCode && (
+                        <div className="flex justify-between items-center py-1 border-t">
+                          <span className="text-sm flex items-center">
+                            <BadgePercent className="h-4 w-4 mr-1 text-muted-foreground" />
+                            Discount ({viewedOrder.discountCode.code}):
+                          </span>
+                          <span className="font-medium">-{viewedOrder.discountCode.value} EGP</span>
+                        </div>
+                      )}
+                      
+                      <div className="flex justify-between items-center py-1 border-t">
+                        <span className="text-sm">COD Amount:</span>
+                        <span className="font-bold">{viewedOrder.cod} EGP</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center py-1 border-t">
+                        <span className="text-sm">Value of Goods:</span>
+                        <span className="font-medium">{viewedOrder.valueOfGoods} EGP</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Section 5: Courier Details */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-base flex items-center">
+                    <Truck className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Courier Details
+                  </h4>
+                  <div className="bg-muted/10 p-4 rounded-lg border">
                     {viewedOrder.courier ? (
-                      <>
-                        <div>
-                          <span className="text-muted-foreground">Courier:</span> {viewedOrder.courier}
+                      <div className="space-y-3">
+                        <div className="flex items-center">
+                          <Truck className="h-5 w-5 mr-2 text-muted-foreground" />
+                          <span className="font-medium">{viewedOrder.courier}</span>
                         </div>
-                        <div>
-                          <span className="text-muted-foreground">AWB:</span> {viewedOrder.awbNumber}
+                        
+                        <div className="flex justify-between items-center py-1 border-t">
+                          <span className="text-sm">AWB Number:</span>
+                          <span className="font-medium">{viewedOrder.awbNumber}</span>
                         </div>
-                      </>
+                        
+                        <div className="flex justify-between items-center py-1 border-t">
+                          <span className="text-sm">Shipping Fees:</span>
+                          <span className="font-medium">25.00 EGP</span>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="text-muted-foreground italic">No shipping company assigned yet.</div>
+                      <div className="text-center py-3 text-muted-foreground">
+                        <p className="text-sm italic">No courier assigned yet</p>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-2"
+                          disabled={!['pending', 'confirmed'].includes(viewedOrder.status)}
+                        >
+                          <PlusCircle className="h-3.5 w-3.5 mr-1" />
+                          Assign Courier
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
                 
-                {/* Notes */}
-                {viewedOrder.notes && (
-                  <div>
-                    <h4 className="font-semibold mb-2 text-base">Notes</h4>
-                    <div className="bg-muted/10 p-4 rounded-md text-sm">
-                      {viewedOrder.notes}
-                    </div>
+                {/* Section 6: Operational Actions */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-base flex items-center">
+                    <ShieldCheck className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Actions
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button variant="outline" className="flex items-center justify-center">
+                      <Printer className="h-4 w-4 mr-2" />
+                      Print AWB
+                    </Button>
+                    <Button variant="outline" className="flex items-center justify-center">
+                      <FileTextIcon className="h-4 w-4 mr-2" />
+                      Print Invoice
+                    </Button>
+                    <Button variant="outline" className="flex items-center justify-center">
+                      <PenBox className="h-4 w-4 mr-2" />
+                      Edit Order
+                    </Button>
+                    <Button variant="outline" className="flex items-center justify-center">
+                      <PackageCheck className="h-4 w-4 mr-2" />
+                      Update Status
+                    </Button>
+                    <Button variant="outline" className="flex items-center justify-center col-span-2">
+                      <TicketIcon className="h-4 w-4 mr-2" />
+                      Create Support Ticket
+                    </Button>
                   </div>
-                )}
-                
-                {/* Actions */}
-                <div className="flex gap-3 pt-4">
-                  <Button 
-                    variant="outline" 
-                    className="flex-1 flex items-center justify-center gap-2"
-                    onClick={() => {
-                      handlePrintAWB();
-                      setViewOrderId(null);
-                    }}
-                  >
-                    <Printer className="h-4 w-4" />
-                    Print AWB
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="flex-1 flex items-center justify-center gap-2"
-                    onClick={() => {
-                      handlePrintInvoice();
-                      setViewOrderId(null);
-                    }}
-                  >
-                    <FileTextIcon className="h-4 w-4" />
-                    Print Invoice
-                  </Button>
                 </div>
               </div>
             )}

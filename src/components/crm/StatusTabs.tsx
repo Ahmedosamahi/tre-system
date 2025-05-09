@@ -1,11 +1,15 @@
 
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 
 interface Tab {
   id: string;
   label: string;
   count: number;
+  tooltip?: string;
 }
 
 interface StatusTabsProps {
@@ -21,10 +25,24 @@ export const StatusTabs: React.FC<StatusTabsProps> = ({ activeTab, setActiveTab,
         <TabsList className="flex w-full" style={{ minWidth: 'max-content' }}>
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} className="flex justify-center items-center gap-2">
-              {tab.label}
-              <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
+              <div className="flex items-center gap-1.5">
+                <span>{tab.label}</span>
+                {tab.tooltip && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">{tab.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+              <Badge variant="primary" className="text-xs ml-1 font-medium px-2 py-0.5">
                 {tab.count}
-              </span>
+              </Badge>
             </TabsTrigger>
           ))}
         </TabsList>
