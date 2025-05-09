@@ -927,4 +927,55 @@ const Orders = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
                     {filters.status || "Select Status"}
-                    <ChevronDown className="h-4 w-
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-full">
+                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, status: '' }))}>
+                    All
+                  </DropdownMenuItem>
+                  {statusTabs
+                    .filter(tab => tab.id !== 'all')
+                    .map(tab => (
+                      <DropdownMenuItem 
+                        key={tab.id}
+                        onClick={() => setFilters(prev => ({ ...prev, status: tab.id as string }))}
+                      >
+                        {tab.label}
+                      </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          
+          {/* Filter Action Buttons */}
+          <div className="p-6 pt-0 flex justify-end gap-2">
+            <Button variant="outline" onClick={handleClearFilters}>
+              Clear Filters
+            </Button>
+            <Button onClick={() => setShowFilters(false)}>
+              Apply Filters
+            </Button>
+          </div>
+        </Card>
+      )}
+      
+      {/* Status Tabs */}
+      <StatusTabs 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        tabs={statusTabs}
+      />
+
+      {/* Orders Table */}
+      {/* Table code would go here */}
+      
+      {/* Pagination */}
+      {/* Pagination code would go here */}
+      
+    </PageLayout>
+  );
+};
+
+export default Orders;
