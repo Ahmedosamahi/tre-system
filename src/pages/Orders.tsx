@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -58,7 +59,7 @@ import {
 } from '@/components/ui/pagination';
 
 import { cn } from '@/lib/utils';
-import { CreateOrderButton } from '@/components/orders/CreateOrderButton';
+import { StatusTabs } from '@/components/crm/StatusTabs';
 import { useCreateOrderModals } from '@/hooks/useCreateOrderModals';
 
 // Type definitions
@@ -710,9 +711,35 @@ const Orders = () => {
               </DropdownMenuContent>
             )}
           </DropdownMenu>
-          
-          <CreateOrderButton />
         </div>
+      </div>
+
+      {/* Status Tabs */}
+      <StatusTabs 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        tabs={statusTabs.slice(0, 3)} // Only use the first few tabs for the StatusTabs component
+      />
+      
+      {/* Full Tabs List - Add this to show all tabs */}
+      <div className="mb-4 mt-2 overflow-x-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="inline-flex w-auto">
+            {statusTabs.map((tab) => (
+              <TabsTrigger 
+                key={tab.id} 
+                value={tab.id} 
+                className="flex justify-center items-center gap-2 whitespace-nowrap"
+                title={tab.tooltip}
+              >
+                {tab.label}
+                <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
+                  {tab.count}
+                </span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Selected Orders Status Bar */}
@@ -1310,3 +1337,4 @@ const Orders = () => {
 };
 
 export default Orders;
+
