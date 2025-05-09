@@ -16,7 +16,7 @@ interface StatusTabsProps {
 
 export const StatusTabs: React.FC<StatusTabsProps> = ({ activeTab, setActiveTab, tabs }) => {
   return (
-    <div className="border-b px-6 py-4">
+    <div className="py-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full max-w-md" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
           {tabs.map((tab) => (
