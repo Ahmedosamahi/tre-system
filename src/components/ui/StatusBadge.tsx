@@ -1,6 +1,6 @@
 
-import { StatusBadgeProps } from '@/types';
 import { cn } from '@/lib/utils';
+import { StatusBadgeProps } from '@/types';
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) => {
   const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';

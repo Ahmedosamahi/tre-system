@@ -1,4 +1,3 @@
-
 export type NavItem = {
   title: string;
   href: string;
@@ -31,10 +30,10 @@ export type CardProps = {
   action?: React.ReactNode;
 };
 
-export type StatusBadgeProps = {
+export interface StatusBadgeProps {
   status: 'success' | 'warning' | 'danger' | 'info' | 'default';
   children: React.ReactNode;
-};
+}
 
 export type FinancialMetric = {
   title: string;

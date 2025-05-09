@@ -45,7 +45,13 @@ import {
   Download,
   ChevronUp,
   Printer,
-  FileText as FileTextIcon
+  FileText as FileTextIcon,
+  CreditCard,
+  Cash,
+  BadgeDollarSign,
+  BadgePercent,
+  Info,
+  Check,
 } from 'lucide-react';
 import { 
   Pagination, 
@@ -89,7 +95,7 @@ interface Order {
   courier?: string;
   status: OrderStatus;
   paymentMethod: string;
-  paymentStatus?: 'paid' | 'pending' | 'failed' | 'refunded';
+  paymentStatus?: 'paid' | 'pending' | 'failed' | 'refunded' | 'partially-paid';
   downPayment?: {
     applied: boolean;
     value?: number;
@@ -145,6 +151,39 @@ const getStatusBadgeType = (status: OrderStatus): 'success' | 'warning' | 'dange
     case 'confirmed':
     default:
       return 'default';
+  }
+};
+
+// Helper function to get payment status badge style
+const getPaymentStatusBadge = (status?: string): 'success' | 'warning' | 'danger' | 'info' | 'default' => {
+  switch(status) {
+    case 'paid':
+      return 'success';
+    case 'pending':
+    case 'partially-paid':
+      return 'warning';
+    case 'failed':
+      return 'danger';
+    case 'refunded':
+      return 'info';
+    default:
+      return 'default';
+  }
+};
+
+// Helper function to get payment method icon
+const getPaymentMethodIcon = (method: string) => {
+  switch(method?.toLowerCase()) {
+    case 'credit card':
+    case 'visa':
+    case 'mastercard':
+      return <CreditCard className="h-4 w-4 mr-2 text-gray-500" />;
+    case 'cash':
+    case 'cash on delivery':
+    case 'cod':
+      return <Cash className="h-4 w-4 mr-2 text-gray-500" />;
+    default:
+      return <BadgeDollarSign className="h-4 w-4 mr-2 text-gray-500" />;
   }
 };
 
@@ -308,7 +347,11 @@ const Orders = () => {
       valueOfGoods: 200,
       status: 'pending-refund',
       paymentMethod: 'ValU',
-      paymentStatus: 'pending',
+      paymentStatus: 'partially-paid',
+      downPayment: {
+        applied: true,
+        value: 75
+      },
       receiverInfo: {
         name: 'Nour Ibrahim',
         phone: '+201345678901',
@@ -894,459 +937,4 @@ const Orders = () => {
             </div>
 
             {/* Courier Dropdown */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="courier">Courier</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {filters.courier || "Select Courier"}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full">
-                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, courier: '' }))}>
-                    All
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, courier: 'Aramex' }))}>
-                    Aramex
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, courier: 'DHL' }))}>
-                    DHL
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, courier: 'Fedex' }))}>
-                    Fedex
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Status Dropdown */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Status</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {filters.status || "Select Status"}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full">
-                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, status: '' }))}>
-                    All
-                  </DropdownMenuItem>
-                  {statusTabs
-                    .filter(tab => tab.id !== 'all')
-                    .map(tab => (
-                      <DropdownMenuItem 
-                        key={tab.id}
-                        onClick={() => setFilters(prev => ({ ...prev, status: tab.id as string }))}
-                      >
-                        {tab.label}
-                      </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-          
-          {/* Filter Action Buttons */}
-          <div className="p-6 pt-0 flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClearFilters}>
-              Clear Filters
-            </Button>
-            <Button onClick={() => setShowFilters(false)}>
-              Apply Filters
-            </Button>
-          </div>
-        </Card>
-      )}
-      
-      {/* Status Tabs */}
-      <StatusTabs 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        tabs={statusTabs}
-      />
-
-      {/* Orders Table */}
-      <div className="mt-4 bg-white rounded-lg overflow-hidden shadow">
-        <div className="p-2 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search orders..."
-                className="pl-9 w-64"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            {searchTerm && (
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                onClick={() => setSearchTerm('')}
-                className="h-8 px-2 text-gray-500"
-              >
-                <X className="h-4 w-4 mr-1" />
-                Clear
-              </Button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">
-              {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-        </div>
-
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">
-                <Checkbox 
-                  checked={paginatedOrders.length > 0 && selectedOrders.length === paginatedOrders.length}
-                  onCheckedChange={handleSelectAllOrders}
-                  disabled={paginatedOrders.length === 0}
-                />
-              </TableHead>
-              <TableHead className="w-[140px]">
-                <div className="flex items-center gap-1">
-                  Order Number
-                  <ArrowUpDown className="h-3 w-3" />
-                </div>
-              </TableHead>
-              <TableHead>AWB Number</TableHead>
-              <TableHead>Reference</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Service Type</TableHead>
-              <TableHead>
-                <div className="flex items-center gap-1">
-                  COD
-                  <ArrowUpDown className="h-3 w-3" />
-                </div>
-              </TableHead>
-              <TableHead>Courier</TableHead>
-              <TableHead className="max-w-[200px]">Receiver Info</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedOrders.length > 0 ? (
-              paginatedOrders.map((order) => (
-                <TableRow 
-                  key={order.id}
-                  className="cursor-pointer hover:bg-gray-50"
-                >
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <Checkbox 
-                      checked={selectedOrders.includes(order.id)}
-                      onCheckedChange={() => handleSelectOrder(order.id)}
-                    />
-                  </TableCell>
-                  <TableCell 
-                    className="font-medium"
-                    onClick={() => handleRowClick(order.id)}
-                  >
-                    {order.orderNumber}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(order.id)}>
-                    {order.awbNumber}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(order.id)}>
-                    {order.referenceNumber}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(order.id)}>
-                    {order.createdAt}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(order.id)}>
-                    <span className="capitalize">{order.serviceType}</span>
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(order.id)}>
-                    {order.cod > 0 ? `$${order.cod.toFixed(2)}` : '-'}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(order.id)}>
-                    {order.courier || 'Not Assigned'}
-                  </TableCell>
-                  <TableCell 
-                    className="max-w-[200px]"
-                    onClick={() => handleRowClick(order.id)}
-                  >
-                    <div className="truncate">
-                      <div className="font-medium truncate">{order.receiverInfo.name}</div>
-                      <div className="text-sm text-gray-500 truncate">
-                        {order.receiverInfo.phone}
-                      </div>
-                      <div className="text-xs text-gray-500 truncate">
-                        {order.receiverInfo.city}, {order.receiverInfo.province}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(order.id)}>
-                    <StatusBadge type={getStatusBadgeType(order.status)}>
-                      {order.status.replace('-', ' ').split(' ').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
-                    </StatusBadge>
-                  </TableCell>
-                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-[160px]">
-                        <DropdownMenuItem onClick={() => handleViewOrder(order.id)}>
-                          <FileText className="h-4 w-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        {canEdit(order.status) && (
-                          <DropdownMenuItem>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                        )}
-                        {order.status !== 'canceled' && order.status !== 'delivered' && (
-                          <DropdownMenuItem className="text-red-600">
-                            <Ban className="h-4 w-4 mr-2" />
-                            Cancel Order
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem>
-                          <Phone className="h-4 w-4 mr-2" />
-                          Contact Customer
-                        </DropdownMenuItem>
-                        {order.status === 'pending' && (
-                          <DropdownMenuItem>
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            Approve
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-gray-500">
-                  {searchTerm ? 'No orders found matching your search.' : 'No orders found.'}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-4 flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                />
-              </PaginationItem>
-              
-              {/* First Page */}
-              {currentPage > 2 && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setCurrentPage(1)}>
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              
-              {/* Ellipsis */}
-              {currentPage > 3 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-              
-              {/* Previous Page */}
-              {currentPage > 1 && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setCurrentPage(currentPage - 1)}>
-                    {currentPage - 1}
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              
-              {/* Current Page */}
-              <PaginationItem>
-                <PaginationLink isActive>
-                  {currentPage}
-                </PaginationLink>
-              </PaginationItem>
-              
-              {/* Next Page */}
-              {currentPage < totalPages && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setCurrentPage(currentPage + 1)}>
-                    {currentPage + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              
-              {/* Ellipsis */}
-              {currentPage < totalPages - 2 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-              
-              {/* Last Page */}
-              {currentPage < totalPages - 1 && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setCurrentPage(totalPages)}>
-                    {totalPages}
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              
-              <PaginationItem>
-                <PaginationNext 
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
-      
-      {/* Order Details Sheet */}
-      <Sheet open={!!viewedOrder} onOpenChange={() => setViewOrderId(null)}>
-        {viewedOrder && (
-          <SheetContent className="w-full sm:max-w-md md:max-w-lg overflow-auto">
-            <SheetHeader className="pb-4 border-b">
-              <SheetTitle className="flex justify-between items-center">
-                <span>Order Details</span>
-                <StatusBadge type={getStatusBadgeType(viewedOrder.status)}>
-                  {viewedOrder.status.replace('-', ' ').split(' ').map(word => 
-                    word.charAt(0).toUpperCase() + word.slice(1)
-                  ).join(' ')}
-                </StatusBadge>
-              </SheetTitle>
-            </SheetHeader>
-            
-            <div className="mt-6 space-y-6">
-              {/* Order Information */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-500">Order Information</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500">Order Number</p>
-                    <p className="font-medium">{viewedOrder.orderNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Reference Number</p>
-                    <p className="font-medium">{viewedOrder.referenceNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">AWB Number</p>
-                    <p className="font-medium">{viewedOrder.awbNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Created Date</p>
-                    <p className="font-medium">{viewedOrder.createdAt}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Service Type</p>
-                    <p className="font-medium capitalize">{viewedOrder.serviceType}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Payment Method</p>
-                    <p className="font-medium">{viewedOrder.paymentMethod}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">COD Amount</p>
-                    <p className="font-medium">{viewedOrder.cod > 0 ? `$${viewedOrder.cod.toFixed(2)}` : 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Warehouse</p>
-                    <p className="font-medium">{viewedOrder.warehouse}</p>
-                  </div>
-                  {viewedOrder.courier && (
-                    <div>
-                      <p className="text-gray-500">Courier</p>
-                      <p className="font-medium">{viewedOrder.courier}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* Receiver Information */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-500">Receiver Information</h3>
-                <div className="grid grid-cols-1 gap-2 text-sm">
-                  <div>
-                    <p className="text-gray-500">Name</p>
-                    <p className="font-medium">{viewedOrder.receiverInfo.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Phone</p>
-                    <p className="font-medium">{viewedOrder.receiverInfo.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Address</p>
-                    <p className="font-medium">{viewedOrder.receiverInfo.address}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Area</p>
-                    <p className="font-medium">{viewedOrder.receiverInfo.area}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">City</p>
-                    <p className="font-medium">{viewedOrder.receiverInfo.city}, {viewedOrder.receiverInfo.province}</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Order Items */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-500">Order Items</h3>
-                <div className="border rounded-md divide-y">
-                  {viewedOrder.items.map((item, index) => (
-                    <div key={index} className="p-3">
-                      <div className="flex justify-between">
-                        <div className="space-y-1">
-                          <p className="font-medium">{item.description}</p>
-                          <p className="text-xs text-gray-500">SKU: {item.sku}</p>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-sm font-medium">Qty: {item.quantity}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Actions */}
-              <div className="pt-4 border-t flex gap-4">
-                <Button className="flex-1" onClick={() => setViewOrderId(null)}>
-                  Close
-                </Button>
-                {canEdit(viewedOrder.status) && (
-                  <Button variant="outline" className="flex-1">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Order
-                  </Button>
-                )}
-              </div>
-            </div>
-          </SheetContent>
-        )}
-      </Sheet>
-      
-    </PageLayout>
-  );
-};
-
-export default Orders;
+            <div className="flex flex-col gap-
