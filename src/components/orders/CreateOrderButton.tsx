@@ -11,7 +11,7 @@ import { FileText, Upload, Truck } from 'lucide-react';
 import { useCreateOrderModals } from '@/hooks/useCreateOrderModals';
 import { useLocation } from 'react-router-dom';
 
-export const CreateOrderButton = () => {
+export const CreateOrderButton = ({ className = "" }) => {
   const { 
     openSingleOrderModal, 
     openBulkOrderModal, 
@@ -45,7 +45,7 @@ export const CreateOrderButton = () => {
   if (!isDashboard) {
     return (
       <Button 
-        className="bg-brand text-white hover:bg-brand-dark transition-all"
+        className={`bg-brand text-white hover:bg-brand-dark transition-all ${className}`}
         onClick={handleSingleOrderClick}
       >
         <span className="flex items-center">
@@ -63,7 +63,7 @@ export const CreateOrderButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="bg-brand text-white hover:bg-brand-dark transition-all">
+        <Button className={`bg-brand text-white hover:bg-brand-dark transition-all ${className}`}>
           <span className="flex items-center">
             <span className="mr-2">
               <svg width="16" height="16" className="inline align-middle" viewBox="0 0 24 24" fill="none">

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -523,6 +522,10 @@ const Orders = () => {
     setSearchTerm('');
   };
 
+  const handleClearSelections = () => {
+    setSelectedOrders([]);
+  };
+
   const handleBulkAction = async (action: string) => {
     if (selectedOrders.length === 0) {
       toast.error("Please select at least one order");
@@ -615,17 +618,18 @@ const Orders = () => {
             Export All
           </Button>
           
-          {/* Bulk Actions Button - Appears when orders are selected */}
-          {showBulkActions && bulkActionsAllowed && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  className="bg-brand text-white hover:bg-brand-dark"
-                  disabled={isProcessingBulkAction}
-                >
-                  {isProcessingBulkAction ? 'Processing...' : 'Bulk Actions'}
-                </Button>
-              </DropdownMenuTrigger>
+          {/* Bulk Actions Button - Always visible but conditionally enabled */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                className={`${selectedOrders.length > 0 ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-gray-200 text-gray-500'} transition-all`}
+                disabled={selectedOrders.length === 0 || isProcessingBulkAction}
+                title={selectedOrders.length === 0 ? "Select orders to enable bulk actions" : "Perform bulk actions"}
+              >
+                {isProcessingBulkAction ? 'Processing...' : 'Bulk Actions'}
+              </Button>
+            </DropdownMenuTrigger>
+            {bulkActionsAllowed && selectedOrders.length > 0 && (
               <DropdownMenuContent align="end" className="w-56">
                 {availableBulkActions.includes('changeStatus') && (
                   <div className="p-2 border-b">
@@ -704,12 +708,27 @@ const Orders = () => {
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+            )}
+          </DropdownMenu>
           
           <CreateOrderButton />
         </div>
       </div>
+
+      {/* Selected Orders Status Bar */}
+      {selectedOrders.length > 0 && (
+        <div className="bg-muted/20 py-2 px-4 mb-4 rounded-md flex items-center justify-between">
+          <span>✓ {selectedOrders.length} orders selected</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleClearSelections}
+            className="text-sm"
+          >
+            Clear Selection
+          </Button>
+        </div>
+      )}
 
       {/* Filters Toggle Button and Print Options */}
       <div className="flex justify-between items-center mb-2">
@@ -727,7 +746,7 @@ const Orders = () => {
           <Button 
             variant="outline" 
             size="sm"
-            className="flex items-center gap-1"
+            className={`flex items-center gap-1 ${selectedOrders.length === 0 ? 'opacity-50' : ''}`}
             onClick={handlePrintAWB}
             disabled={selectedOrders.length === 0}
           >
@@ -737,7 +756,7 @@ const Orders = () => {
           <Button 
             variant="outline" 
             size="sm"
-            className="flex items-center gap-1"
+            className={`flex items-center gap-1 ${selectedOrders.length === 0 ? 'opacity-50' : ''}`}
             onClick={handlePrintInvoice}
             disabled={selectedOrders.length === 0}
           >
@@ -910,469 +929,3 @@ const Orders = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
                     {filters.status || "Select Status"}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full">
-                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, status: '' }))}>
-                    All
-                  </DropdownMenuItem>
-                  {statusTabs
-                    .filter(tab => tab.id !== 'all')
-                    .map(tab => (
-                      <DropdownMenuItem 
-                        key={tab.id}
-                        onClick={() => setFilters(prev => ({ ...prev, status: tab.id as string }))}
-                      >
-                        {tab.label}
-                      </DropdownMenuItem>
-                    ))
-                  }
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-end gap-2">
-              <Button 
-                className="flex-1"
-                onClick={() => console.log('Search with filters:', { dateRange, ...filters })}
-              >
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={handleClearFilters}
-              >
-                <X className="h-4 w-4 mr-2" />
-                Clear
-              </Button>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Status Tabs */}
-      <div className="mb-6 overflow-x-auto">
-        <Tabs value={activeTab} onValueChange={val => {
-          setActiveTab(val);
-          setSelectedOrders([]); // Clear selections when changing tabs
-        }} className="w-full">
-          <TabsList className="inline-flex h-10 space-x-1 bg-muted p-1">
-            {statusTabs.map(tab => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="data-[state=active]:bg-background data-[state=active]:text-foreground relative px-3 py-1.5 text-sm font-medium transition-all"
-                title={tab.tooltip}
-              >
-                {tab.label}
-                <span className="ml-2 rounded-full bg-muted-foreground/20 px-2 py-0.5 text-xs">
-                  {tab.count}
-                </span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Orders Table */}
-      <Card className="mb-6">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">
-                  <Checkbox 
-                    checked={paginatedOrders.length > 0 && selectedOrders.length === paginatedOrders.length} 
-                    onCheckedChange={handleSelectAllOrders}
-                  />
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center">
-                    Order Number
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>Reference Number</TableHead>
-                <TableHead>AWB Number</TableHead>
-                <TableHead className="text-center">Quantity</TableHead>
-                <TableHead className="text-center">Weight</TableHead>
-                <TableHead>Service Type</TableHead>
-                <TableHead>COD</TableHead>
-                <TableHead>Value of Goods</TableHead>
-                {(activeTab === 'confirmed' || activeTab === 'dispatched') && (
-                  <TableHead>Courier</TableHead>
-                )}
-                <TableHead>Status</TableHead>
-                <TableHead>Payment Method</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedOrders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={12} className="h-24 text-center">
-                    No orders found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedOrders.map((order) => (
-                  <TableRow 
-                    key={order.id} 
-                    className="cursor-pointer"
-                    onClick={() => handleRowClick(order.id)}
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox 
-                        checked={selectedOrders.includes(order.id)}
-                        onCheckedChange={() => handleSelectOrder(order.id)}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{order.orderNumber}</TableCell>
-                    <TableCell>{order.referenceNumber}</TableCell>
-                    <TableCell>{order.awbNumber}</TableCell>
-                    <TableCell className="text-center">{order.quantity}</TableCell>
-                    <TableCell className="text-center">{order.weight} kg</TableCell>
-                    <TableCell className="capitalize">{order.serviceType}</TableCell>
-                    <TableCell>{order.cod} EGP</TableCell>
-                    <TableCell>{order.valueOfGoods} EGP</TableCell>
-                    {(activeTab === 'confirmed' || activeTab === 'dispatched') && (
-                      <TableCell>{order.courier || 'Not Assigned'}</TableCell>
-                    )}
-                    <TableCell>
-                      <StatusBadge status={getStatusBadgeType(order.status)}>
-                        {order.status}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell>{order.paymentMethod}</TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewOrder(order.id)}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          
-                          {canEdit(order.status) && (
-                            <>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Order
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Edit COD
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Phone className="mr-2 h-4 w-4" />
-                                Edit Phone
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                Confirm Order
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                          
-                          <DropdownMenuItem>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Create Ticket
-                          </DropdownMenuItem>
-                          
-                          {!['delivered', 'returned', 'canceled'].includes(order.status) && (
-                            <DropdownMenuItem className="text-destructive">
-                              <Ban className="mr-2 h-4 w-4" />
-                              Cancel Order
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-4 border-t">
-          <div className="text-sm text-muted-foreground">
-            Showing {Math.min(filteredOrders.length, 1 + (currentPage - 1) * rowsPerPage)} to {Math.min(filteredOrders.length, currentPage * rowsPerPage)} of {filteredOrders.length} orders
-          </div>
-          
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm">Rows per page</span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 px-2 text-xs">
-                    {rowsPerPage}
-                    <ChevronDown className="ml-1 h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {[10, 25, 50].map(value => (
-                    <DropdownMenuItem 
-                      key={value}
-                      onClick={() => {
-                        setRowsPerPage(value);
-                        setCurrentPage(1);
-                      }}
-                    >
-                      {value}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                  />
-                </PaginationItem>
-                
-                {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-                  // Simple pagination logic for up to 5 pages
-                  const pageNumber = i + 1;
-                  return (
-                    <PaginationItem key={i}>
-                      <PaginationLink 
-                        isActive={currentPage === pageNumber}
-                        onClick={() => setCurrentPage(pageNumber)}
-                      >
-                        {pageNumber}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                })}
-                
-                {totalPages > 5 && (
-                  <>
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink 
-                        isActive={currentPage === totalPages}
-                        onClick={() => setCurrentPage(totalPages)}
-                      >
-                        {totalPages}
-                      </PaginationLink>
-                    </PaginationItem>
-                  </>
-                )}
-                
-                <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        </div>
-      </Card>
-
-      {/* Order Details Sheet */}
-      <Sheet open={!!viewOrderId} onOpenChange={(isOpen) => !isOpen && setViewOrderId(null)}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Order Details</SheetTitle>
-          </SheetHeader>
-          {viewedOrder && (
-            <div className="py-6 space-y-6">
-              {/* Basic Order Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Order Number</h3>
-                  <p className="text-sm font-semibold">{viewedOrder.orderNumber}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Reference Number</h3>
-                  <p className="text-sm font-semibold">{viewedOrder.referenceNumber}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">AWB Number</h3>
-                  <p className="text-sm font-semibold">{viewedOrder.awbNumber}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
-                  <StatusBadge status={getStatusBadgeType(viewedOrder.status)}>
-                    {viewedOrder.status}
-                  </StatusBadge>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Service Type</h3>
-                  <p className="text-sm font-semibold capitalize">{viewedOrder.serviceType}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Created At</h3>
-                  <p className="text-sm font-semibold">{viewedOrder.createdAt}</p>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-border" />
-
-              {/* Receiver Info */}
-              <div>
-                <h3 className="text-base font-semibold mb-3">Receiver Information</h3>
-                <div className="space-y-2">
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Name: </span>
-                    <span className="text-sm">{viewedOrder.receiverInfo.name}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Phone: </span>
-                    <span className="text-sm">{viewedOrder.receiverInfo.phone}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Address: </span>
-                    <span className="text-sm">
-                      {viewedOrder.receiverInfo.address}, {viewedOrder.receiverInfo.area}, {viewedOrder.receiverInfo.city}, {viewedOrder.receiverInfo.province}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Divider */}
-              <div className="h-px bg-border" />
-
-              {/* Order Details */}
-              <div>
-                <h3 className="text-base font-semibold mb-3">Order Details</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Quantity: </span>
-                    <span className="text-sm">{viewedOrder.quantity}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Weight: </span>
-                    <span className="text-sm">{viewedOrder.weight} kg</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">COD: </span>
-                    <span className="text-sm">{viewedOrder.cod} EGP</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Value: </span>
-                    <span className="text-sm">{viewedOrder.valueOfGoods} EGP</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Courier: </span>
-                    <span className="text-sm">{viewedOrder.courier || 'Not Assigned'}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Warehouse: </span>
-                    <span className="text-sm">{viewedOrder.warehouse}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* NEW: Financial Summary */}
-              <div className="border rounded-md p-4 bg-muted/10">
-                <h3 className="text-base font-semibold mb-3">Financial Summary</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Payment Method: </span>
-                    <span className="text-sm">{viewedOrder.paymentMethod}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Payment Status: </span>
-                    <span className={cn(
-                      "text-sm font-medium px-2 py-0.5 rounded-full", 
-                      viewedOrder.paymentStatus === 'paid' ? "bg-green-100 text-green-700" : 
-                      viewedOrder.paymentStatus === 'pending' ? "bg-yellow-100 text-yellow-700" :
-                      viewedOrder.paymentStatus === 'refunded' ? "bg-blue-100 text-blue-700" : 
-                      "bg-red-100 text-red-700"
-                    )}>
-                      {viewedOrder.paymentStatus || 'Unknown'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Down Payment: </span>
-                    <span className="text-sm">
-                      {viewedOrder.downPayment?.applied 
-                        ? `Yes (${viewedOrder.downPayment.value} EGP)` 
-                        : 'No'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-muted-foreground">Discount: </span>
-                    <span className="text-sm">
-                      {viewedOrder.discountCode 
-                        ? `${viewedOrder.discountCode.code} (${viewedOrder.discountCode.value} EGP)` 
-                        : 'None'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-border" />
-
-              {/* Items */}
-              <div>
-                <h3 className="text-base font-semibold mb-3">Items</h3>
-                <div className="space-y-3">
-                  {viewedOrder.items.map((item, index) => (
-                    <div key={index} className="bg-muted p-2 rounded-md">
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium">{item.description}</span>
-                        <span className="text-sm">Qty: {item.quantity}</span>
-                      </div>
-                      <div className="text-xs text-muted-foreground">SKU: {item.sku}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Notes if available */}
-              {viewedOrder.notes && (
-                <>
-                  <div className="h-px bg-border" />
-                  <div>
-                    <h3 className="text-base font-semibold mb-2">Notes</h3>
-                    <p className="text-sm bg-muted p-3 rounded-md">{viewedOrder.notes}</p>
-                  </div>
-                </>
-              )}
-
-              {/* Actions */}
-              <div className="pt-4">
-                <div className="flex justify-end space-x-2">
-                  {canEdit(viewedOrder.status) && (
-                    <Button variant="default" size="sm">
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm" onClick={() => setViewOrderId(null)}>
-                    Close
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
-    </PageLayout>
-  );
-};
-
-export default Orders;
