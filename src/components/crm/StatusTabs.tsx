@@ -16,9 +16,9 @@ interface StatusTabsProps {
 
 export const StatusTabs: React.FC<StatusTabsProps> = ({ activeTab, setActiveTab, tabs }) => {
   return (
-    <div className="py-4">
+    <div className="py-4 overflow-x-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-md" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
+        <TabsList className="flex w-full" style={{ minWidth: 'max-content' }}>
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} className="flex justify-center items-center gap-2">
               {tab.label}
