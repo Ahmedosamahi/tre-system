@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -924,3 +925,288 @@ const Orders = () => {
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleViewOrder(order.id)}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          
+                          {canEdit(order.status) && (
+                            <>
+                              <DropdownMenuItem>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Order
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Edit COD
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Phone className="mr-2 h-4 w-4" />
+                                Edit Phone
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <CheckCircle2 className="mr-2 h-4 w-4" />
+                                Confirm Order
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          
+                          <DropdownMenuItem>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Create Ticket
+                          </DropdownMenuItem>
+                          
+                          {!['delivered', 'returned', 'canceled'].includes(order.status) && (
+                            <DropdownMenuItem className="text-destructive">
+                              <Ban className="mr-2 h-4 w-4" />
+                              Cancel Order
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-4 border-t">
+          <div className="text-sm text-muted-foreground">
+            Showing {Math.min(filteredOrders.length, 1 + (currentPage - 1) * rowsPerPage)} to {Math.min(filteredOrders.length, currentPage * rowsPerPage)} of {filteredOrders.length} orders
+          </div>
+          
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">Rows per page</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 px-2 text-xs">
+                    {rowsPerPage}
+                    <ChevronDown className="ml-1 h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {[10, 25, 50].map(value => (
+                    <DropdownMenuItem 
+                      key={value}
+                      onClick={() => {
+                        setRowsPerPage(value);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      {value}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
+                
+                {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                  // Simple pagination logic for up to 5 pages
+                  const pageNumber = i + 1;
+                  return (
+                    <PaginationItem key={i}>
+                      <PaginationLink 
+                        isActive={currentPage === pageNumber}
+                        onClick={() => setCurrentPage(pageNumber)}
+                      >
+                        {pageNumber}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+                
+                {totalPages > 5 && (
+                  <>
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink 
+                        isActive={currentPage === totalPages}
+                        onClick={() => setCurrentPage(totalPages)}
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
+                
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        </div>
+      </Card>
+
+      {/* Order Details Sheet */}
+      <Sheet open={!!viewOrderId} onOpenChange={(isOpen) => !isOpen && setViewOrderId(null)}>
+        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Order Details</SheetTitle>
+          </SheetHeader>
+          {viewedOrder && (
+            <div className="py-6 space-y-6">
+              {/* Basic Order Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Order Number</h3>
+                  <p className="text-sm font-semibold">{viewedOrder.orderNumber}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Reference Number</h3>
+                  <p className="text-sm font-semibold">{viewedOrder.referenceNumber}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">AWB Number</h3>
+                  <p className="text-sm font-semibold">{viewedOrder.awbNumber}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+                  <StatusBadge status={getStatusBadgeType(viewedOrder.status)}>
+                    {viewedOrder.status}
+                  </StatusBadge>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Service Type</h3>
+                  <p className="text-sm font-semibold capitalize">{viewedOrder.serviceType}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Created At</h3>
+                  <p className="text-sm font-semibold">{viewedOrder.createdAt}</p>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-border" />
+
+              {/* Receiver Info */}
+              <div>
+                <h3 className="text-base font-semibold mb-3">Receiver Information</h3>
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Name: </span>
+                    <span className="text-sm">{viewedOrder.receiverInfo.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Phone: </span>
+                    <span className="text-sm">{viewedOrder.receiverInfo.phone}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Address: </span>
+                    <span className="text-sm">
+                      {viewedOrder.receiverInfo.address}, {viewedOrder.receiverInfo.area}, {viewedOrder.receiverInfo.city}, {viewedOrder.receiverInfo.province}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Divider */}
+              <div className="h-px bg-border" />
+
+              {/* Order Details */}
+              <div>
+                <h3 className="text-base font-semibold mb-3">Order Details</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Quantity: </span>
+                    <span className="text-sm">{viewedOrder.quantity}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Weight: </span>
+                    <span className="text-sm">{viewedOrder.weight} kg</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">COD: </span>
+                    <span className="text-sm">{viewedOrder.cod} EGP</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Value: </span>
+                    <span className="text-sm">{viewedOrder.valueOfGoods} EGP</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Payment: </span>
+                    <span className="text-sm">{viewedOrder.paymentMethod}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Courier: </span>
+                    <span className="text-sm">{viewedOrder.courier || 'Not Assigned'}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Warehouse: </span>
+                    <span className="text-sm">{viewedOrder.warehouse}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-border" />
+
+              {/* Items */}
+              <div>
+                <h3 className="text-base font-semibold mb-3">Items</h3>
+                <div className="space-y-3">
+                  {viewedOrder.items.map((item, index) => (
+                    <div key={index} className="bg-muted p-2 rounded-md">
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium">{item.description}</span>
+                        <span className="text-sm">Qty: {item.quantity}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">SKU: {item.sku}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes if available */}
+              {viewedOrder.notes && (
+                <>
+                  <div className="h-px bg-border" />
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Notes</h3>
+                    <p className="text-sm bg-muted p-3 rounded-md">{viewedOrder.notes}</p>
+                  </div>
+                </>
+              )}
+
+              {/* Actions */}
+              <div className="pt-4">
+                <div className="flex justify-end space-x-2">
+                  {canEdit(viewedOrder.status) && (
+                    <Button variant="default" size="sm">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => setViewOrderId(null)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </PageLayout>
+  );
+};
+
+export default Orders;
