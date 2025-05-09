@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -1178,10 +1177,16 @@ const Orders = () => {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                />
+                {currentPage > 1 ? (
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
+                  />
+                ) : (
+                  <span className="flex h-10 items-center gap-1 pl-2.5 opacity-50">
+                    <ChevronDown className="h-4 w-4 rotate-90" />
+                    <span>Previous</span>
+                  </span>
+                )}
               </PaginationItem>
               
               {Array.from({ length: totalPages }).map((_, i) => {
@@ -1212,10 +1217,16 @@ const Orders = () => {
               })}
               
               <PaginationItem>
-                <PaginationNext 
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                />
+                {currentPage < totalPages ? (
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  />
+                ) : (
+                  <span className="flex h-10 items-center gap-1 pr-2.5 opacity-50">
+                    <span>Next</span>
+                    <ChevronDown className="h-4 w-4 rotate-270" />
+                  </span>
+                )}
               </PaginationItem>
             </PaginationContent>
           </Pagination>
