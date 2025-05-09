@@ -27,6 +27,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { toast } from '@/components/ui/sonner';
 import { format } from 'date-fns';
 import { 
   ArrowUpDown, 
@@ -43,7 +44,9 @@ import {
   Phone,
   CheckCircle2,
   Download,
-  ChevronUp
+  ChevronUp,
+  Printer,
+  FileText as FileTextIcon
 } from 'lucide-react';
 import { 
   Pagination, 
@@ -87,6 +90,15 @@ interface Order {
   courier?: string;
   status: OrderStatus;
   paymentMethod: string;
+  paymentStatus?: 'paid' | 'pending' | 'failed' | 'refunded';
+  downPayment?: {
+    applied: boolean;
+    value?: number;
+  };
+  discountCode?: {
+    code: string;
+    value: number;
+  };
   receiverInfo: {
     name: string;
     phone: string;
@@ -137,6 +149,31 @@ const getStatusBadgeType = (status: OrderStatus): 'success' | 'warning' | 'dange
   }
 };
 
+// Helper function to determine if bulk actions are allowed for a status
+const areBulkActionsAllowed = (status: string): boolean => {
+  const disallowedStatuses = ['delivered', 'returned', 'canceled', 'refunded'];
+  return status === 'all' || !disallowedStatuses.includes(status);
+};
+
+// Helper function to get available bulk actions for a status
+const getBulkActions = (status: string): string[] => {
+  switch(status) {
+    case 'pending':
+      return ['assignShipping', 'assignAuto', 'changeStatus'];
+    case 'confirmed':
+    case 'dispatched':
+      return ['assignShipping', 'changeStatus'];
+    case 'picked-up':
+    case 'delivering':
+    case 'returning':
+    case 'abnormal':
+    case 'pending-refund':
+      return ['changeStatus'];
+    default:
+      return [];
+  }
+};
+
 const Orders = () => {
   // States
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -162,6 +199,7 @@ const Orders = () => {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkStatus, setBulkStatus] = useState('');
   const [bulkCourier, setBulkCourier] = useState('');
+  const [isProcessingBulkAction, setIsProcessingBulkAction] = useState(false);
 
   // Mock data
   const sampleOrders: Order[] = [
@@ -178,6 +216,7 @@ const Orders = () => {
       courier: 'Aramex',
       status: 'pending',
       paymentMethod: 'Cash',
+      paymentStatus: 'pending',
       receiverInfo: {
         name: 'Ahmed Mohamed',
         phone: '+201012345678',
@@ -206,6 +245,11 @@ const Orders = () => {
       courier: 'Fedex',
       status: 'confirmed',
       paymentMethod: 'Vodafone Cash',
+      paymentStatus: 'paid',
+      discountCode: {
+        code: 'SUMMER10',
+        value: 15
+      },
       receiverInfo: {
         name: 'Sara Ali',
         phone: '+201123456789',
@@ -233,6 +277,11 @@ const Orders = () => {
       courier: 'DHL',
       status: 'delivered',
       paymentMethod: 'Visa',
+      paymentStatus: 'paid',
+      downPayment: {
+        applied: true,
+        value: 50
+      },
       receiverInfo: {
         name: 'Mohamed Hassan',
         phone: '+201234567890',
@@ -260,6 +309,7 @@ const Orders = () => {
       valueOfGoods: 200,
       status: 'pending-refund',
       paymentMethod: 'ValU',
+      paymentStatus: 'pending',
       receiverInfo: {
         name: 'Nour Ibrahim',
         phone: '+201345678901',
@@ -287,6 +337,11 @@ const Orders = () => {
       courier: 'Aramex',
       status: 'refunded',
       paymentMethod: 'Credit Card',
+      paymentStatus: 'refunded',
+      discountCode: {
+        code: 'WELCOME20',
+        value: 70
+      },
       receiverInfo: {
         name: 'Amir Salah',
         phone: '+201456789012',
@@ -468,24 +523,63 @@ const Orders = () => {
     setSearchTerm('');
   };
 
-  const handleBulkAction = (action: string) => {
-    console.log(`Performing bulk action: ${action}`, selectedOrders);
-    if (action === 'status' && bulkStatus) {
-      console.log(`Setting status to: ${bulkStatus} for ${selectedOrders.length} orders`);
-      // Toast notification would be shown here
-      // In real implementation, we would update the orders' status in the database
-    } else if (action === 'assignCourier' && bulkCourier) {
-      console.log(`Assigning courier: ${bulkCourier} to ${selectedOrders.length} orders`);
-      // In real implementation, we would update the orders' courier in the database
-    } else if (action === 'autoAssign') {
-      console.log(`Auto assigning couriers to ${selectedOrders.length} orders`);
-      // In real implementation, we would trigger the auto-assign logic
+  const handleBulkAction = async (action: string) => {
+    if (selectedOrders.length === 0) {
+      toast.error("Please select at least one order");
+      return;
+    }
+
+    setIsProcessingBulkAction(true);
+    
+    try {
+      console.log(`Performing bulk action: ${action}`, selectedOrders);
+      
+      // Simulate an asynchronous operation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (action === 'changeStatus' && bulkStatus) {
+        console.log(`Setting status to: ${bulkStatus} for ${selectedOrders.length} orders`);
+        toast.success(`Successfully changed status to ${bulkStatus} for ${selectedOrders.length} orders`);
+      } else if (action === 'assignShipping' && bulkCourier) {
+        console.log(`Assigning courier: ${bulkCourier} to ${selectedOrders.length} orders`);
+        toast.success(`Successfully assigned ${bulkCourier} to ${selectedOrders.length} orders`);
+      } else if (action === 'assignAuto') {
+        console.log(`Auto assigning couriers to ${selectedOrders.length} orders`);
+        toast.success(`Successfully auto-assigned couriers to ${selectedOrders.length} orders`);
+      } else {
+        toast.error("Please select a valid action option");
+      }
+    } catch (error) {
+      console.error("Error performing bulk action:", error);
+      toast.error("Failed to process the bulk action. Please try again.");
+    } finally {
+      setIsProcessingBulkAction(false);
+      // Clear selections after successful action
+      setSelectedOrders([]);
+      setBulkStatus('');
+      setBulkCourier('');
+    }
+  };
+
+  // Handle print functions
+  const handlePrintAWB = () => {
+    if (selectedOrders.length === 0) {
+      toast.error("Please select at least one order to print AWB");
+      return;
     }
     
-    // Clear selections after action
-    setSelectedOrders([]);
-    setBulkStatus('');
-    setBulkCourier('');
+    console.log(`Printing AWB for ${selectedOrders.length} orders`);
+    toast.success(`Preparing to print ${selectedOrders.length} AWB documents`);
+  };
+  
+  const handlePrintInvoice = () => {
+    if (selectedOrders.length === 0) {
+      toast.error("Please select at least one order to print invoice");
+      return;
+    }
+    
+    console.log(`Printing invoices for ${selectedOrders.length} orders`);
+    toast.success(`Preparing to print ${selectedOrders.length} invoices`);
   };
 
   // Handle row click to view order
@@ -499,6 +593,10 @@ const Orders = () => {
   // Handle can edit logic
   const canEdit = (status: OrderStatus) => status === 'pending';
   
+  // Available bulk actions based on active tab
+  const availableBulkActions = getBulkActions(activeTab);
+  const bulkActionsAllowed = areBulkActionsAllowed(activeTab);
+  
   return (
     <PageLayout>
       <div className="flex justify-between items-center mb-6">
@@ -507,6 +605,7 @@ const Orders = () => {
           <h1 className="text-2xl font-bold text-gray-800">Orders</h1>
         </div>
         <div className="flex gap-4">
+          {/* Export Button */}
           <Button 
             variant="outline" 
             className="flex items-center gap-2"
@@ -515,12 +614,105 @@ const Orders = () => {
             <Download className="h-4 w-4" />
             Export All
           </Button>
+          
+          {/* Bulk Actions Button - Appears when orders are selected */}
+          {showBulkActions && bulkActionsAllowed && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  className="bg-brand text-white hover:bg-brand-dark"
+                  disabled={isProcessingBulkAction}
+                >
+                  {isProcessingBulkAction ? 'Processing...' : 'Bulk Actions'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {availableBulkActions.includes('changeStatus') && (
+                  <div className="p-2 border-b">
+                    <p className="text-sm font-medium mb-1">Change Status</p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-between">
+                          {bulkStatus || "Select Status"}
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        {statusTabs
+                          .filter(tab => tab.id !== 'all' && tab.id !== activeTab)
+                          .map(tab => (
+                            <DropdownMenuItem 
+                              key={tab.id}
+                              onClick={() => setBulkStatus(tab.id as string)}
+                            >
+                              {tab.label}
+                            </DropdownMenuItem>
+                          ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button 
+                      className="w-full mt-2" 
+                      size="sm"
+                      disabled={!bulkStatus || isProcessingBulkAction}
+                      onClick={() => handleBulkAction('changeStatus')}
+                    >
+                      Apply Status Change
+                    </Button>
+                  </div>
+                )}
+                
+                {availableBulkActions.includes('assignShipping') && (
+                  <div className="p-2 border-b">
+                    <p className="text-sm font-medium mb-1">Assign Shipping Company</p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-between">
+                          {bulkCourier || "Select Courier"}
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem onClick={() => setBulkCourier('Aramex')}>
+                          Aramex
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setBulkCourier('DHL')}>
+                          DHL
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setBulkCourier('Fedex')}>
+                          Fedex
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button 
+                      className="w-full mt-2" 
+                      size="sm"
+                      disabled={!bulkCourier || isProcessingBulkAction}
+                      onClick={() => handleBulkAction('assignShipping')}
+                    >
+                      Assign Courier
+                    </Button>
+                  </div>
+                )}
+                
+                {availableBulkActions.includes('assignAuto') && (
+                  <DropdownMenuItem 
+                    onClick={() => handleBulkAction('assignAuto')}
+                    disabled={isProcessingBulkAction}
+                    className="cursor-pointer"
+                  >
+                    Auto Assign Courier
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          
           <CreateOrderButton />
         </div>
       </div>
 
-      {/* Filters Toggle Button */}
-      <div className="mb-2">
+      {/* Filters Toggle Button and Print Options */}
+      <div className="flex justify-between items-center mb-2">
         <Button 
           variant="ghost" 
           className="flex items-center gap-2 text-sm"
@@ -529,6 +721,30 @@ const Orders = () => {
           {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           {showFilters ? "Hide Filters" : "Show Filters"}
         </Button>
+        
+        {/* Print Options */}
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1"
+            onClick={handlePrintAWB}
+            disabled={selectedOrders.length === 0}
+          >
+            <Printer className="h-4 w-4" />
+            Print AWB
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1"
+            onClick={handlePrintInvoice}
+            disabled={selectedOrders.length === 0}
+          >
+            <FileTextIcon className="h-4 w-4" />
+            Print Invoice
+          </Button>
+        </div>
       </div>
 
       {/* Filters Card - Expandable */}
@@ -740,7 +956,10 @@ const Orders = () => {
 
       {/* Status Tabs */}
       <div className="mb-6 overflow-x-auto">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={val => {
+          setActiveTab(val);
+          setSelectedOrders([]); // Clear selections when changing tabs
+        }} className="w-full">
           <TabsList className="inline-flex h-10 space-x-1 bg-muted p-1">
             {statusTabs.map(tab => (
               <TabsTrigger
@@ -758,94 +977,6 @@ const Orders = () => {
           </TabsList>
         </Tabs>
       </div>
-
-      {/* Bulk Actions Panel */}
-      {showBulkActions && (
-        <div className="sticky top-0 z-10 bg-white shadow-md p-4 rounded-lg mb-4 animate-in slide-in-from-top">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-medium">{selectedOrders.length} orders selected</span>
-            
-            <div className="flex items-center gap-2">
-              <Label htmlFor="bulk-status">Change Status:</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    {bulkStatus || "Select Status"}
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  {statusTabs
-                    .filter(tab => tab.id !== 'all')
-                    .map(tab => (
-                      <DropdownMenuItem 
-                        key={tab.id}
-                        onClick={() => setBulkStatus(tab.id as string)}
-                      >
-                        {tab.label}
-                      </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button 
-                size="sm" 
-                disabled={!bulkStatus}
-                onClick={() => handleBulkAction('status')}
-              >
-                Apply
-              </Button>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Label htmlFor="bulk-courier">Assign Courier:</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    {bulkCourier || "Select Courier"}
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem onClick={() => setBulkCourier('Aramex')}>
-                    Aramex
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setBulkCourier('DHL')}>
-                    DHL
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setBulkCourier('Fedex')}>
-                    Fedex
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button 
-                size="sm" 
-                disabled={!bulkCourier}
-                onClick={() => handleBulkAction('assignCourier')}
-              >
-                Apply
-              </Button>
-            </div>
-            
-            <Button 
-              size="sm"
-              variant="secondary"
-              onClick={() => handleBulkAction('autoAssign')}
-            >
-              Auto Assign Courier
-            </Button>
-            
-            <Button 
-              size="sm"
-              variant="outline"
-              className="ml-auto"
-              onClick={() => setSelectedOrders([])}
-            >
-              <X className="h-4 w-4 mr-2" />
-              Clear Selection
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Orders Table */}
       <Card className="mb-6">
@@ -1143,16 +1274,51 @@ const Orders = () => {
                     <span className="text-sm">{viewedOrder.valueOfGoods} EGP</span>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-muted-foreground">Payment: </span>
-                    <span className="text-sm">{viewedOrder.paymentMethod}</span>
-                  </div>
-                  <div>
                     <span className="text-sm font-medium text-muted-foreground">Courier: </span>
                     <span className="text-sm">{viewedOrder.courier || 'Not Assigned'}</span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-muted-foreground">Warehouse: </span>
                     <span className="text-sm">{viewedOrder.warehouse}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* NEW: Financial Summary */}
+              <div className="border rounded-md p-4 bg-muted/10">
+                <h3 className="text-base font-semibold mb-3">Financial Summary</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Payment Method: </span>
+                    <span className="text-sm">{viewedOrder.paymentMethod}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Payment Status: </span>
+                    <span className={cn(
+                      "text-sm font-medium px-2 py-0.5 rounded-full", 
+                      viewedOrder.paymentStatus === 'paid' ? "bg-green-100 text-green-700" : 
+                      viewedOrder.paymentStatus === 'pending' ? "bg-yellow-100 text-yellow-700" :
+                      viewedOrder.paymentStatus === 'refunded' ? "bg-blue-100 text-blue-700" : 
+                      "bg-red-100 text-red-700"
+                    )}>
+                      {viewedOrder.paymentStatus || 'Unknown'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Down Payment: </span>
+                    <span className="text-sm">
+                      {viewedOrder.downPayment?.applied 
+                        ? `Yes (${viewedOrder.downPayment.value} EGP)` 
+                        : 'No'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Discount: </span>
+                    <span className="text-sm">
+                      {viewedOrder.discountCode 
+                        ? `${viewedOrder.discountCode.code} (${viewedOrder.discountCode.value} EGP)` 
+                        : 'None'}
+                    </span>
                   </div>
                 </div>
               </div>
