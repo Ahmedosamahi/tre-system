@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -929,3 +930,378 @@ const Orders = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
                     {filters.status || "Select Status"}
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => setFilters(prev => ({ ...prev, status: '' }))}>
+                    All
+                  </DropdownMenuItem>
+                  {statusTabs
+                    .filter(tab => tab.id !== 'all')
+                    .map(tab => (
+                      <DropdownMenuItem 
+                        key={tab.id}
+                        onClick={() => setFilters(prev => ({ ...prev, status: tab.id as string }))}
+                      >
+                        {tab.label}
+                      </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 items-end">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={handleClearFilters}
+              >
+                Clear Filters
+              </Button>
+              <Button 
+                className="flex-1"
+                onClick={() => console.log('Applied filters:', filters)}
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Orders Table */}
+      <Card className="overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table className="w-full">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox 
+                    checked={selectedOrders.length === paginatedOrders.length && paginatedOrders.length > 0}
+                    onCheckedChange={handleSelectAllOrders}
+                  />
+                </TableHead>
+                <TableHead className="min-w-[160px]">
+                  <div className="flex items-center">
+                    Order #
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </div>
+                </TableHead>
+                <TableHead className="min-w-[140px]">Status</TableHead>
+                <TableHead className="min-w-[160px]">Customer</TableHead>
+                <TableHead className="min-w-[150px]">Service</TableHead>
+                <TableHead className="min-w-[140px]">Courier</TableHead>
+                <TableHead className="min-w-[100px]">COD Amount</TableHead>
+                <TableHead className="min-w-[180px]">Created</TableHead>
+                <TableHead className="min-w-[100px] text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedOrders.length > 0 ? (
+                paginatedOrders.map((order) => (
+                  <TableRow key={order.id} onClick={() => handleRowClick(order.id)} className="cursor-pointer">
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox 
+                        checked={selectedOrders.includes(order.id)} 
+                        onCheckedChange={() => handleSelectOrder(order.id)}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">{order.orderNumber}</TableCell>
+                    <TableCell>
+                      <StatusBadge 
+                        type={getStatusBadgeType(order.status)}
+                        label={order.status.replace('-', ' ')}
+                      />
+                    </TableCell>
+                    <TableCell>{order.receiverInfo.name}</TableCell>
+                    <TableCell className="capitalize">{order.serviceType}</TableCell>
+                    <TableCell>{order.courier || '-'}</TableCell>
+                    <TableCell>{order.cod ? `${order.cod} EGP` : '-'}</TableCell>
+                    <TableCell>{order.createdAt}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewOrder(order.id);
+                          }}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            <span>View Details</span>
+                          </DropdownMenuItem>
+                          
+                          {canEdit(order.status) && (
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              console.log('Edit Order:', order.id);
+                            }}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              <span>Edit Order</span>
+                            </DropdownMenuItem>
+                          )}
+                          
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            console.log('Call customer:', order.receiverInfo.phone);
+                          }}>
+                            <Phone className="mr-2 h-4 w-4" />
+                            <span>Call Customer</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={9} className="h-24 text-center">
+                    No orders found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
+                />
+              </PaginationItem>
+              
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                let pageNum;
+                
+                // Simple pagination for now, can be enhanced for larger page counts
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else {
+                  // Complex pagination logic here if needed
+                  pageNum = i + 1;
+                }
+                
+                return (
+                  <PaginationItem key={i}>
+                    <PaginationLink 
+                      isActive={pageNum === currentPage}
+                      onClick={() => setCurrentPage(pageNum)}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              
+              {totalPages > 5 && (
+                <>
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink onClick={() => setCurrentPage(totalPages)}>
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
+                </>
+              )}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+
+      {/* Order Detail Side Panel */}
+      <Sheet open={!!viewOrderId} onOpenChange={() => setViewOrderId(null)}>
+        <SheetContent className="sm:max-w-md lg:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex justify-between items-center">
+              <span>Order Details</span>
+              {viewedOrder && (
+                <StatusBadge 
+                  type={getStatusBadgeType(viewedOrder.status)}
+                  label={viewedOrder.status.replace('-', ' ')}
+                />
+              )}
+            </SheetTitle>
+          </SheetHeader>
+          
+          {viewedOrder && (
+            <div className="mt-6 space-y-6">
+              {/* General Info */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium border-b pb-2">Order Information</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Order Number</p>
+                    <p className="font-medium">{viewedOrder.orderNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">AWB</p>
+                    <p className="font-medium">{viewedOrder.awbNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Reference</p>
+                    <p className="font-medium">{viewedOrder.referenceNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Created</p>
+                    <p className="font-medium">{viewedOrder.createdAt}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Warehouse</p>
+                    <p className="font-medium">{viewedOrder.warehouse}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Service Type</p>
+                    <p className="font-medium capitalize">{viewedOrder.serviceType}</p>
+                  </div>
+                  {viewedOrder.courier && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Shipping Company</p>
+                      <p className="font-medium">{viewedOrder.courier}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Financial Summary - NEW SECTION */}
+              <div className="space-y-4 bg-muted/20 p-4 rounded-lg">
+                <h3 className="text-lg font-medium border-b pb-2">Financial Summary</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Payment Method</p>
+                    <p className="font-medium">{viewedOrder.paymentMethod}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Payment Status</p>
+                    <StatusBadge 
+                      type={viewedOrder.paymentStatus === 'paid' ? 'success' : 
+                            viewedOrder.paymentStatus === 'failed' ? 'danger' : 
+                            viewedOrder.paymentStatus === 'refunded' ? 'info' : 'warning'}
+                      label={viewedOrder.paymentStatus || 'Unknown'}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">COD Amount</p>
+                    <p className="font-medium">{viewedOrder.cod ? `${viewedOrder.cod} EGP` : 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Value of Goods</p>
+                    <p className="font-medium">{viewedOrder.valueOfGoods} EGP</p>
+                  </div>
+                  {viewedOrder.downPayment?.applied && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Down Payment</p>
+                      <p className="font-medium">{viewedOrder.downPayment.value} EGP</p>
+                    </div>
+                  )}
+                  {viewedOrder.discountCode && (
+                    <div className="col-span-2">
+                      <p className="text-xs text-muted-foreground">Discount Applied</p>
+                      <div className="flex items-center gap-2">
+                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-md font-medium">
+                          {viewedOrder.discountCode.code}
+                        </span>
+                        <span className="text-sm font-medium">-{viewedOrder.discountCode.value} EGP</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Customer Info */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium border-b pb-2">Receiver Information</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Name</p>
+                    <p className="font-medium">{viewedOrder.receiverInfo.name}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Phone</p>
+                    <p className="font-medium">{viewedOrder.receiverInfo.phone}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Address</p>
+                    <p className="font-medium">{viewedOrder.receiverInfo.address}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Area</p>
+                    <p className="font-medium">{viewedOrder.receiverInfo.area}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">City</p>
+                    <p className="font-medium">{viewedOrder.receiverInfo.city}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Province</p>
+                    <p className="font-medium">{viewedOrder.receiverInfo.province}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Order Items */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium border-b pb-2">Order Items</h3>
+                <div className="space-y-3">
+                  {viewedOrder.items.map((item, index) => (
+                    <div key={index} className="bg-muted/20 p-3 rounded-md">
+                      <div className="flex justify-between">
+                        <p className="font-medium">{item.description}</p>
+                        <p>Qty: {item.quantity}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">SKU: {item.sku}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 flex items-center justify-between pt-2">
+                  <p className="text-sm text-muted-foreground">Total Quantity:</p>
+                  <p className="font-medium">{viewedOrder.quantity} items</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">Total Weight:</p>
+                  <p className="font-medium">{viewedOrder.weight} kg</p>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-4">
+                {canEdit(viewedOrder.status) && (
+                  <Button className="flex-1">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Order
+                  </Button>
+                )}
+                <Button variant="outline" className="flex-1" onClick={() => setViewOrderId(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </PageLayout>
+  );
+};
+
+export default Orders;
