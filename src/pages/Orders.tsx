@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -1011,9 +1010,10 @@ const Orders = () => {
                     <TableCell className="font-medium">{order.orderNumber}</TableCell>
                     <TableCell>
                       <StatusBadge 
-                        type={getStatusBadgeType(order.status)}
-                        label={order.status.replace('-', ' ')}
-                      />
+                        status={getStatusBadgeType(order.status)}
+                      >
+                        {order.status.replace('-', ' ')}
+                      </StatusBadge>
                     </TableCell>
                     <TableCell>{order.receiverInfo.name}</TableCell>
                     <TableCell className="capitalize">{order.serviceType}</TableCell>
@@ -1078,8 +1078,8 @@ const Orders = () => {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious 
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                  onClick={() => currentPage > 1 && setCurrentPage(prev => Math.max(prev - 1, 1))} 
                 />
               </PaginationItem>
               
@@ -1112,7 +1112,10 @@ const Orders = () => {
                     <PaginationEllipsis />
                   </PaginationItem>
                   <PaginationItem>
-                    <PaginationLink onClick={() => setCurrentPage(totalPages)}>
+                    <PaginationLink
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                      onClick={() => currentPage !== totalPages && setCurrentPage(totalPages)}
+                    >
                       {totalPages}
                     </PaginationLink>
                   </PaginationItem>
@@ -1121,8 +1124,8 @@ const Orders = () => {
               
               <PaginationItem>
                 <PaginationNext 
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                  onClick={() => currentPage < totalPages && setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
                 />
               </PaginationItem>
             </PaginationContent>
@@ -1138,9 +1141,10 @@ const Orders = () => {
               <span>Order Details</span>
               {viewedOrder && (
                 <StatusBadge 
-                  type={getStatusBadgeType(viewedOrder.status)}
-                  label={viewedOrder.status.replace('-', ' ')}
-                />
+                  status={getStatusBadgeType(viewedOrder.status)}
+                >
+                  {viewedOrder.status.replace('-', ' ')}
+                </StatusBadge>
               )}
             </SheetTitle>
           </SheetHeader>
@@ -1195,11 +1199,12 @@ const Orders = () => {
                   <div>
                     <p className="text-xs text-muted-foreground">Payment Status</p>
                     <StatusBadge 
-                      type={viewedOrder.paymentStatus === 'paid' ? 'success' : 
+                      status={viewedOrder.paymentStatus === 'paid' ? 'success' : 
                             viewedOrder.paymentStatus === 'failed' ? 'danger' : 
                             viewedOrder.paymentStatus === 'refunded' ? 'info' : 'warning'}
-                      label={viewedOrder.paymentStatus || 'Unknown'}
-                    />
+                    >
+                      {viewedOrder.paymentStatus || 'Unknown'}
+                    </StatusBadge>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">COD Amount</p>
