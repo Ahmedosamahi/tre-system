@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -30,6 +31,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { toast } from '@/components/ui/sonner';
 import { format } from 'date-fns';
 import { SearchBox } from '@/components/ui/SearchBox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   ArrowUpDown, 
   CalendarIcon, 
@@ -108,6 +116,7 @@ interface Order {
   status: OrderStatus;
   paymentMethod: string;
   paymentStatus?: 'paid' | 'pending' | 'failed' | 'refunded' | 'partially-paid';
+  deliveryAttempts?: number;
   downPayment?: {
     applied: boolean;
     value?: number;
@@ -183,6 +192,14 @@ const getPaymentStatusBadge = (status?: string): 'success' | 'warning' | 'danger
   }
 };
 
+// Helper function to get delivery attempts badge style
+const getAttemptsStatusBadge = (attempts: number): 'success' | 'warning' | 'danger' | 'default' => {
+  if (attempts === 0) return 'default';
+  if (attempts <= 2) return 'success';
+  if (attempts === 3) return 'warning';
+  return 'danger';
+};
+
 // Helper function to get payment method icon
 const getPaymentMethodIcon = (method: string) => {
   switch(method?.toLowerCase()) {
@@ -242,7 +259,10 @@ const Orders = () => {
     phone: '',
     serviceType: '',
     courier: '',
-    status: ''
+    status: '',
+    warehouse: '',
+    paymentMethod: '',
+    city: ''
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -268,6 +288,7 @@ const Orders = () => {
       status: 'pending',
       paymentMethod: 'Cash',
       paymentStatus: 'pending',
+      deliveryAttempts: 0,
       receiverInfo: {
         name: 'Ahmed Mohamed',
         phone: '+201012345678',
@@ -297,6 +318,7 @@ const Orders = () => {
       status: 'confirmed',
       paymentMethod: 'Vodafone Cash',
       paymentStatus: 'paid',
+      deliveryAttempts: 0,
       discountCode: {
         code: 'SUMMER10',
         value: 15
@@ -329,6 +351,7 @@ const Orders = () => {
       status: 'delivered',
       paymentMethod: 'Visa',
       paymentStatus: 'paid',
+      deliveryAttempts: 1,
       downPayment: {
         applied: true,
         value: 50
@@ -361,6 +384,7 @@ const Orders = () => {
       status: 'pending-refund',
       paymentMethod: 'ValU',
       paymentStatus: 'partially-paid',
+      deliveryAttempts: 3,
       downPayment: {
         applied: true,
         value: 75
@@ -393,6 +417,7 @@ const Orders = () => {
       status: 'refunded',
       paymentMethod: 'Credit Card',
       paymentStatus: 'refunded',
+      deliveryAttempts: 5,
       discountCode: {
         code: 'WELCOME20',
         value: 70
@@ -413,6 +438,12 @@ const Orders = () => {
       createdAt: '2025-05-03'
     }
   ];
+
+  // Mock data for filter dropdowns
+  const warehouses = ['All Warehouses', 'Cairo Main', 'Giza Branch', 'Alexandria Branch', 'Mansoura Branch', 'Upper Egypt Branch'];
+  const courierCompanies = ['All Couriers', 'Aramex', 'DHL', 'Fedex', 'UPS', 'Egypt Post'];
+  const paymentMethods = ['All Methods', 'Cash', 'Cash on Delivery', 'Credit Card', 'Vodafone Cash', 'ValU'];
+  const cities = ['All Cities', 'Cairo', 'Alexandria', 'Giza', 'Luxor', 'Mansoura', 'Aswan', 'Port Said', 'Suez'];
 
   // Status tabs with counts
   const statusTabs: StatusTab[] = [
@@ -540,10 +571,20 @@ const Orders = () => {
         if (filters.serviceType && order.serviceType !== filters.serviceType) {
           return false;
         }
-        if (filters.courier && order.courier !== filters.courier) {
+        if (filters.courier && filters.courier !== 'All Couriers' && order.courier !== filters.courier) {
           return false;
         }
         if (filters.status && order.status !== filters.status) {
+          return false;
+        }
+        if (filters.warehouse && filters.warehouse !== 'All Warehouses' && order.warehouse !== filters.warehouse) {
+          return false;
+        }
+        if (filters.paymentMethod && filters.paymentMethod !== 'All Methods' && 
+            !order.paymentMethod.toLowerCase().includes(filters.paymentMethod.toLowerCase())) {
+          return false;
+        }
+        if (filters.city && filters.city !== 'All Cities' && order.receiverInfo.city !== filters.city) {
           return false;
         }
         
@@ -594,7 +635,10 @@ const Orders = () => {
       phone: '',
       serviceType: '',
       courier: '',
-      status: ''
+      status: '',
+      warehouse: '',
+      paymentMethod: '',
+      city: ''
     });
     setDateRange({ from: null, to: null });
     setSearchTerm('');
@@ -958,6 +1002,86 @@ const Orders = () => {
                 placeholder="Enter reference number"
               />
             </div>
+            
+            {/* New Filter: Warehouse */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="warehouse">Warehouse</Label>
+              <Select 
+                value={filters.warehouse} 
+                onValueChange={(value) => setFilters(prev => ({ ...prev, warehouse: value }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select warehouse" />
+                </SelectTrigger>
+                <SelectContent>
+                  {warehouses.map(warehouse => (
+                    <SelectItem key={warehouse} value={warehouse}>
+                      {warehouse}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* New Filter: Courier Company */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="courier">Courier Company</Label>
+              <Select 
+                value={filters.courier} 
+                onValueChange={(value) => setFilters(prev => ({ ...prev, courier: value }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select courier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courierCompanies.map(courier => (
+                    <SelectItem key={courier} value={courier}>
+                      {courier}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* New Filter: Payment Method */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="paymentMethod">Payment Method</Label>
+              <Select 
+                value={filters.paymentMethod} 
+                onValueChange={(value) => setFilters(prev => ({ ...prev, paymentMethod: value }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  {paymentMethods.map(method => (
+                    <SelectItem key={method} value={method}>
+                      {method}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* New Filter: City / Governorate */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="city">City / Governorate</Label>
+              <Select 
+                value={filters.city} 
+                onValueChange={(value) => setFilters(prev => ({ ...prev, city: value }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map(city => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </Card>
       )}
@@ -989,6 +1113,8 @@ const Orders = () => {
                 <TableHead>Customer</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Courier</TableHead>
+                <TableHead>Attempts</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead className="text-center">Payment</TableHead>
                 <TableHead className="w-[120px] text-center">Actions</TableHead>
@@ -997,7 +1123,7 @@ const Orders = () => {
             <TableBody>
               {paginatedOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
+                  <TableCell colSpan={10} className="h-24 text-center">
                     No orders found.
                   </TableCell>
                 </TableRow>
@@ -1046,10 +1172,19 @@ const Orders = () => {
                       >
                         {order.status.replace('-', ' ')}
                       </StatusBadge>
-                      {order.courier && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {order.courier}
-                        </div>
+                    </TableCell>
+                    <TableCell>
+                      {order.courier || '-'}
+                    </TableCell>
+                    <TableCell>
+                      {(order.deliveryAttempts || order.deliveryAttempts === 0) && (
+                        <StatusBadge 
+                          status={getAttemptsStatusBadge(order.deliveryAttempts)}
+                          className={`${order.deliveryAttempts > 3 ? 'font-bold' : ''}`}
+                          title={order.deliveryAttempts > 3 ? `Excessive delivery attempts (${order.deliveryAttempts})` : undefined}
+                        >
+                          {order.deliveryAttempts}
+                        </StatusBadge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -1259,12 +1394,14 @@ const Orders = () => {
                       <span className="text-muted-foreground">Weight:</span>
                       <span className="font-medium">{viewedOrder.weight} kg</span>
                     </p>
-                    {viewedOrder.courier && (
-                      <p className="flex justify-between">
-                        <span className="text-muted-foreground">Courier:</span>
-                        <span className="font-medium">{viewedOrder.courier}</span>
-                      </p>
-                    )}
+                    <p className="flex justify-between">
+                      <span className="text-muted-foreground">Courier:</span>
+                      <span className="font-medium">{viewedOrder.courier || 'Not assigned'}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="text-muted-foreground">Delivery Attempts:</span>
+                      <span className="font-medium">{viewedOrder.deliveryAttempts || 0}</span>
+                    </p>
                     <p className="flex justify-between">
                       <span className="text-muted-foreground">Warehouse:</span>
                       <span className="font-medium">{viewedOrder.warehouse}</span>
