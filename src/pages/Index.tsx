@@ -22,31 +22,37 @@ const Index = () => {
       
       <MetricsCards />
       
-      <div className="mb-8">
-        <Card className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none overflow-hidden relative">
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-3/4 p-6">
-              <h2 className="text-xl font-bold uppercase mb-1">Same-Day Delivery</h2>
-              <p className="mb-4 text-blue-100">Get your orders delivered within hours, guaranteed shipping speed</p>
-              
-              <div className="flex space-x-4 mt-4">
-                <button className="bg-white text-blue-600 px-4 py-2 rounded-md font-medium">
-                  Enable Now
-                </button>
-                <button className="border border-white text-white px-4 py-2 rounded-md font-medium">
-                  Learn more
-                </button>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 my-8">
+        <div className="md:col-span-2">
+          <Card className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none overflow-hidden relative h-full">
+            <div className="flex flex-col md:flex-row">
+              <div className="md:w-3/4 p-6">
+                <h2 className="text-xl font-bold uppercase mb-1">Same-Day Delivery</h2>
+                <p className="mb-4 text-blue-100">Get your orders delivered within hours, guaranteed shipping speed</p>
+                
+                <div className="flex space-x-4 mt-4">
+                  <button className="bg-white text-blue-600 px-4 py-2 rounded-md font-medium">
+                    Enable Now
+                  </button>
+                  <button className="border border-white text-white px-4 py-2 rounded-md font-medium">
+                    Learn more
+                  </button>
+                </div>
+              </div>
+              <div className="md:w-1/4 flex items-center justify-center py-4">
+                <img 
+                  src="/lovable-uploads/a3b0ea0c-decd-4657-802b-0a72815c2baf.png"
+                  alt="Delivery Person"
+                  className="h-48 object-contain"
+                />
               </div>
             </div>
-            <div className="md:w-1/4 flex items-center justify-center py-4">
-              <img 
-                src="/lovable-uploads/a3b0ea0c-decd-4657-802b-0a72815c2baf.png"
-                alt="Delivery Person"
-                className="h-48 object-contain"
-              />
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
+        
+        <div className="md:col-span-1">
+          <CODShipments />
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -69,7 +75,6 @@ const Index = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <CODShipments />
         <ReturnedReasons />
       </div>
     </PageLayout>

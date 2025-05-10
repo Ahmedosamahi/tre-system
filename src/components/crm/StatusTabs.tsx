@@ -40,7 +40,10 @@ export const StatusTabs: React.FC<StatusTabsProps> = ({ activeTab, setActiveTab,
                   </TooltipProvider>
                 )}
               </div>
-              <Badge variant="primary" className="text-xs ml-1 font-medium px-2 py-0.5">
+              <Badge 
+                variant="primary" 
+                className="text-xs ml-1 font-medium px-2.5 py-0.5 bg-blue-500 hover:bg-blue-600"
+              >
                 {tab.count}
               </Badge>
             </TabsTrigger>

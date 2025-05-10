@@ -1,10 +1,17 @@
 
-import React from 'react';
-import { Wallet } from 'lucide-react';
+import React, { useState } from 'react';
+import { Globe, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBox } from './ui/SearchBox';
 import { CreateOrderButton } from './orders/CreateOrderButton';
 import { useLocation } from 'react-router-dom';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface HeaderProps {
   className?: string;
@@ -56,6 +63,11 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+            <Globe className="h-5 w-5" />
+            <span className="sr-only">Change Language</span>
+          </Button>
+          
           <Button className="bg-brand text-white hover:bg-brand-dark">
             <span className="flex items-center"><Wallet className="mr-2 h-5 w-5" />$1199.00</span>
           </Button>
@@ -74,15 +86,27 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
               </Button>
             </div>
             
-            <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-full overflow-hidden">
-                <img 
-                  src="/lovable-uploads/43d72cbc-bb29-42a7-933a-b020049d73b2.png"
-                  alt="User Profile"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="h-10 w-10 rounded-full overflow-hidden cursor-pointer">
+                  <Avatar>
+                    <AvatarImage 
+                      src="/lovable-uploads/43d72cbc-bb29-42a7-933a-b020049d73b2.png"
+                      alt="User Profile"
+                    />
+                    <AvatarFallback>US</AvatarFallback>
+                  </Avatar>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem className="cursor-pointer">
+                  Edit Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer text-red-600">
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
