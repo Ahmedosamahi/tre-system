@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Edit, Trash2, Star, Building2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Star, Building2, MapPin } from 'lucide-react';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { WarehouseModal } from '@/components/warehouse/WarehouseModal';
@@ -157,119 +157,135 @@ const WarehousePage = () => {
       <Sidebar />
       <div className="flex-1">
         <Header className="sticky top-0 z-10" />
-        <main className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">Warehouses</h1>
+        <main className="p-8">
+          {/* Header Section */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Warehouses</h1>
+              <p className="text-gray-600 mt-1">Manage your warehouse locations and settings</p>
+            </div>
             <Button 
               onClick={handleAddWarehouse}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg"
             >
-              <Plus size={18} /> 
+              <Plus size={20} /> 
               Add New Warehouse
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <Card className="p-6">
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <Card className="p-6 border-0 shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Warehouses</p>
-                  <p className="text-2xl font-semibold">{warehouses.length}</p>
+                  <p className="text-sm text-gray-500 font-medium">Total Warehouses</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">{warehouses.length}</p>
                 </div>
-                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                  <Building2 size={24} />
+                <div className="h-14 w-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Building2 size={28} className="text-blue-600" />
                 </div>
               </div>
             </Card>
             
-            <Card className="p-6">
+            <Card className="p-6 border-0 shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Main Warehouses</p>
-                  <p className="text-2xl font-semibold">
+                  <p className="text-sm text-gray-500 font-medium">Main Warehouses</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">
                     {warehouses.filter(w => w.type === 'Main').length}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                  <Building2 size={24} />
+                <div className="h-14 w-14 bg-green-100 rounded-xl flex items-center justify-center">
+                  <Building2 size={28} className="text-green-600" />
                 </div>
               </div>
             </Card>
             
-            <Card className="p-6">
+            <Card className="p-6 border-0 shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Virtual Warehouses</p>
-                  <p className="text-2xl font-semibold">
+                  <p className="text-sm text-gray-500 font-medium">Virtual Warehouses</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">
                     {warehouses.filter(w => w.type === 'Virtual').length}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
-                  <Building2 size={24} />
+                <div className="h-14 w-14 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <Building2 size={28} className="text-purple-600" />
                 </div>
               </div>
             </Card>
             
-            <Card className="p-6">
+            <Card className="p-6 border-0 shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Primary Warehouse</p>
-                  <p className="text-sm font-medium text-gray-800 mt-1">
+                  <p className="text-sm text-gray-500 font-medium">Primary Warehouse</p>
+                  <p className="text-sm font-semibold text-gray-900 mt-2">
                     {warehouses.find(w => w.isPrimary)?.name || 'None Set'}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
-                  <Star size={24} />
+                <div className="h-14 w-14 bg-yellow-100 rounded-xl flex items-center justify-center">
+                  <Star size={28} className="text-yellow-600" />
                 </div>
               </div>
             </Card>
           </div>
           
-          <Card>
-            <div className="p-6 border-b">
+          {/* Main Content Card */}
+          <Card className="border-0 shadow-sm">
+            <div className="p-6 border-b bg-white rounded-t-lg">
               <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-800">Warehouse Management</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Warehouse Management</h2>
                 <div className="w-80">
                   <SearchBox 
                     placeholder="Search warehouses..." 
                     value={searchTerm}
                     onChange={setSearchTerm}
+                    className="border-gray-200"
                   />
                 </div>
               </div>
             </div>
             
-            <div className="overflow-x-auto">
+            <div className="bg-white rounded-b-lg">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Warehouse Name</TableHead>
-                    <TableHead>Manager Name</TableHead>
-                    <TableHead>Address</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="border-gray-100">
+                    <TableHead className="font-semibold text-gray-700">Warehouse Name</TableHead>
+                    <TableHead className="font-semibold text-gray-700">Manager Name</TableHead>
+                    <TableHead className="font-semibold text-gray-700">Address</TableHead>
+                    <TableHead className="font-semibold text-gray-700">Type</TableHead>
+                    <TableHead className="font-semibold text-gray-700">Status</TableHead>
+                    <TableHead className="text-right font-semibold text-gray-700">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredWarehouses.map((warehouse) => (
-                    <TableRow key={warehouse.id} className="hover:bg-gray-50">
+                    <TableRow key={warehouse.id} className="hover:bg-gray-50 transition-colors duration-150 border-gray-100">
                       <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           {warehouse.isPrimary && (
-                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            <Star className="h-5 w-5 text-yellow-500 fill-current" />
                           )}
-                          {warehouse.name}
+                          <span className="text-gray-900">{warehouse.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell>{warehouse.manager}</TableCell>
-                      <TableCell className="max-w-xs truncate" title={warehouse.address}>
-                        {warehouse.address}
+                      <TableCell className="text-gray-700">{warehouse.manager}</TableCell>
+                      <TableCell className="max-w-xs">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-gray-400" />
+                          <span className="truncate text-gray-600" title={warehouse.address}>
+                            {warehouse.address}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge 
                           variant="outline" 
-                          className={warehouse.type === 'Main' ? 'border-green-500 text-green-700' : 'border-purple-500 text-purple-700'}
+                          className={`${
+                            warehouse.type === 'Main' 
+                              ? 'border-green-200 text-green-700 bg-green-50' 
+                              : 'border-purple-200 text-purple-700 bg-purple-50'
+                          } font-medium`}
                         >
                           {warehouse.type}
                         </Badge>
@@ -277,7 +293,7 @@ const WarehousePage = () => {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {warehouse.isPrimary ? (
-                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 font-medium">
                               Primary
                             </Badge>
                           ) : (
@@ -285,7 +301,7 @@ const WarehousePage = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => setPrimaryWarehouse(warehouse.id)}
-                              className="text-xs"
+                              className="text-xs hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors duration-150"
                             >
                               Set Primary
                             </Button>
@@ -298,15 +314,15 @@ const WarehousePage = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => handleEditWarehouse(warehouse)}
-                            className="h-8 w-8 p-0"
+                            className="h-9 w-9 p-0 hover:bg-blue-50 hover:border-blue-200 transition-colors duration-150"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-4 w-4 text-blue-600" />
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteWarehouse(warehouse)}
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-200"
+                            className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Trash2 } from 'lucide-react';
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -26,24 +27,33 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
 }) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-red-600">
-            Delete Warehouse
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-gray-600">
-            Are you sure you want to delete <strong>"{warehouseName}"</strong>? 
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-xl font-bold text-gray-900">
+              Delete Warehouse
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="text-gray-600 leading-relaxed">
+            Are you sure you want to delete <strong className="text-gray-900">"{warehouseName}"</strong>? 
+            <br /><br />
             This action cannot be undone and will permanently remove the warehouse 
-            from your system.
+            from your system along with all associated data.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>
+        <AlertDialogFooter className="gap-3">
+          <AlertDialogCancel 
+            onClick={onClose}
+            className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+          >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-red-600 hover:bg-red-700 text-white transition-all duration-150 hover:scale-105"
           >
             Delete Warehouse
           </AlertDialogAction>
