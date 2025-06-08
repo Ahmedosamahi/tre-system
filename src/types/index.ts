@@ -45,3 +45,41 @@ export type FinancialMetric = {
   type: 'positive' | 'negative' | 'neutral';
   icon: React.ReactNode;
 };
+
+// New types for Customers
+export type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  ordersCount: number;
+  qualityScore: number;
+  status: 'Active' | 'Inactive';
+  orders: CustomerOrder[];
+};
+
+export type CustomerOrder = {
+  id: string;
+  date: string;
+  status: 'Delivered' | 'Rejected' | 'In Transit' | 'Pending';
+  courier: string;
+  amount: number;
+};
+
+// New types for Couriers
+export type Courier = {
+  id: string;
+  name: string;
+  country: string;
+  status: 'Active' | 'Inactive';
+  totalShipments: number;
+  avgDeliveryTime: number;
+  successRate: number;
+  avgShippingCost: number;
+  isPreferred: boolean;
+  supportedServices: string[];
+  returnPolicies: string;
+  connectedApis: string[];
+  rating?: number;
+};
