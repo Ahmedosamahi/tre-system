@@ -35,6 +35,7 @@ export interface StatusBadgeProps {
   status: 'success' | 'warning' | 'danger' | 'info' | 'default';
   children: React.ReactNode;
   className?: string;
+  title?: string;
 }
 
 export type FinancialMetric = {

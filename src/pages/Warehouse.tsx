@@ -124,6 +124,10 @@ const WarehousePage = () => {
     })));
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+  };
+
   const groupedWarehouses = filteredWarehouses.reduce((acc, warehouse) => {
     const region = warehouse.region;
     if (!acc[region]) {
@@ -212,7 +216,7 @@ const WarehousePage = () => {
                   <SearchBox 
                     placeholder="Search warehouses by name, manager, or address..." 
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={handleSearchChange}
                   />
                 </div>
               </div>

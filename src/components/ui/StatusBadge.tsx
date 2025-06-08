@@ -2,7 +2,7 @@
 import { cn } from '@/lib/utils';
 import { StatusBadgeProps } from '@/types';
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children, className }) => {
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children, className, title }) => {
   const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
   
   const statusClasses = {
@@ -14,7 +14,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children, clas
   };
   
   return (
-    <span className={cn(baseClasses, statusClasses[status], className)}>
+    <span className={cn(baseClasses, statusClasses[status], className)} title={title}>
       {children}
     </span>
   );
