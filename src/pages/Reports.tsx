@@ -1,254 +1,136 @@
 
 import React, { useState } from 'react';
+import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Calendar, Clock, Download, FileText, BarChart2, PieChart, TrendingUp } from 'lucide-react';
+import { DatePicker } from '@/components/crm/DatePicker';
+import { Download, FileText, Calendar } from 'lucide-react';
+import { OverviewSection } from '@/components/reports/OverviewSection';
+import { DeliveryPerformanceSection } from '@/components/reports/DeliveryPerformanceSection';
+import { GeographicalSection } from '@/components/reports/GeographicalSection';
+import { FinancialSection } from '@/components/reports/FinancialSection';
 
-// Sample report data
-const availableReports = [
-  {
-    id: 1,
-    name: 'Monthly Orders Summary',
-    description: 'Summary of all orders processed in the current month',
-    type: 'Orders',
-    lastGenerated: '2025-04-21T14:30:00Z',
-    formats: ['PDF', 'CSV', 'XLSX']
-  },
-  {
-    id: 2,
-    name: 'Courier Performance Analysis',
-    description: 'Comparative analysis of all courier services',
-    type: 'Couriers',
-    lastGenerated: '2025-04-20T09:15:00Z',
-    formats: ['PDF', 'XLSX']
-  },
-  {
-    id: 3,
-    name: 'COD Collection Report',
-    description: 'Cash on delivery collections and settlements',
-    type: 'Financial',
-    lastGenerated: '2025-04-22T11:45:00Z',
-    formats: ['PDF', 'CSV']
-  },
-  {
-    id: 4,
-    name: 'Customer Order History',
-    description: 'Detailed order history by customer',
-    type: 'Customers',
-    lastGenerated: '2025-04-18T16:20:00Z',
-    formats: ['PDF', 'CSV', 'XLSX']
-  },
-  {
-    id: 5,
-    name: 'Inventory Stock Levels',
-    description: 'Current inventory levels and stock movements',
-    type: 'Warehouse',
-    lastGenerated: '2025-04-23T08:30:00Z',
-    formats: ['PDF', 'CSV']
-  },
-  {
-    id: 6,
-    name: 'Returns Analysis',
-    description: 'Analysis of returned orders and reasons',
-    type: 'Returns',
-    lastGenerated: '2025-04-19T15:10:00Z',
-    formats: ['PDF', 'XLSX']
-  }
-];
+const Reports = () => {
+  const [selectedDateRange, setSelectedDateRange] = useState<Date | undefined>(undefined);
+  const [selectedOrderType, setSelectedOrderType] = useState('all');
+  const [selectedCity, setSelectedCity] = useState('all');
+  const [selectedCourier, setSelectedCourier] = useState('all');
 
-const reportIcons: Record<string, React.ReactNode> = {
-  'Orders': <FileText size={18} className="text-brand" />,
-  'Couriers': <TrendingUp size={18} className="text-info" />,
-  'Financial': <BarChart2 size={18} className="text-success" />,
-  'Customers': <PieChart size={18} className="text-warning" />,
-  'Warehouse': <BarChart2 size={18} className="text-info" />,
-  'Returns': <TrendingUp size={18} className="text-danger" />
-};
+  const handleExport = (format: 'excel' | 'pdf') => {
+    console.log(`Exporting data as ${format}`);
+    // Export logic would go here
+  };
 
-const ReportsPage = () => {
-  const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
-  
-  const filteredReports = selectedReportType 
-    ? availableReports.filter(report => report.type === selectedReportType)
-    : availableReports;
-  
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
-      <div className="flex-1">
-        <Header className="sticky top-0 z-10" />
-        <main className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">Reports</h1>
-            <Button className="bg-brand text-white hover:bg-brand-dark flex items-center gap-2">
-              <FileText size={18} /> Generate Custom Report
+    <PageLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">Analytics & Insights</h1>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={() => handleExport('excel')} className="gap-2">
+              <FileText className="h-4 w-4" />
+              Export Excel
+            </Button>
+            <Button variant="outline" onClick={() => handleExport('pdf')} className="gap-2">
+              <Download className="h-4 w-4" />
+              Export PDF
             </Button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <Card className="p-6 flex items-center gap-4">
-              <div className="h-12 w-12 bg-info-light rounded-full flex items-center justify-center text-info">
-                <FileText size={24} />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold">25</div>
-                <div className="text-sm text-gray-500">Available Reports</div>
-              </div>
-            </Card>
+        </div>
+
+        {/* Global Filters */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Filters</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Date Range</label>
+              <DatePicker 
+                date={selectedDateRange} 
+                setDate={setSelectedDateRange}
+                placeholder="Select date range"
+              />
+            </div>
             
-            <Card className="p-6 flex items-center gap-4">
-              <div className="h-12 w-12 bg-success-light rounded-full flex items-center justify-center text-success">
-                <Clock size={24} />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold">12</div>
-                <div className="text-sm text-gray-500">Scheduled Reports</div>
-              </div>
-            </Card>
-            
-            <Card className="p-6 flex items-center gap-4">
-              <div className="h-12 w-12 bg-warning-light rounded-full flex items-center justify-center text-warning">
-                <Download size={24} />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold">48</div>
-                <div className="text-sm text-gray-500">Downloaded This Month</div>
-              </div>
-            </Card>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Order Type</label>
+              <Select value={selectedOrderType} onValueChange={setSelectedOrderType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select order type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Orders</SelectItem>
+                  <SelectItem value="cod">Cash on Delivery</SelectItem>
+                  <SelectItem value="prepaid">Prepaid</SelectItem>
+                  <SelectItem value="return">Return Orders</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">City/Governorate</label>
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select city" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Cities</SelectItem>
+                  <SelectItem value="cairo">Cairo</SelectItem>
+                  <SelectItem value="giza">Giza</SelectItem>
+                  <SelectItem value="alexandria">Alexandria</SelectItem>
+                  <SelectItem value="mansoura">Mansoura</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Courier Company</label>
+              <Select value={selectedCourier} onValueChange={setSelectedCourier}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select courier" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Couriers</SelectItem>
+                  <SelectItem value="aramex">Aramex</SelectItem>
+                  <SelectItem value="dhl">DHL</SelectItem>
+                  <SelectItem value="fedex">FedEx</SelectItem>
+                  <SelectItem value="mylerz">Mylerz</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          
-          <Tabs defaultValue="all-reports" className="mb-6">
-            <TabsList>
-              <TabsTrigger value="all-reports">All Reports</TabsTrigger>
-              <TabsTrigger value="scheduled">Scheduled Reports</TabsTrigger>
-              <TabsTrigger value="custom">Custom Reports</TabsTrigger>
-              <TabsTrigger value="templates">Report Templates</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="all-reports">
-              <Card>
-                <div className="p-6 border-b">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Button 
-                      variant={selectedReportType === null ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedReportType(null)}
-                    >
-                      All Types
-                    </Button>
-                    {Array.from(new Set(availableReports.map(report => report.type))).map(type => (
-                      <Button
-                        key={type}
-                        variant={selectedReportType === type ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSelectedReportType(type)}
-                      >
-                        {type}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Report Name</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Last Generated</TableHead>
-                        <TableHead>Available Formats</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredReports.map((report) => (
-                        <TableRow key={report.id}>
-                          <TableCell className="font-medium">{report.name}</TableCell>
-                          <TableCell>{report.description}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {reportIcons[report.type]}
-                              {report.type}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Calendar size={14} className="text-gray-500" />
-                              {new Date(report.lastGenerated).toLocaleDateString()}
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <Clock size={12} />
-                              {new Date(report.lastGenerated).toLocaleTimeString()}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              {report.formats.map(format => (
-                                <span 
-                                  key={format} 
-                                  className="px-2 py-1 bg-gray-100 rounded text-xs font-medium"
-                                >
-                                  {format}
-                                </span>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                                <Download size={14} /> Download
-                              </Button>
-                              <Button variant="outline" size="sm">Generate New</Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="scheduled">
-              <Card className="p-6">
-                <div className="min-h-[300px] flex items-center justify-center">
-                  <p className="text-muted-foreground">Scheduled reports view will be implemented here</p>
-                </div>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="custom">
-              <Card className="p-6">
-                <div className="min-h-[300px] flex items-center justify-center">
-                  <p className="text-muted-foreground">Custom reports view will be implemented here</p>
-                </div>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="templates">
-              <Card className="p-6">
-                <div className="min-h-[300px] flex items-center justify-center">
-                  <p className="text-muted-foreground">Report templates view will be implemented here</p>
-                </div>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </main>
+        </Card>
+
+        {/* Main Content with Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="delivery">Delivery Performance</TabsTrigger>
+            <TabsTrigger value="geographical">Geographical Analysis</TabsTrigger>
+            <TabsTrigger value="financial">Financial Summary</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <OverviewSection />
+          </TabsContent>
+
+          <TabsContent value="delivery" className="space-y-6">
+            <DeliveryPerformanceSection />
+          </TabsContent>
+
+          <TabsContent value="geographical" className="space-y-6">
+            <GeographicalSection />
+          </TabsContent>
+
+          <TabsContent value="financial" className="space-y-6">
+            <FinancialSection />
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
-export default ReportsPage;
+export default Reports;
