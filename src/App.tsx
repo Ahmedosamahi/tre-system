@@ -11,7 +11,7 @@ import Warehouse from "./pages/Warehouse";
 import Customers from "./pages/Customers";
 import Couriers from "./pages/Couriers";
 import Financial from "./pages/Financial";
-import Reports from "./pages/Reports";
+import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
@@ -34,7 +34,7 @@ const App = () => (
             <Route path="/customers" element={<Customers />} />
             <Route path="/couriers" element={<Couriers />} />
             <Route path="/financial" element={<Financial />} />
-            <Route path="/reports" element={<Reports />} />
+            <Route path="/reports" element={<Analytics />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/support" element={<Support />} />
             <Route path="/crm-customer-service" element={<CrmCustomerService />} />
