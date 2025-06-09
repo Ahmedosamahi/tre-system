@@ -45,8 +45,6 @@ const kpiData = [
 export const OverviewSection = () => {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Overview Summary</h2>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiData.map((kpi, index) => (
           <Card key={index} className="p-6 border border-gray-200 shadow-sm">

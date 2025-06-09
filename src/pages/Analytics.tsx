@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/crm/DatePicker';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Filter } from 'lucide-react';
+import { DatePicker } from '@/components/crm/DatePicker';
+import { Filter, ChevronDown } from 'lucide-react';
 import { OverviewSection } from '@/components/analytics/OverviewSection';
 import { DeliveryPerformanceSection } from '@/components/analytics/DeliveryPerformanceSection';
 import { GeographicalSection } from '@/components/analytics/GeographicalSection';
@@ -13,80 +14,72 @@ import { FinancialSection } from '@/components/analytics/FinancialSection';
 import { CourierPerformanceSection } from '@/components/analytics/CourierPerformanceSection';
 
 const Analytics = () => {
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState<Date | undefined>(undefined);
   const [selectedOrderType, setSelectedOrderType] = useState('all');
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedCourier, setSelectedCourier] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offsetTop = element.offsetTop - 100; // Account for header
-      window.scrollTo({
-        top: offsetTop,
-        behavior: 'smooth'
-      });
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
     <PageLayout>
       <div className="space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Analytics & Insights</h1>
-        </div>
-
-        {/* Section Navigation */}
-        <div className="flex items-center gap-6 border-b border-gray-200 pb-4">
-          <button
-            onClick={() => scrollToSection('delivery-performance')}
-            className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors duration-200 border-b-2 border-transparent hover:border-blue-600 pb-2"
-          >
-            Delivery Performance
-          </button>
-          <button
-            onClick={() => scrollToSection('geographical-analysis')}
-            className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors duration-200 border-b-2 border-transparent hover:border-blue-600 pb-2"
-          >
-            Geographical Analysis
-          </button>
-          <button
-            onClick={() => scrollToSection('financial-summary')}
-            className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors duration-200 border-b-2 border-transparent hover:border-blue-600 pb-2"
-          >
-            Financial Summary
-          </button>
-          <button
-            onClick={() => scrollToSection('courier-performance')}
-            className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors duration-200 border-b-2 border-transparent hover:border-blue-600 pb-2"
-          >
-            Courier Performance
-          </button>
+        {/* Page Header */}
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Analytics & Insights</h1>
+          
+          {/* Navigation Links */}
+          <nav className="flex justify-center gap-8 mb-8">
+            <button
+              onClick={() => scrollToSection('delivery-performance')}
+              className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              Delivery Performance
+            </button>
+            <button
+              onClick={() => scrollToSection('geographical-analysis')}
+              className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              Geographical Analysis
+            </button>
+            <button
+              onClick={() => scrollToSection('financial-summary')}
+              className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              Financial Summary
+            </button>
+            <button
+              onClick={() => scrollToSection('courier-performance')}
+              className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              Courier Performance
+            </button>
+          </nav>
         </div>
 
         {/* Overview Section */}
-        <div className="space-y-6">
-          <OverviewSection />
-          
-          {/* Filters */}
-          <div className="flex items-center">
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="gap-2"
-            >
+        <OverviewSection />
+
+        {/* Collapsible Filters */}
+        <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-2 p-0 h-auto text-sm">
               <Filter className="h-4 w-4" />
               Filters
+              <ChevronDown className={`h-4 w-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
             </Button>
-          </div>
-
-          {showFilters && (
-            <Card className="p-6 border border-gray-200">
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <Card className="p-4 mt-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Date Range</label>
+                  <label className="text-xs font-medium text-gray-700">Date Range</label>
                   <DatePicker 
                     date={selectedDateRange} 
                     setDate={setSelectedDateRange}
@@ -95,9 +88,9 @@ const Analytics = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Order Type</label>
+                  <label className="text-xs font-medium text-gray-700">Order Type</label>
                   <Select value={selectedOrderType} onValueChange={setSelectedOrderType}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue placeholder="Select order type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -110,9 +103,9 @@ const Analytics = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">City/Governorate</label>
+                  <label className="text-xs font-medium text-gray-700">City/Governorate</label>
                   <Select value={selectedCity} onValueChange={setSelectedCity}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
@@ -126,9 +119,9 @@ const Analytics = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Courier Company</label>
+                  <label className="text-xs font-medium text-gray-700">Courier Company</label>
                   <Select value={selectedCourier} onValueChange={setSelectedCourier}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue placeholder="Select courier" />
                     </SelectTrigger>
                     <SelectContent>
@@ -142,64 +135,52 @@ const Analytics = () => {
                 </div>
               </div>
             </Card>
-          )}
-        </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Section Divider */}
-        <div className="relative py-8" id="delivery-performance">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-gray-50 px-6 text-lg font-semibold text-gray-900">
-              Delivery Performance
-            </span>
-          </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <h2 id="delivery-performance" className="px-6 text-xl font-semibold text-gray-900">
+            Delivery Performance
+          </h2>
+          <div className="flex-1 border-t border-gray-300"></div>
         </div>
 
         {/* Delivery Performance Section */}
         <DeliveryPerformanceSection />
 
         {/* Section Divider */}
-        <div className="relative py-8" id="geographical-analysis">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-gray-50 px-6 text-lg font-semibold text-gray-900">
-              Geographical Analysis
-            </span>
-          </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <h2 id="geographical-analysis" className="px-6 text-xl font-semibold text-gray-900">
+            Geographical Analysis
+          </h2>
+          <div className="flex-1 border-t border-gray-300"></div>
         </div>
 
         {/* Geographical Analysis Section */}
         <GeographicalSection />
 
         {/* Section Divider */}
-        <div className="relative py-8" id="financial-summary">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-gray-50 px-6 text-lg font-semibold text-gray-900">
-              Financial Summary
-            </span>
-          </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <h2 id="financial-summary" className="px-6 text-xl font-semibold text-gray-900">
+            Financial Summary
+          </h2>
+          <div className="flex-1 border-t border-gray-300"></div>
         </div>
 
         {/* Financial Summary Section */}
         <FinancialSection />
 
         {/* Section Divider */}
-        <div className="relative py-8" id="courier-performance">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-gray-50 px-6 text-lg font-semibold text-gray-900">
-              Courier Performance
-            </span>
-          </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <h2 id="courier-performance" className="px-6 text-xl font-semibold text-gray-900">
+            Courier Performance
+          </h2>
+          <div className="flex-1 border-t border-gray-300"></div>
         </div>
 
         {/* Courier Performance Section */}
