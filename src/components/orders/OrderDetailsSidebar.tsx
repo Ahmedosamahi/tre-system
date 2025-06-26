@@ -9,9 +9,6 @@ import { CustomerInfoSection } from './sidebar/CustomerInfoSection';
 import { OrderItemsSection } from './sidebar/OrderItemsSection';
 import { OrderDetailsSection } from './sidebar/OrderDetailsSection';
 import { PaymentDetailsSection } from './sidebar/PaymentDetailsSection';
-import { StatusHistorySection } from './sidebar/StatusHistorySection';
-import { CommentsSection } from './sidebar/CommentsSection';
-import { TagsSection } from './sidebar/TagsSection';
 import { ActionsSection } from './sidebar/ActionsSection';
 
 interface OrderDetailsSidebarProps {
@@ -31,7 +28,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[500px] max-w-[90vw] overflow-y-auto">
+      <SheetContent side="right" className="w-[600px] max-w-[90vw] overflow-y-auto">
         <SheetHeader className="flex flex-row items-center justify-between border-b pb-4 mb-6">
           <SheetTitle className="text-xl font-semibold">Order Details</SheetTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -39,15 +36,12 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
           </Button>
         </SheetHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           <OrderSummarySection order={order} onUpdateOrder={onUpdateOrder} />
           <CustomerInfoSection order={order} onUpdateOrder={onUpdateOrder} />
           <OrderItemsSection order={order} onUpdateOrder={onUpdateOrder} />
           <OrderDetailsSection order={order} onUpdateOrder={onUpdateOrder} />
           <PaymentDetailsSection order={order} onUpdateOrder={onUpdateOrder} />
-          <StatusHistorySection order={order} />
-          <CommentsSection order={order} onUpdateOrder={onUpdateOrder} />
-          <TagsSection order={order} onUpdateOrder={onUpdateOrder} />
           <ActionsSection order={order} />
         </div>
       </SheetContent>
