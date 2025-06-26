@@ -1,15 +1,14 @@
+
 import { useState } from "react";
 import { PageLayout } from "@/components/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Search, Filter, MoreHorizontal, Download, Printer, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Download, Printer, MoreHorizontal } from "lucide-react";
 import { CreateOrderButton } from "@/components/orders/CreateOrderButton";
 import { OrderDetailsSidebar } from "@/components/orders/OrderDetailsSidebar";
 import { Order } from "@/types/Order";
@@ -17,10 +16,8 @@ import { Order } from "@/types/Order";
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const itemsPerPage = 10;
 
   // Mock data - sample orders
   const mockOrders: Order[] = [
@@ -107,11 +104,6 @@ const Orders = () => {
     }
   };
 
-  const totalPages = Math.ceil(mockOrders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentOrders = mockOrders.slice(startIndex, endIndex);
-
   const OrderTable = ({ orders }: { orders: Order[] }) => (
     <div className="border rounded-lg">
       <Table>
@@ -123,12 +115,15 @@ const Orders = () => {
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>Order ID</TableHead>
+            <TableHead>Order Number</TableHead>
             <TableHead>Customer</TableHead>
-            <TableHead>Status</TableHead>
             <TableHead>Date</TableHead>
-            <TableHead>Total</TableHead>
-            <TableHead className="w-12"></TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Courier</TableHead>
+            <TableHead>Attempts</TableHead>
+            <TableHead>Amount</TableHead>
+            <TableHead>Payment</TableHead>
+            <TableHead className="w-12">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -144,15 +139,33 @@ const Orders = () => {
                   onCheckedChange={() => handleSelectOrder(order.id)}
                 />
               </TableCell>
-              <TableCell className="font-mono text-sm">{order.orderNumber}</TableCell>
-              <TableCell>{order.customerName}</TableCell>
+              <TableCell className="font-mono text-sm">
+                <div>{order.orderNumber}</div>
+                <div className="text-xs text-gray-500">AWB: {order.awb}</div>
+                <div className="text-xs text-gray-500">Ref: {order.reference}</div>
+              </TableCell>
+              <TableCell>
+                <div>{order.customerName}</div>
+                <div className="text-xs text-gray-500">{order.customerPhone}</div>
+                <div className="text-xs text-gray-500">{order.customerAddress}</div>
+              </TableCell>
+              <TableCell>{new Date(order.createdDate).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Badge variant={getStatusColor(order.status)} className="capitalize">
                   {order.status}
                 </Badge>
               </TableCell>
-              <TableCell>{new Date(order.createdDate).toLocaleDateString()}</TableCell>
-              <TableCell>{order.valueOfGoods} EGP</TableCell>
+              <TableCell>{order.courier || "-"}</TableCell>
+              <TableCell>{order.deliveryAttempts}</TableCell>
+              <TableCell>
+                <div>{order.valueOfGoods} EGP</div>
+                <div className="text-xs text-gray-500">COD: {order.codAmount} EGP</div>
+              </TableCell>
+              <TableCell>
+                <Badge variant={getStatusColor(order.paymentStatus)} className="capitalize">
+                  {order.paymentStatus}
+                </Badge>
+              </TableCell>
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -180,182 +193,109 @@ const Orders = () => {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
-            <p className="text-muted-foreground">Manage and track your orders</p>
-          </div>
+          <h1 className="text-2xl font-bold">Orders</h1>
           <CreateOrderButton />
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">45</div>
-              <p className="text-xs text-muted-foreground">-2% from yesterday</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Delivered</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,156</div>
-              <p className="text-xs text-muted-foreground">+15% from last week</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">93.7%</div>
-              <p className="text-xs text-muted-foreground">+2.5% from last month</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
+        {/* Top Action Bar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search orders..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 w-80"
-              />
-            </div>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            {selectedOrders.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    Bulk Actions ({selectedOrders.length})
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Selected
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print AWB
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print Invoice
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
             <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
+            <Button variant="outline" size="sm">
+              Bulk Actions
+            </Button>
+            <Button variant="outline" size="sm">
+              <Printer className="h-4 w-4 mr-2" />
+              Print AWB
+            </Button>
+            <Button variant="outline" size="sm">
+              <Printer className="h-4 w-4 mr-2" />
+              Print Invoice
+            </Button>
+            <Button variant="outline" size="sm">
+              Show Filters
+            </Button>
+          </div>
+          
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search all columns..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8 w-80"
+            />
           </div>
         </div>
 
         {/* Orders Table with Tabs */}
         <Tabs defaultValue="all" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="all">All Orders (1,234)</TabsTrigger>
-            <TabsTrigger value="pending">Pending (45)</TabsTrigger>
-            <TabsTrigger value="confirmed">Confirmed (123)</TabsTrigger>
-            <TabsTrigger value="dispatched">Dispatched (234)</TabsTrigger>
-            <TabsTrigger value="delivered">Delivered (789)</TabsTrigger>
-            <TabsTrigger value="returned">Returned (23)</TabsTrigger>
-            <TabsTrigger value="canceled">Canceled (20)</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-12">
+            <TabsTrigger value="all" className="text-xs">All <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">176</span></TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs">Pending Orders <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="confirmed" className="text-xs">Confirmed/Approved <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="dispatched" className="text-xs">Dispatched <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="picked-up" className="text-xs">Picked-Up <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="delivering" className="text-xs">Delivering <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="delivered" className="text-xs">Delivered - Signed <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="returning" className="text-xs">Returning <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="returned" className="text-xs">Returned <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="canceled" className="text-xs">Canceled <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="pending-refund" className="text-xs">Pending Refund <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
+            <TabsTrigger value="refunded" className="text-xs">Refunded <span className="ml-1 bg-blue-500 text-white px-1 rounded text-xs">10</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
-            <OrderTable orders={currentOrders} />
+            <OrderTable orders={mockOrders} />
           </TabsContent>
 
           <TabsContent value="pending" className="space-y-4">
-            <OrderTable orders={currentOrders.filter(order => order.status === 'pending')} />
+            <OrderTable orders={mockOrders.filter(order => order.status === 'pending')} />
           </TabsContent>
 
           <TabsContent value="confirmed" className="space-y-4">
-            <OrderTable orders={currentOrders.filter(order => order.status === 'confirmed')} />
+            <OrderTable orders={mockOrders.filter(order => order.status === 'confirmed')} />
           </TabsContent>
 
           <TabsContent value="dispatched" className="space-y-4">
-            <OrderTable orders={currentOrders.filter(order => order.status === 'dispatched')} />
+            <OrderTable orders={mockOrders.filter(order => order.status === 'dispatched')} />
+          </TabsContent>
+
+          <TabsContent value="picked-up" className="space-y-4">
+            <OrderTable orders={[]} />
+          </TabsContent>
+
+          <TabsContent value="delivering" className="space-y-4">
+            <OrderTable orders={[]} />
           </TabsContent>
 
           <TabsContent value="delivered" className="space-y-4">
-            <OrderTable orders={currentOrders.filter(order => order.status === 'delivered')} />
+            <OrderTable orders={mockOrders.filter(order => order.status === 'delivered')} />
+          </TabsContent>
+
+          <TabsContent value="returning" className="space-y-4">
+            <OrderTable orders={[]} />
           </TabsContent>
 
           <TabsContent value="returned" className="space-y-4">
-            <OrderTable orders={currentOrders.filter(order => order.status === 'returned')} />
+            <OrderTable orders={mockOrders.filter(order => order.status === 'returned')} />
           </TabsContent>
 
           <TabsContent value="canceled" className="space-y-4">
-            <OrderTable orders={currentOrders.filter(order => order.status === 'canceled')} />
+            <OrderTable orders={mockOrders.filter(order => order.status === 'canceled')} />
+          </TabsContent>
+
+          <TabsContent value="pending-refund" className="space-y-4">
+            <OrderTable orders={[]} />
+          </TabsContent>
+
+          <TabsContent value="refunded" className="space-y-4">
+            <OrderTable orders={[]} />
           </TabsContent>
         </Tabs>
-
-        {/* Pagination */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {startIndex + 1} to {Math.min(endIndex, mockOrders.length)} of {mockOrders.length} orders
-          </p>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCurrentPage(page)}
-                  className="w-8 h-8 p-0"
-                >
-                  {page}
-                </Button>
-              ))}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* Order Details Sidebar */}
