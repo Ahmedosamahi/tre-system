@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Card } from '@/components/ui/card';
@@ -829,21 +828,6 @@ const Orders = () => {
         </div>
       </div>
 
-      {/* Selected Orders Status Bar */}
-      {selectedOrders.length > 0 && (
-        <div className="bg-muted/20 py-2 px-4 mb-4 rounded-md flex items-center justify-between">
-          <span>✓ {selectedOrders.length} orders selected</span>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleClearSelections}
-            className="text-sm"
-          >
-            Clear Selection
-          </Button>
-        </div>
-      )}
-
       {/* Action Bar Layout */}
       <div className="flex flex-wrap justify-between items-center mb-4 gap-2 py-2">
         <div className="flex flex-wrap items-center gap-2">
@@ -971,22 +955,23 @@ const Orders = () => {
       {/* Filters Card - Expandable */}
       {showFilters && (
         <Card className="mb-6">
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
             {/* Date Range Picker */}
-            <div className="flex flex-col gap-2">
-              <Label>Date Range</Label>
-              <div className="flex gap-2">
+            <div className="flex flex-col gap-1 col-span-2">
+              <Label className="text-xs">Date Range</Label>
+              <div className="flex gap-1">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
+                      size="sm"
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal text-xs h-8",
                         !dateRange.from && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange.from ? format(dateRange.from, "PPP") : "From Date"}
+                      <CalendarIcon className="mr-1 h-3 w-3" />
+                      {dateRange.from ? format(dateRange.from, "MMM dd") : "From"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -1004,13 +989,14 @@ const Orders = () => {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
+                      size="sm"
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal text-xs h-8",
                         !dateRange.to && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange.to ? format(dateRange.to, "PPP") : "To Date"}
+                      <CalendarIcon className="mr-1 h-3 w-3" />
+                      {dateRange.to ? format(dateRange.to, "MMM dd") : "To"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -1027,62 +1013,70 @@ const Orders = () => {
             </div>
 
             {/* Order Number */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="orderNumber">Order Number</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="orderNumber" className="text-xs">Order #</Label>
               <Input 
                 id="orderNumber" 
+                size="sm"
+                className="h-8 text-xs"
                 value={filters.orderNumber}
                 onChange={e => setFilters(prev => ({ ...prev, orderNumber: e.target.value }))}
-                placeholder="Enter order number"
+                placeholder="Order number"
               />
             </div>
 
             {/* AWB Number */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="awbNumber">AWB Number</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="awbNumber" className="text-xs">AWB #</Label>
               <Input 
                 id="awbNumber" 
+                size="sm"
+                className="h-8 text-xs"
                 value={filters.awbNumber}
                 onChange={e => setFilters(prev => ({ ...prev, awbNumber: e.target.value }))}
-                placeholder="Enter AWB number"
+                placeholder="AWB number"
               />
             </div>
 
             {/* Reference Number */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="referenceNumber">Reference Number</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="referenceNumber" className="text-xs">Ref #</Label>
               <Input 
                 id="referenceNumber" 
+                size="sm"
+                className="h-8 text-xs"
                 value={filters.referenceNumber}
                 onChange={e => setFilters(prev => ({ ...prev, referenceNumber: e.target.value }))}
-                placeholder="Enter reference number"
+                placeholder="Reference"
               />
             </div>
             
             {/* Phone Number Search */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="phone">Phone Number</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="phone" className="text-xs">Phone</Label>
               <Input 
                 id="phone" 
+                size="sm"
+                className="h-8 text-xs"
                 value={filters.phone}
                 onChange={e => setFilters(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="Enter phone number"
+                placeholder="Phone number"
               />
             </div>
             
             {/* Warehouse */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="warehouse">Warehouse</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="warehouse" className="text-xs">Warehouse</Label>
               <Select 
                 value={filters.warehouse} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, warehouse: value }))}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select warehouse" />
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue placeholder="Warehouse" />
                 </SelectTrigger>
                 <SelectContent>
                   {warehouses.map(warehouse => (
-                    <SelectItem key={warehouse} value={warehouse}>
+                    <SelectItem key={warehouse} value={warehouse} className="text-xs">
                       {warehouse}
                     </SelectItem>
                   ))}
@@ -1091,18 +1085,18 @@ const Orders = () => {
             </div>
             
             {/* Courier Company */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="courier">Courier Company</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="courier" className="text-xs">Courier</Label>
               <Select 
                 value={filters.courier} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, courier: value }))}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select courier" />
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue placeholder="Courier" />
                 </SelectTrigger>
                 <SelectContent>
                   {courierCompanies.map(courier => (
-                    <SelectItem key={courier} value={courier}>
+                    <SelectItem key={courier} value={courier} className="text-xs">
                       {courier}
                     </SelectItem>
                   ))}
@@ -1111,18 +1105,18 @@ const Orders = () => {
             </div>
             
             {/* Payment Method */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="paymentMethod">Payment Method</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="paymentMethod" className="text-xs">Payment</Label>
               <Select 
                 value={filters.paymentMethod} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, paymentMethod: value }))}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select payment method" />
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue placeholder="Payment" />
                 </SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map(method => (
-                    <SelectItem key={method} value={method}>
+                    <SelectItem key={method} value={method} className="text-xs">
                       {method}
                     </SelectItem>
                   ))}
@@ -1131,18 +1125,18 @@ const Orders = () => {
             </div>
             
             {/* City / Governorate */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="city">City / Governorate</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="city" className="text-xs">City</Label>
               <Select 
                 value={filters.city} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, city: value }))}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select city" />
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue placeholder="City" />
                 </SelectTrigger>
                 <SelectContent>
                   {cities.map(city => (
-                    <SelectItem key={city} value={city}>
+                    <SelectItem key={city} value={city} className="text-xs">
                       {city}
                     </SelectItem>
                   ))}
@@ -1151,14 +1145,15 @@ const Orders = () => {
             </div>
             
             {/* Clear Button */}
-            <div className="flex flex-col gap-2 justify-end">
+            <div className="flex flex-col gap-1 justify-end">
               <Button 
-                variant="outline" 
+                variant="ghost" 
+                size="sm"
                 onClick={handleClearFilters}
-                className="w-full"
+                className="w-full h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
               >
-                <X className="h-4 w-4 mr-2" />
-                Clear All Filters
+                <X className="h-3 w-3 mr-1" />
+                Clear
               </Button>
             </div>
           </div>
