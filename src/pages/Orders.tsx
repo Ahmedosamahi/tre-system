@@ -2,21 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Order } from '../types/Order';
 import { User } from '../types/User';
-import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ChevronDown, Undo } from 'lucide-react';
 
 // Mock data for orders (replace with actual API calls)
 const mockOrders: Order[] = [
@@ -110,16 +95,14 @@ const mockOrders: Order[] = [
     status: 'Shipped',
     items: [{ id: 10, name: 'Product J', quantity: 5, price: 70.00 }],
   },
-  // Add more orders as needed
 ];
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
 
   // Function to handle status change
   const handleStatusChange = (orderId: number, newStatus: string) => {
@@ -130,68 +113,11 @@ const Orders: React.FC = () => {
     );
   };
 
-  // Function to handle bulk revert
-  const handleBulkRevert = () => {
-    if (selectedOrders.length === 0) return;
-    
-    setOrders((prevOrders) =>
-      prevOrders.map((order) => {
-        if (selectedOrders.includes(order.id)) {
-          // Revert logic based on current status
-          let revertedStatus = order.status;
-          switch (order.status) {
-            case 'Pending':
-              revertedStatus = 'Pending'; // Already at initial status
-              break;
-            case 'Confirmed':
-              revertedStatus = 'Pending';
-              break;
-            case 'Dispatched':
-              revertedStatus = 'Confirmed';
-              break;
-            case 'Canceled':
-              revertedStatus = 'Pending'; // Allow reactivation from canceled
-              break;
-            default:
-              revertedStatus = order.status; // No change for other statuses
-          }
-          return { ...order, status: revertedStatus };
-        }
-        return order;
-      })
-    );
-    setSelectedOrders([]);
-  };
-
-  // Function to handle individual order selection
-  const handleOrderSelection = (orderId: number, checked: boolean) => {
-    if (checked) {
-      setSelectedOrders([...selectedOrders, orderId]);
-    } else {
-      setSelectedOrders(selectedOrders.filter(id => id !== orderId));
-    }
-  };
-
-  // Function to handle select all
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedOrders(currentOrders.map(order => order.id));
-    } else {
-      setSelectedOrders([]);
-    }
-  };
-
-  // Check if revert button should be available for current tab
-  const isRevertAvailable = () => {
-    const allowedTabs = ['All', 'Pending', 'Confirmed', 'Dispatched', 'Canceled'];
-    return allowedTabs.includes(statusFilter);
-  };
-
   const filteredOrders = orders.filter((order) => {
     const searchMatch =
       order.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
       order.customer.name.toLowerCase().includes(search.toLowerCase());
-    const statusMatch = statusFilter === 'All' ? true : order.status === statusFilter;
+    const statusMatch = statusFilter ? order.status === statusFilter : true;
     return searchMatch && statusMatch;
   });
 
@@ -202,73 +128,29 @@ const Orders: React.FC = () => {
   const indexOfFirstOrder = indexOfLastOrder - rowsPerPage;
   const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
 
-  // Status tabs
-  const statusTabs = [
-    'All', 'Pending', 'Confirmed', 'Dispatched', 'Picked-Up', 
-    'Delivering', 'Delivered', 'Returning', 'Returned', 
-    'Canceled', 'Pending Refund', 'Refunded'
-  ];
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Orders</h1>
 
-      {/* Status Tabs */}
-      <div className="flex flex-wrap gap-2 mb-4 border-b">
-        {statusTabs.map((status) => (
-          <button
-            key={status}
-            onClick={() => {
-              setStatusFilter(status);
-              setCurrentPage(1);
-              setSelectedOrders([]);
-            }}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
-              statusFilter === status
-                ? 'text-blue-600 border-blue-600 bg-blue-50'
-                : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            {status} ({orders.filter(order => status === 'All' ? true : order.status === status).length})
-          </button>
-        ))}
-      </div>
-
-      {/* Search and Bulk Actions */}
-      <div className="flex items-center justify-between mb-4 gap-4">
+      {/* Search and Filter */}
+      <div className="flex items-center justify-between mb-4">
         <input
           type="text"
           placeholder="Search order number or customer name"
-          className="border rounded px-3 py-2 flex-1 max-w-md"
+          className="border rounded px-2 py-1"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        
-        {/* Bulk Actions */}
-        {selectedOrders.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">
-              {selectedOrders.length} selected
-            </span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  Bulk Actions <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {isRevertAvailable() && (
-                  <DropdownMenuItem onClick={handleBulkRevert} className="flex items-center gap-2">
-                    <Undo className="h-4 w-4" />
-                    Revert Orders
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem>Export Selected</DropdownMenuItem>
-                <DropdownMenuItem>Delete Selected</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
+        <select
+          className="border rounded px-2 py-1"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+        </select>
       </div>
 
       {/* Order Table */}
@@ -276,33 +158,17 @@ const Orders: React.FC = () => {
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-2">
-                <input
-                  type="checkbox"
-                  checked={selectedOrders.length === currentOrders.length && currentOrders.length > 0}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                  className="rounded"
-                />
-              </th>
-              <th className="px-4 py-2 text-left">Order Number</th>
-              <th className="px-4 py-2 text-left">Customer</th>
-              <th className="px-4 py-2 text-left">Date</th>
-              <th className="px-4 py-2 text-left">Total</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Actions</th>
+              <th className="px-4 py-2">Order Number</th>
+              <th className="px-4 py-2">Customer</th>
+              <th className="px-4 py-2">Date</th>
+              <th className="px-4 py-2">Total</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentOrders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
-                <td className="border px-4 py-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedOrders.includes(order.id)}
-                    onChange={(e) => handleOrderSelection(order.id, e.target.checked)}
-                    className="rounded"
-                  />
-                </td>
                 <td className="border px-4 py-2">
                   <Link to={`/orders/${order.id}`} className="text-blue-500 hover:underline">
                     {order.orderNumber}
@@ -312,27 +178,15 @@ const Orders: React.FC = () => {
                 <td className="border px-4 py-2">{order.date}</td>
                 <td className="border px-4 py-2">${order.total.toFixed(2)}</td>
                 <td className="border px-4 py-2">
-                  <Select
+                  <select
                     value={order.status}
-                    onValueChange={(newStatus) => handleStatusChange(order.id, newStatus)}
+                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                    className="border rounded px-2 py-1"
                   >
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Confirmed">Confirmed</SelectItem>
-                      <SelectItem value="Dispatched">Dispatched</SelectItem>
-                      <SelectItem value="Picked-Up">Picked-Up</SelectItem>
-                      <SelectItem value="Delivering">Delivering</SelectItem>
-                      <SelectItem value="Delivered">Delivered</SelectItem>
-                      <SelectItem value="Returning">Returning</SelectItem>
-                      <SelectItem value="Returned">Returned</SelectItem>
-                      <SelectItem value="Canceled">Canceled</SelectItem>
-                      <SelectItem value="Pending Refund">Pending Refund</SelectItem>
-                      <SelectItem value="Refunded">Refunded</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <option value="Pending">Pending</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
                 </td>
                 <td className="border px-4 py-2">
                   <Link to={`/orders/${order.id}`} className="text-blue-500 hover:underline">
@@ -349,44 +203,41 @@ const Orders: React.FC = () => {
       <div className="flex items-center justify-between px-6 py-4 border-t">
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-600">Show</span>
-          <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
-            <SelectTrigger className="w-20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
+          <select 
+            value={rowsPerPage} 
+            onChange={(e) => setRowsPerPage(Number(e.target.value))}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
           <span className="text-sm text-gray-600">
             from {filteredOrders.length} orders
           </span>
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
+            className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
-          </Button>
+          </button>
           
           <span className="text-sm text-gray-600">
             Page {currentPage} of {totalPages}
           </span>
           
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
+            className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
-          </Button>
+          </button>
         </div>
       </div>
     </div>
