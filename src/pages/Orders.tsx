@@ -92,6 +92,7 @@ type OrderStatus =
   | 'pending' 
   | 'confirmed' 
   | 'dispatched' 
+  | 'dispatched-request'
   | 'picked-up'
   | 'delivering'
   | 'abnormal'
@@ -151,6 +152,17 @@ interface StatusTab {
   count: number;
 }
 
+// Shipping company interface
+interface ShippingCompany {
+  id: string;
+  name: string;
+  logo: string;
+  cost: number;
+  performanceScore: number;
+  avgDeliveryTime: string;
+  successRate: number;
+}
+
 // Helper function to map order status to badge style
 const getStatusBadgeType = (status: OrderStatus): 'success' | 'warning' | 'danger' | 'info' | 'default' => {
   switch(status) {
@@ -165,6 +177,7 @@ const getStatusBadgeType = (status: OrderStatus): 'success' | 'warning' | 'dange
     case 'returned':
       return 'danger';
     case 'dispatched':
+    case 'dispatched-request':
     case 'picked-up':
     case 'delivering':
       return 'info';
@@ -218,24 +231,25 @@ const getPaymentMethodIcon = (method: string) => {
 
 // Helper function to determine if bulk actions are allowed for a status
 const areBulkActionsAllowed = (status: string): boolean => {
-  const disallowedStatuses = ['delivered', 'returned', 'canceled', 'refunded'];
-  return status === 'all' || !disallowedStatuses.includes(status);
+  const allowedStatuses = ['all', 'pending', 'confirmed', 'dispatched', 'picked-up', 'canceled'];
+  return allowedStatuses.includes(status);
 };
 
 // Helper function to get available bulk actions for a status
 const getBulkActions = (status: string): string[] => {
   switch(status) {
+    case 'all':
+      return ['cancel', 'confirm', 'assignShipping'];
     case 'pending':
-      return ['assignShipping', 'assignAuto', 'changeStatus'];
+      return ['cancel', 'confirm'];
     case 'confirmed':
+      return ['assignShipping', 'cancel'];
     case 'dispatched':
-      return ['assignShipping', 'changeStatus'];
+      return ['cancel', 'createPickupRequest'];
     case 'picked-up':
-    case 'delivering':
-    case 'returning':
-    case 'abnormal':
-    case 'pending-refund':
-      return ['changeStatus'];
+      return ['cancelDelivery'];
+    case 'canceled':
+      return []; // No actions for canceled orders
     default:
       return [];
   }
@@ -271,6 +285,38 @@ const Orders = () => {
   const [bulkStatus, setBulkStatus] = useState('');
   const [bulkCourier, setBulkCourier] = useState('');
   const [isProcessingBulkAction, setIsProcessingBulkAction] = useState(false);
+  const [showShippingCompanyModal, setShowShippingCompanyModal] = useState(false);
+
+  // Mock shipping companies data
+  const shippingCompanies: ShippingCompany[] = [
+    {
+      id: '1',
+      name: 'Aramex',
+      logo: '/api/placeholder/80/40',
+      cost: 25,
+      performanceScore: 4.5,
+      avgDeliveryTime: '2-3 days',
+      successRate: 92
+    },
+    {
+      id: '2',
+      name: 'DHL',
+      logo: '/api/placeholder/80/40',
+      cost: 35,
+      performanceScore: 4.8,
+      avgDeliveryTime: '1-2 days',
+      successRate: 96
+    },
+    {
+      id: '3',
+      name: 'Fedex',
+      logo: '/api/placeholder/80/40',
+      cost: 30,
+      performanceScore: 4.6,
+      avgDeliveryTime: '2-3 days',
+      successRate: 94
+    }
+  ];
 
   // Mock data
   const sampleOrders: Order[] = [
@@ -464,7 +510,7 @@ const Orders = () => {
       id: 'dispatched', 
       label: 'Dispatched', 
       tooltip: 'You Can Request Pickup from Tredo Ops + Courier',
-      count: sampleOrders.filter(order => order.status === 'dispatched').length 
+      count: sampleOrders.filter(order => ['dispatched', 'dispatched-request'].includes(order.status)).length 
     },
     { 
       id: 'picked-up', 
@@ -514,8 +560,12 @@ const Orders = () => {
     return sampleOrders
       .filter(order => {
         // Filter by status tab
-        if (activeTab !== 'all' && order.status !== activeTab) {
-          return false;
+        if (activeTab !== 'all') {
+          if (activeTab === 'dispatched' && !['dispatched', 'dispatched-request'].includes(order.status)) {
+            return false;
+          } else if (activeTab !== 'dispatched' && order.status !== activeTab) {
+            return false;
+          }
         }
         
         // Global search filter
@@ -642,13 +692,14 @@ const Orders = () => {
     });
     setDateRange({ from: null, to: null });
     setSearchTerm('');
+    setGlobalSearchTerm('');
   };
 
   const handleClearSelections = () => {
     setSelectedOrders([]);
   };
 
-  const handleBulkAction = async (action: string) => {
+  const handleBulkAction = async (action: string, shippingCompanyId?: string) => {
     if (selectedOrders.length === 0) {
       toast.error("Please select at least one order");
       return;
@@ -662,24 +713,35 @@ const Orders = () => {
       // Simulate an asynchronous operation
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (action === 'changeStatus' && bulkStatus) {
-        console.log(`Setting status to: ${bulkStatus} for ${selectedOrders.length} orders`);
-        toast.success(`Successfully changed status to ${bulkStatus} for ${selectedOrders.length} orders`);
-      } else if (action === 'assignShipping' && bulkCourier) {
-        console.log(`Assigning courier: ${bulkCourier} to ${selectedOrders.length} orders`);
-        toast.success(`Successfully assigned ${bulkCourier} to ${selectedOrders.length} orders`);
-      } else if (action === 'assignAuto') {
-        console.log(`Auto assigning couriers to ${selectedOrders.length} orders`);
-        toast.success(`Successfully auto-assigned couriers to ${selectedOrders.length} orders`);
-      } else {
-        toast.error("Please select a valid action option");
+      switch(action) {
+        case 'cancel':
+          toast.success(`Successfully canceled ${selectedOrders.length} orders`);
+          break;
+        case 'confirm':
+          toast.success(`Successfully confirmed ${selectedOrders.length} orders`);
+          break;
+        case 'assignShipping':
+          if (shippingCompanyId) {
+            const company = shippingCompanies.find(c => c.id === shippingCompanyId);
+            toast.success(`Successfully assigned ${company?.name} to ${selectedOrders.length} orders`);
+          }
+          break;
+        case 'createPickupRequest':
+          toast.success(`Created pickup requests for ${selectedOrders.length} orders. Status updated to "Dispatched - Request"`);
+          break;
+        case 'cancelDelivery':
+          toast.success(`Sent cancel delivery requests for ${selectedOrders.length} orders`);
+          break;
+        default:
+          toast.error("Unknown action");
       }
+      
+      setShowShippingCompanyModal(false);
     } catch (error) {
       console.error("Error performing bulk action:", error);
       toast.error("Failed to process the bulk action. Please try again.");
     } finally {
       setIsProcessingBulkAction(false);
-      // Clear selections after successful action
       setSelectedOrders([]);
       setBulkStatus('');
       setBulkCourier('');
@@ -689,14 +751,18 @@ const Orders = () => {
   // Handle print functions
   const handlePrintAWB = () => {
     const ordersToPrint = selectedOrders.length > 0 ? selectedOrders : (viewOrderId ? [viewOrderId] : []);
+    const ordersWithCourier = ordersToPrint.filter(orderId => {
+      const order = sampleOrders.find(o => o.id === orderId);
+      return order?.courier;
+    });
     
-    if (ordersToPrint.length === 0) {
-      toast.error("Please select at least one order to print AWB");
+    if (ordersWithCourier.length === 0) {
+      toast.error("AWB can only be printed for orders assigned to a shipping company");
       return;
     }
     
-    console.log(`Printing AWB for ${ordersToPrint.length} orders`);
-    toast.success(`Preparing to print ${ordersToPrint.length} AWB documents`);
+    console.log(`Printing AWB for ${ordersWithCourier.length} orders`);
+    toast.success(`Preparing to print ${ordersWithCourier.length} AWB documents`);
   };
   
   const handlePrintInvoice = () => {
@@ -709,6 +775,16 @@ const Orders = () => {
     
     console.log(`Printing invoices for ${ordersToPrint.length} orders`);
     toast.success(`Preparing to print ${ordersToPrint.length} invoices`);
+  };
+
+  const handleExport = () => {
+    if (selectedOrders.length === 0) {
+      toast.error("Please select orders to export");
+      return;
+    }
+    
+    console.log(`Exporting ${selectedOrders.length} selected orders to Excel`);
+    toast.success(`Preparing to export ${selectedOrders.length} orders to Excel`);
   };
 
   // Handle row click to view order
@@ -768,105 +844,85 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Action Bar Layout - Rearranged as requested */}
+      {/* Action Bar Layout */}
       <div className="flex flex-wrap justify-between items-center mb-4 gap-2 py-2">
         <div className="flex flex-wrap items-center gap-2">
           {/* Export Button */}
           <Button 
             variant="outline" 
             className="flex items-center gap-2"
-            onClick={() => console.log("Export orders")}
+            onClick={handleExport}
+            disabled={selectedOrders.length === 0}
           >
             <Download className="h-4 w-4" />
-            Export All
+            Export
           </Button>
           
           {/* Bulk Actions Button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                className={`${selectedOrders.length > 0 ? 'bg-brand text-white hover:bg-brand-dark' : ''} transition-all`}
-                disabled={isProcessingBulkAction}
-                title={selectedOrders.length === 0 ? "Select orders to enable bulk actions" : "Perform bulk actions"}
-              >
-                {isProcessingBulkAction ? 'Processing...' : 'Bulk Actions'}
-              </Button>
-            </DropdownMenuTrigger>
-            {selectedOrders.length > 0 && (
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem 
-                  onClick={() => handleBulkAction('assignAuto')}
-                  disabled={isProcessingBulkAction}
-                  className="cursor-pointer"
+          {bulkActionsAllowed && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  className={`${selectedOrders.length > 0 ? 'bg-brand text-white hover:bg-brand-dark' : ''} transition-all`}
+                  disabled={isProcessingBulkAction || selectedOrders.length === 0}
+                  title={selectedOrders.length === 0 ? "Select orders to enable bulk actions" : "Perform bulk actions"}
                 >
-                  Auto Courier Select
-                </DropdownMenuItem>
-                
-                <div className="p-2 border-b">
-                  <p className="text-sm font-medium mb-1">Manual Courier Select</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full justify-between">
-                        {bulkCourier || "Select Courier"}
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={() => setBulkCourier('Aramex')}>
-                        Aramex
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setBulkCourier('DHL')}>
-                        DHL
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setBulkCourier('Fedex')}>
-                        Fedex
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button 
-                    className="w-full mt-2" 
-                    size="sm"
-                    disabled={!bulkCourier || isProcessingBulkAction}
-                    onClick={() => handleBulkAction('assignShipping')}
+                  {isProcessingBulkAction ? 'Processing...' : 'Bulk Actions'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                {availableBulkActions.includes('cancel') && (
+                  <DropdownMenuItem 
+                    onClick={() => handleBulkAction('cancel')}
+                    disabled={isProcessingBulkAction}
+                    className="cursor-pointer text-red-600"
                   >
-                    Assign Courier
-                  </Button>
-                </div>
+                    Cancel Orders
+                  </DropdownMenuItem>
+                )}
                 
-                <div className="p-2">
-                  <p className="text-sm font-medium mb-1">Change Order Status</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full justify-between">
-                        {bulkStatus || "Select Status"}
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      {statusTabs
-                        .filter(tab => tab.id !== 'all' && tab.id !== activeTab)
-                        .map(tab => (
-                          <DropdownMenuItem 
-                            key={tab.id}
-                            onClick={() => setBulkStatus(tab.id as string)}
-                          >
-                            {tab.label}
-                          </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button 
-                    className="w-full mt-2" 
-                    size="sm"
-                    disabled={!bulkStatus || isProcessingBulkAction}
-                    onClick={() => handleBulkAction('changeStatus')}
+                {availableBulkActions.includes('confirm') && (
+                  <DropdownMenuItem 
+                    onClick={() => handleBulkAction('confirm')}
+                    disabled={isProcessingBulkAction}
+                    className="cursor-pointer text-green-600"
                   >
-                    Apply Status Change
-                  </Button>
-                </div>
+                    Confirm Orders
+                  </DropdownMenuItem>
+                )}
+                
+                {availableBulkActions.includes('assignShipping') && (
+                  <DropdownMenuItem 
+                    onClick={() => setShowShippingCompanyModal(true)}
+                    disabled={isProcessingBulkAction}
+                    className="cursor-pointer"
+                  >
+                    Assign Shipping Company
+                  </DropdownMenuItem>
+                )}
+                
+                {availableBulkActions.includes('createPickupRequest') && (
+                  <DropdownMenuItem 
+                    onClick={() => handleBulkAction('createPickupRequest')}
+                    disabled={isProcessingBulkAction}
+                    className="cursor-pointer"
+                  >
+                    Create Pickup Request
+                  </DropdownMenuItem>
+                )}
+                
+                {availableBulkActions.includes('cancelDelivery') && (
+                  <DropdownMenuItem 
+                    onClick={() => handleBulkAction('cancelDelivery')}
+                    disabled={isProcessingBulkAction}
+                    className="cursor-pointer text-orange-600"
+                  >
+                    Cancel Delivery
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
-            )}
-          </DropdownMenu>
+            </DropdownMenu>
+          )}
           
           {/* Print Buttons */}
           <Button 
@@ -1003,7 +1059,18 @@ const Orders = () => {
               />
             </div>
             
-            {/* New Filter: Warehouse */}
+            {/* Phone Number Search */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input 
+                id="phone" 
+                value={filters.phone}
+                onChange={e => setFilters(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="Enter phone number"
+              />
+            </div>
+            
+            {/* Warehouse */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="warehouse">Warehouse</Label>
               <Select 
@@ -1023,7 +1090,7 @@ const Orders = () => {
               </Select>
             </div>
             
-            {/* New Filter: Courier Company */}
+            {/* Courier Company */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="courier">Courier Company</Label>
               <Select 
@@ -1043,7 +1110,7 @@ const Orders = () => {
               </Select>
             </div>
             
-            {/* New Filter: Payment Method */}
+            {/* Payment Method */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="paymentMethod">Payment Method</Label>
               <Select 
@@ -1063,7 +1130,7 @@ const Orders = () => {
               </Select>
             </div>
             
-            {/* New Filter: City / Governorate */}
+            {/* City / Governorate */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="city">City / Governorate</Label>
               <Select 
@@ -1081,6 +1148,18 @@ const Orders = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            
+            {/* Clear Button */}
+            <div className="flex flex-col gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={handleClearFilters}
+                className="w-full"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear All Filters
+              </Button>
             </div>
           </div>
         </Card>
@@ -1239,9 +1318,11 @@ const Orders = () => {
                           className="h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setSelectedOrders([order.id]);
                             handlePrintAWB();
                           }}
                           title="Print AWB"
+                          disabled={!order.courier}
                         >
                           <Printer className="h-4 w-4" />
                         </Button>
@@ -1251,6 +1332,7 @@ const Orders = () => {
                           className="h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setSelectedOrders([order.id]);
                             handlePrintInvoice();
                           }}
                           title="Print Invoice"
@@ -1305,6 +1387,52 @@ const Orders = () => {
           </div>
         )}
       </Card>
+
+      {/* Shipping Company Assignment Modal */}
+      <Dialog open={showShippingCompanyModal} onOpenChange={setShowShippingCompanyModal}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Assign Shipping Company</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            {shippingCompanies.map(company => (
+              <Card key={company.id} className="p-4 cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-brand">
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <img src={company.logo} alt={company.name} className="h-12 w-auto" />
+                  <h3 className="font-semibold text-lg">{company.name}</h3>
+                  
+                  <div className="w-full space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Cost:</span>
+                      <span className="font-medium">{company.cost} EGP</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Performance:</span>
+                      <span className="font-medium">{company.performanceScore}/5.0</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Delivery Time:</span>
+                      <span className="font-medium">{company.avgDeliveryTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Success Rate:</span>
+                      <span className="font-medium">{company.successRate}%</span>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    className="w-full"
+                    onClick={() => handleBulkAction('assignShipping', company.id)}
+                    disabled={isProcessingBulkAction}
+                  >
+                    {isProcessingBulkAction ? 'Assigning...' : 'Select'}
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Order View Sheet */}
       <Sheet open={!!viewOrderId} onOpenChange={(open) => !open && setViewOrderId(null)}>
@@ -1490,7 +1618,11 @@ const Orders = () => {
                 <Button 
                   variant="outline"
                   className="flex items-center gap-2"
-                  onClick={handlePrintAWB}
+                  onClick={() => {
+                    setSelectedOrders([viewedOrder.id]);
+                    handlePrintAWB();
+                  }}
+                  disabled={!viewedOrder.courier}
                 >
                   <Printer className="h-4 w-4" />
                   Print AWB
@@ -1498,7 +1630,10 @@ const Orders = () => {
                 <Button 
                   variant="outline"
                   className="flex items-center gap-2"
-                  onClick={handlePrintInvoice}
+                  onClick={() => {
+                    setSelectedOrders([viewedOrder.id]);
+                    handlePrintInvoice();
+                  }}
                 >
                   <FileTextIcon className="h-4 w-4" />
                   Print Invoice
