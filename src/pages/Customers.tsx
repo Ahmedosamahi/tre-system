@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -161,9 +162,9 @@ const CustomersPage = () => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set());
   const [activeFilters, setActiveFilters] = useState<string[]>(['All Customers']);
-  const [warehouseFilter, setWarehouseFilter] = useState<string>('');
-  const [cityFilter, setCityFilter] = useState<string>('');
-  const [courierFilter, setCourierFilter] = useState<string>('');
+  const [warehouseFilter, setWarehouseFilter] = useState<string>('all');
+  const [cityFilter, setCityFilter] = useState<string>('all');
+  const [courierFilter, setCourierFilter] = useState<string>('all');
 
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -176,9 +177,9 @@ const CustomersPage = () => {
                           (activeFilters.includes('High Quality') && customer.qualityScore >= 85) ||
                           (activeFilters.includes('Low Quality') && customer.qualityScore < 60);
     
-    const matchesWarehouse = !warehouseFilter || customer.warehouse === warehouseFilter;
-    const matchesCity = !cityFilter || customer.governorate === cityFilter;
-    const matchesCourier = !courierFilter || customer.courierPreference === courierFilter;
+    const matchesWarehouse = warehouseFilter === 'all' || customer.warehouse === warehouseFilter;
+    const matchesCity = cityFilter === 'all' || customer.governorate === cityFilter;
+    const matchesCourier = courierFilter === 'all' || customer.courierPreference === courierFilter;
     
     return matchesSearch && matchesFilters && matchesWarehouse && matchesCity && matchesCourier;
   });
@@ -271,9 +272,9 @@ const CustomersPage = () => {
 
   const clearAllFilters = () => {
     setActiveFilters(['All Customers']);
-    setWarehouseFilter('');
-    setCityFilter('');
-    setCourierFilter('');
+    setWarehouseFilter('all');
+    setCityFilter('all');
+    setCourierFilter('all');
   };
 
   const getQualityScoreColor = (score: number) => {
@@ -460,7 +461,7 @@ const CustomersPage = () => {
                     <SelectValue placeholder="By Warehouse" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Warehouses</SelectItem>
+                    <SelectItem value="all">All Warehouses</SelectItem>
                     <SelectItem value="Cairo Main">Cairo Main</SelectItem>
                     <SelectItem value="Alexandria Hub">Alexandria Hub</SelectItem>
                     <SelectItem value="Giza Center">Giza Center</SelectItem>
@@ -472,7 +473,7 @@ const CustomersPage = () => {
                     <SelectValue placeholder="By Governorate" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Governorates</SelectItem>
+                    <SelectItem value="all">All Governorates</SelectItem>
                     <SelectItem value="Cairo">Cairo</SelectItem>
                     <SelectItem value="Alexandria">Alexandria</SelectItem>
                     <SelectItem value="Giza">Giza</SelectItem>
@@ -484,7 +485,7 @@ const CustomersPage = () => {
                     <SelectValue placeholder="By Courier" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Couriers</SelectItem>
+                    <SelectItem value="all">All Couriers</SelectItem>
                     <SelectItem value="Aramex">Aramex</SelectItem>
                     <SelectItem value="Bosta">Bosta</SelectItem>
                     <SelectItem value="Mylerz">Mylerz</SelectItem>
@@ -634,7 +635,6 @@ const CustomersPage = () => {
                               size="sm"
                               onClick={() => handleViewCustomer(customer)}
                               className="hover:bg-blue-50 hover:text-blue-600"
-                              title="View Profile"
                             >
                               <Eye size={16} />
                             </Button>
@@ -643,7 +643,6 @@ const CustomersPage = () => {
                               size="sm"
                               onClick={() => handleEditCustomer(customer)}
                               className="hover:bg-green-50 hover:text-green-600"
-                              title="Edit Customer"
                             >
                               <Edit size={16} />
                             </Button>
@@ -652,7 +651,6 @@ const CustomersPage = () => {
                               size="sm"
                               onClick={() => handleDeleteCustomer(customer)}
                               className="hover:bg-red-50 hover:text-red-600"
-                              title="Delete Customer"
                             >
                               <Trash2 size={16} />
                             </Button>
