@@ -69,10 +69,15 @@ export type Customer = {
 
 export type CustomerOrder = {
   id: string;
+  orderNumber: string;
   date: string;
-  status: 'Delivered' | 'Rejected' | 'In Transit' | 'Pending';
+  status: 'Delivered' | 'Rejected' | 'In Transit' | 'Pending' | 'Refunded' | 'Cancelled';
   courier: string;
   amount: number;
+  paymentMethod: 'Cash' | 'Visa' | 'Mastercard' | 'ValU' | 'Bank Transfer';
+  brandName: string;
+  city: string;
+  fullAddress: string;
 };
 
 // New types for Couriers
