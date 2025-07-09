@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,7 +59,6 @@ import { CustomerModal } from '@/components/customers/CustomerModal';
 import { DeleteCustomerModal } from '@/components/customers/DeleteCustomerModal';
 import { CustomerProfileModal } from '@/components/customers/CustomerProfileModal';
 
-// Sample customer data with enhanced fields
 const initialCustomers: Customer[] = [
   {
     id: 'CUST001',
@@ -562,10 +560,14 @@ const CustomersPage = () => {
                             <div className="font-medium flex items-center gap-2">
                               {customer.name}
                               {isInactive30Days(customer.lastOrderDate) && (
-                                <AlertTriangle size={14} className="text-red-500" title="Inactive for 30+ days" />
+                                <div title="Inactive for 30+ days">
+                                  <AlertTriangle size={14} className="text-red-500" />
+                                </div>
                               )}
                               {customer.ordersCount === 0 && (
-                                <AlertTriangle size={14} className="text-orange-500" title="No orders" />
+                                <div title="No orders">
+                                  <AlertTriangle size={14} className="text-orange-500" />
+                                </div>
                               )}
                             </div>
                             <Badge 

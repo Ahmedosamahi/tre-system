@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -41,8 +40,8 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
     governorate: '',
     warehouse: '',
     courierPreference: '',
-    customerType: 'New' as const,
-    status: 'Active' as const,
+    customerType: 'New' as Customer['customerType'],
+    status: 'Active' as Customer['status'],
     ordersCount: 0,
     qualityScore: 100,
     totalOrderValue: 0,
@@ -286,7 +285,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
             {/* Customer Type */}
             <div className="space-y-2">
               <Label htmlFor="customerType">Customer Type</Label>
-              <Select value={formData.customerType} onValueChange={(value) => handleInputChange('customerType', value)}>
+              <Select value={formData.customerType} onValueChange={(value: Customer['customerType']) => handleInputChange('customerType', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select customer type" />
                 </SelectTrigger>
@@ -302,7 +301,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
             {/* Status */}
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+              <Select value={formData.status} onValueChange={(value: Customer['status']) => handleInputChange('status', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
