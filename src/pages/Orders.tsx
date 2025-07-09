@@ -1,9 +1,10 @@
+
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { PageLayout } from "@/components/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CreateOrderButton } from "@/components/orders/CreateOrderButton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
