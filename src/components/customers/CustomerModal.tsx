@@ -9,7 +9,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -17,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Customer } from '@/types';
 
 interface CustomerModalProps {
@@ -37,9 +37,17 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
     email: '',
     phone: '',
     address: '',
+    city: '',
+    governorate: '',
+    warehouse: '',
+    courierPreference: '',
+    customerType: 'New' as const,
+    status: 'Active' as const,
     ordersCount: 0,
     qualityScore: 100,
-    status: 'Active' as 'Active' | 'Inactive'
+    totalOrderValue: 0,
+    lastOrderDate: new Date().toISOString().split('T')[0],
+    frequentCities: [] as string[]
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -51,9 +59,17 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
         email: customer.email,
         phone: customer.phone,
         address: customer.address,
+        city: customer.city,
+        governorate: customer.governorate,
+        warehouse: customer.warehouse,
+        courierPreference: customer.courierPreference,
+        customerType: customer.customerType,
+        status: customer.status,
         ordersCount: customer.ordersCount,
         qualityScore: customer.qualityScore,
-        status: customer.status
+        totalOrderValue: customer.totalOrderValue,
+        lastOrderDate: customer.lastOrderDate,
+        frequentCities: customer.frequentCities
       });
     } else {
       setFormData({
@@ -61,9 +77,17 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
         email: '',
         phone: '',
         address: '',
+        city: '',
+        governorate: '',
+        warehouse: '',
+        courierPreference: '',
+        customerType: 'New',
+        status: 'Active',
         ordersCount: 0,
         qualityScore: 100,
-        status: 'Active'
+        totalOrderValue: 0,
+        lastOrderDate: new Date().toISOString().split('T')[0],
+        frequentCities: []
       });
     }
     setErrors({});
@@ -90,6 +114,22 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
       newErrors.address = 'Address is required';
     }
 
+    if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+
+    if (!formData.governorate.trim()) {
+      newErrors.governorate = 'Governorate is required';
+    }
+
+    if (!formData.warehouse.trim()) {
+      newErrors.warehouse = 'Warehouse is required';
+    }
+
+    if (!formData.courierPreference.trim()) {
+      newErrors.courierPreference = 'Courier preference is required';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,9 +137,11 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      onSave(formData);
+    if (!validateForm()) {
+      return;
     }
+
+    onSave(formData);
   };
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -107,93 +149,162 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
       ...prev,
       [field]: value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: ''
-      }));
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {customer ? 'Edit Customer' : 'Add New Customer'}
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <Label htmlFor="name">Customer Name *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Full Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Enter full name"
                 className={errors.name ? 'border-red-500' : ''}
-                placeholder="Enter customer name"
               />
-              {errors.name && (
-                <p className="text-sm text-red-500 mt-1">{errors.name}</p>
-              )}
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="email">Email Address *</Label>
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={errors.email ? 'border-red-500' : ''}
                 placeholder="Enter email address"
+                className={errors.email ? 'border-red-500' : ''}
               />
-              {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="phone">Phone Number *</Label>
+            {/* Phone */}
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone *</Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                className={errors.phone ? 'border-red-500' : ''}
                 placeholder="Enter phone number"
+                className={errors.phone ? 'border-red-500' : ''}
               />
-              {errors.phone && (
-                <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
-              )}
+              {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="address">Address *</Label>
-              <Textarea
-                id="address"
-                value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                className={errors.address ? 'border-red-500' : ''}
-                placeholder="Enter full address"
-                rows={3}
+            {/* City */}
+            <div className="space-y-2">
+              <Label htmlFor="city">City *</Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleInputChange('city', e.target.value)}
+                placeholder="Enter city"
+                className={errors.city ? 'border-red-500' : ''}
               />
-              {errors.address && (
-                <p className="text-sm text-red-500 mt-1">{errors.address}</p>
-              )}
+              {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value: 'Active' | 'Inactive') => handleInputChange('status', value)}
-              >
+            {/* Governorate */}
+            <div className="space-y-2">
+              <Label htmlFor="governorate">Governorate *</Label>
+              <Select value={formData.governorate} onValueChange={(value) => handleInputChange('governorate', value)}>
+                <SelectTrigger className={errors.governorate ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Select governorate" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cairo">Cairo</SelectItem>
+                  <SelectItem value="Alexandria">Alexandria</SelectItem>
+                  <SelectItem value="Giza">Giza</SelectItem>
+                  <SelectItem value="Luxor">Luxor</SelectItem>
+                  <SelectItem value="Aswan">Aswan</SelectItem>
+                  <SelectItem value="Port Said">Port Said</SelectItem>
+                  <SelectItem value="Suez">Suez</SelectItem>
+                  <SelectItem value="Ismailia">Ismailia</SelectItem>
+                  <SelectItem value="Mansoura">Mansoura</SelectItem>
+                  <SelectItem value="Tanta">Tanta</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.governorate && <p className="text-red-500 text-sm">{errors.governorate}</p>}
+            </div>
+
+            {/* Warehouse */}
+            <div className="space-y-2">
+              <Label htmlFor="warehouse">Warehouse *</Label>
+              <Select value={formData.warehouse} onValueChange={(value) => handleInputChange('warehouse', value)}>
+                <SelectTrigger className={errors.warehouse ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Select warehouse" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cairo Main">Cairo Main</SelectItem>
+                  <SelectItem value="Alexandria Hub">Alexandria Hub</SelectItem>
+                  <SelectItem value="Giza Center">Giza Center</SelectItem>
+                  <SelectItem value="Mansoura Branch">Mansoura Branch</SelectItem>
+                  <SelectItem value="Luxor Station">Luxor Station</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.warehouse && <p className="text-red-500 text-sm">{errors.warehouse}</p>}
+            </div>
+
+            {/* Courier Preference */}
+            <div className="space-y-2">
+              <Label htmlFor="courierPreference">Courier Preference *</Label>
+              <Select value={formData.courierPreference} onValueChange={(value) => handleInputChange('courierPreference', value)}>
+                <SelectTrigger className={errors.courierPreference ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Select courier" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Aramex">Aramex</SelectItem>
+                  <SelectItem value="Bosta">Bosta</SelectItem>
+                  <SelectItem value="Mylerz">Mylerz</SelectItem>
+                  <SelectItem value="DHL">DHL</SelectItem>
+                  <SelectItem value="FedEx">FedEx</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.courierPreference && <p className="text-red-500 text-sm">{errors.courierPreference}</p>}
+            </div>
+
+            {/* Customer Type */}
+            <div className="space-y-2">
+              <Label htmlFor="customerType">Customer Type</Label>
+              <Select value={formData.customerType} onValueChange={(value) => handleInputChange('customerType', value)}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select customer type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="VIP">VIP</SelectItem>
+                  <SelectItem value="Returning Customer">Returning Customer</SelectItem>
+                  <SelectItem value="New">New</SelectItem>
+                  <SelectItem value="Low Activity">Low Activity</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status */}
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Active">Active</SelectItem>
@@ -203,18 +314,25 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-            >
+          {/* Address */}
+          <div className="space-y-2">
+            <Label htmlFor="address">Address *</Label>
+            <Input
+              id="address"
+              value={formData.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              placeholder="Enter full address"
+              className={errors.address ? 'border-red-500' : ''}
+            />
+            {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
               {customer ? 'Update Customer' : 'Add Customer'}
             </Button>
           </div>

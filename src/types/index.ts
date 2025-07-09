@@ -46,7 +46,7 @@ export type FinancialMetric = {
   icon: React.ReactNode;
 };
 
-// New types for Customers
+// Enhanced Customer type with new fields
 export type Customer = {
   id: string;
   name: string;
@@ -56,6 +56,14 @@ export type Customer = {
   ordersCount: number;
   qualityScore: number;
   status: 'Active' | 'Inactive';
+  customerType: 'VIP' | 'Returning Customer' | 'New' | 'Low Activity';
+  warehouse: string;
+  city: string;
+  governorate: string;
+  courierPreference: string;
+  totalOrderValue: number;
+  lastOrderDate: string;
+  frequentCities: string[];
   orders: CustomerOrder[];
 };
 

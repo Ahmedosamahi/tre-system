@@ -19,66 +19,134 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Plus, Edit, Trash2, ChevronDown, Mail, Phone, User } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  ChevronDown, 
+  Mail, 
+  Phone, 
+  User, 
+  Eye,
+  Download,
+  MoreVertical,
+  MapPin,
+  Truck,
+  Calendar,
+  X,
+  AlertTriangle,
+  Crown,
+  RotateCcw,
+  UserPlus,
+  Activity
+} from 'lucide-react';
 import { Customer } from '@/types';
 import { CustomerModal } from '@/components/customers/CustomerModal';
 import { DeleteCustomerModal } from '@/components/customers/DeleteCustomerModal';
+import { CustomerProfileModal } from '@/components/customers/CustomerProfileModal';
 
-// Sample customer data
+// Sample customer data with enhanced fields
 const initialCustomers: Customer[] = [
   {
     id: 'CUST001',
-    name: 'John Anderson',
-    email: 'john.anderson@example.com',
-    phone: '+1 555-123-4567',
-    address: '123 Main St, New York, NY 10001',
+    name: 'Ahmed Mohamed',
+    email: 'ahmed.mohamed@example.com',
+    phone: '+201012345678',
+    address: '123 El Nasr St, Nasr City, Cairo, Cairo',
     ordersCount: 24,
     qualityScore: 95,
     status: 'Active',
+    customerType: 'VIP',
+    warehouse: 'Cairo Main',
+    city: 'Cairo',
+    governorate: 'Cairo',
+    courierPreference: 'Aramex',
+    totalOrderValue: 12500,
+    lastOrderDate: '2025-01-05',
+    frequentCities: ['Cairo', 'Giza'],
     orders: [
-      { id: 'ORD001', date: '2025-04-18', status: 'Delivered', courier: 'Bosta', amount: 89.99 },
-      { id: 'ORD002', date: '2025-04-15', status: 'Delivered', courier: 'Aramex', amount: 156.50 },
-      { id: 'ORD003', date: '2025-04-10', status: 'Rejected', courier: 'Mylerz', amount: 78.25 }
+      { id: 'ORD001', date: '2025-01-05', status: 'Delivered', courier: 'Aramex', amount: 89.99 },
+      { id: 'ORD002', date: '2025-01-02', status: 'Delivered', courier: 'Aramex', amount: 156.50 },
+      { id: 'ORD003', date: '2024-12-28', status: 'Rejected', courier: 'Mylerz', amount: 78.25 }
     ]
   },
   {
     id: 'CUST002',
-    name: 'Maria Garcia',
-    email: 'maria.garcia@example.com',
-    phone: '+1 555-234-5678',
-    address: '456 Oak Ave, Los Angeles, CA 90210',
+    name: 'Fatima Hassan',
+    email: 'fatima.hassan@example.com',
+    phone: '+201098765432',
+    address: '456 Tahrir Square, Downtown, Cairo, Cairo',
     ordersCount: 18,
     qualityScore: 88,
     status: 'Active',
+    customerType: 'Returning Customer',
+    warehouse: 'Cairo Main',
+    city: 'Cairo',
+    governorate: 'Cairo',
+    courierPreference: 'Bosta',
+    totalOrderValue: 8750,
+    lastOrderDate: '2025-01-03',
+    frequentCities: ['Cairo'],
     orders: [
-      { id: 'ORD004', date: '2025-04-20', status: 'Delivered', courier: 'Bosta', amount: 125.00 },
-      { id: 'ORD005', date: '2025-04-17', status: 'In Transit', courier: 'Aramex', amount: 89.99 }
+      { id: 'ORD004', date: '2025-01-03', status: 'Delivered', courier: 'Bosta', amount: 125.00 },
+      { id: 'ORD005', date: '2024-12-30', status: 'In Transit', courier: 'Bosta', amount: 89.99 }
     ]
   },
   {
     id: 'CUST003',
-    name: 'Robert Smith',
-    email: 'robert.smith@example.com',
-    phone: '+1 555-345-6789',
-    address: '789 Pine St, Chicago, IL 60601',
+    name: 'Omar Khaled',
+    email: 'omar.khaled@example.com',
+    phone: '+201123456789',
+    address: '789 Corniche St, Alexandria, Alexandria',
     ordersCount: 7,
     qualityScore: 71,
     status: 'Active',
+    customerType: 'New',
+    warehouse: 'Alexandria Hub',
+    city: 'Alexandria',
+    governorate: 'Alexandria',
+    courierPreference: 'Mylerz',
+    totalOrderValue: 3200,
+    lastOrderDate: '2024-12-20',
+    frequentCities: ['Alexandria'],
     orders: [
-      { id: 'ORD006', date: '2025-04-22', status: 'Delivered', courier: 'Mylerz', amount: 67.50 }
+      { id: 'ORD006', date: '2024-12-20', status: 'Delivered', courier: 'Mylerz', amount: 67.50 }
     ]
   },
   {
     id: 'CUST004',
-    name: 'Emily Johnson',
-    email: 'emily.j@example.com',
-    phone: '+1 555-456-7890',
-    address: '321 Elm St, Houston, TX 77001',
+    name: 'Nour El-Din',
+    email: 'nour.eldin@example.com',
+    phone: '+201234567890',
+    address: '321 Maadi St, Maadi, Cairo, Cairo',
     ordersCount: 4,
     qualityScore: 45,
     status: 'Inactive',
+    customerType: 'Low Activity',
+    warehouse: 'Cairo Main',
+    city: 'Cairo',
+    governorate: 'Cairo',
+    courierPreference: 'Aramex',
+    totalOrderValue: 950,
+    lastOrderDate: '2024-11-15',
+    frequentCities: ['Cairo'],
     orders: [
-      { id: 'ORD007', date: '2025-02-15', status: 'Rejected', courier: 'Aramex', amount: 195.45 }
+      { id: 'ORD007', date: '2024-11-15', status: 'Rejected', courier: 'Aramex', amount: 195.45 }
     ]
   }
 ];
@@ -87,16 +155,35 @@ const CustomersPage = () => {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
+  const [profileCustomer, setProfileCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set());
+  const [activeFilters, setActiveFilters] = useState<string[]>(['All Customers']);
+  const [warehouseFilter, setWarehouseFilter] = useState<string>('');
+  const [cityFilter, setCityFilter] = useState<string>('');
+  const [courierFilter, setCourierFilter] = useState<string>('');
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCustomers = customers.filter(customer => {
+    const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         customer.phone.includes(searchTerm) ||
+                         customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilters = activeFilters.includes('All Customers') ||
+                          (activeFilters.includes('Active') && customer.status === 'Active') ||
+                          (activeFilters.includes('Inactive') && customer.status === 'Inactive') ||
+                          (activeFilters.includes('High Quality') && customer.qualityScore >= 85) ||
+                          (activeFilters.includes('Low Quality') && customer.qualityScore < 60);
+    
+    const matchesWarehouse = !warehouseFilter || customer.warehouse === warehouseFilter;
+    const matchesCity = !cityFilter || customer.governorate === cityFilter;
+    const matchesCourier = !courierFilter || customer.courierPreference === courierFilter;
+    
+    return matchesSearch && matchesFilters && matchesWarehouse && matchesCity && matchesCourier;
+  });
 
   const handleAddCustomer = () => {
     setEditingCustomer(null);
@@ -111,6 +198,11 @@ const CustomersPage = () => {
   const handleDeleteCustomer = (customer: Customer) => {
     setDeletingCustomer(customer);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleViewCustomer = (customer: Customer) => {
+    setProfileCustomer(customer);
+    setIsProfileModalOpen(true);
   };
 
   const handleSaveCustomer = (customerData: Omit<Customer, 'id' | 'orders'>) => {
@@ -152,22 +244,87 @@ const CustomersPage = () => {
     });
   };
 
+  const toggleCustomerSelection = (customerId: string) => {
+    setSelectedCustomers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(customerId)) {
+        newSet.delete(customerId);
+      } else {
+        newSet.add(customerId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleFilter = (filter: string) => {
+    setActiveFilters(prev => {
+      if (filter === 'All Customers') {
+        return ['All Customers'];
+      }
+      const filtered = prev.filter(f => f !== 'All Customers');
+      if (filtered.includes(filter)) {
+        const newFilters = filtered.filter(f => f !== filter);
+        return newFilters.length === 0 ? ['All Customers'] : newFilters;
+      } else {
+        return [...filtered, filter];
+      }
+    });
+  };
+
+  const clearAllFilters = () => {
+    setActiveFilters(['All Customers']);
+    setWarehouseFilter('');
+    setCityFilter('');
+    setCourierFilter('');
+  };
+
   const getQualityScoreColor = (score: number) => {
-    if (score >= 90) return 'bg-green-500';
-    if (score >= 70) return 'bg-yellow-500';
+    if (score >= 85) return 'bg-green-500';
+    if (score >= 60) return 'bg-yellow-500';
     return 'bg-red-500';
   };
 
-  const getQualityScoreBadge = (score: number) => {
-    if (score >= 90) return 'success';
-    if (score >= 70) return 'warning';
-    return 'danger';
+  const getCustomerTypeColor = (type: string) => {
+    switch (type) {
+      case 'VIP': return 'bg-purple-100 text-purple-800';
+      case 'Returning Customer': return 'bg-blue-100 text-blue-800';
+      case 'New': return 'bg-green-100 text-green-800';
+      case 'Low Activity': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
-  const getStatusBadge = (status: string) => {
-    return status === 'Delivered' ? 'success' : 
-           status === 'Rejected' ? 'danger' :
-           status === 'In Transit' ? 'info' : 'warning';
+  const getCustomerTypeIcon = (type: string) => {
+    switch (type) {
+      case 'VIP': return <Crown size={12} />;
+      case 'Returning Customer': return <RotateCcw size={12} />;
+      case 'New': return <UserPlus size={12} />;
+      case 'Low Activity': return <Activity size={12} />;
+      default: return <User size={12} />;
+    }
+  };
+
+  const isInactive30Days = (lastOrderDate: string) => {
+    const lastOrder = new Date(lastOrderDate);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return lastOrder < thirtyDaysAgo;
+  };
+
+  const exportCustomers = () => {
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      "Name,Email,Phone,City,Orders,Quality Score,Status\n" +
+      filteredCustomers.map(c => 
+        `${c.name},${c.email},${c.phone},${c.city},${c.ordersCount},${c.qualityScore}%,${c.status}`
+      ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "customers.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -186,57 +343,58 @@ const CustomersPage = () => {
             </Button>
           </div>
           
+          {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <Card className="p-6">
+            <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Customers</p>
-                  <p className="text-2xl font-semibold">{customers.length}</p>
+                  <p className="text-sm text-blue-600 font-medium">Total Customers</p>
+                  <p className="text-2xl font-bold text-blue-800">{customers.length}</p>
                 </div>
-                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                  <User size={24} />
+                <div className="h-12 w-12 bg-blue-200 rounded-full flex items-center justify-center">
+                  <User size={24} className="text-blue-600" />
                 </div>
               </div>
             </Card>
             
-            <Card className="p-6">
+            <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Active Customers</p>
-                  <p className="text-2xl font-semibold text-green-600">
+                  <p className="text-sm text-green-600 font-medium">Active Customers</p>
+                  <p className="text-2xl font-bold text-green-800">
                     {customers.filter(c => c.status === 'Active').length}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                  <User size={24} />
+                <div className="h-12 w-12 bg-green-200 rounded-full flex items-center justify-center">
+                  <Activity size={24} className="text-green-600" />
                 </div>
               </div>
             </Card>
             
-            <Card className="p-6">
+            <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Avg Quality Score</p>
-                  <p className="text-2xl font-semibold">
+                  <p className="text-sm text-purple-600 font-medium">Avg Quality Score</p>
+                  <p className="text-2xl font-bold text-purple-800">
                     {Math.round(customers.reduce((acc, c) => acc + c.qualityScore, 0) / customers.length)}%
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
-                  <User size={24} />
+                <div className="h-12 w-12 bg-purple-200 rounded-full flex items-center justify-center">
+                  <Crown size={24} className="text-purple-600" />
                 </div>
               </div>
             </Card>
             
-            <Card className="p-6">
+            <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Orders</p>
-                  <p className="text-2xl font-semibold">
+                  <p className="text-sm text-orange-600 font-medium">Total Orders</p>
+                  <p className="text-2xl font-bold text-orange-800">
                     {customers.reduce((acc, c) => acc + c.ordersCount, 0)}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
-                  <User size={24} />
+                <div className="h-12 w-12 bg-orange-200 rounded-full flex items-center justify-center">
+                  <Truck size={24} className="text-orange-600" />
                 </div>
               </div>
             </Card>
@@ -244,7 +402,8 @@ const CustomersPage = () => {
           
           <Card>
             <div className="p-6 border-b">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Search Bar */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div className="col-span-1 md:col-span-2">
                   <SearchBox 
                     placeholder="Search customers by name, email, or phone..." 
@@ -252,14 +411,95 @@ const CustomersPage = () => {
                     onChange={setSearchTerm}
                   />
                 </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={exportCustomers}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Download size={16} /> Export All
+                  </Button>
+                  {selectedCustomers.size > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="flex items-center gap-2">
+                          <MoreVertical size={16} /> Bulk Actions ({selectedCustomers.size})
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem>Send Notification</DropdownMenuItem>
+                        <DropdownMenuItem>Mark as VIP</DropdownMenuItem>
+                        <DropdownMenuItem>Set as Inactive</DropdownMenuItem>
+                        <DropdownMenuItem>Export Selected</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
               </div>
               
-              <div className="mt-4 flex gap-2 flex-wrap">
-                <Badge variant="outline" className="bg-white cursor-pointer">All Customers</Badge>
-                <Badge variant="outline" className="bg-white cursor-pointer">Active</Badge>
-                <Badge variant="outline" className="bg-white cursor-pointer">Inactive</Badge>
-                <Badge variant="outline" className="bg-white cursor-pointer">High Quality</Badge>
-                <Badge variant="outline" className="bg-white cursor-pointer">Low Quality</Badge>
+              {/* Basic Filters */}
+              <div className="flex gap-2 flex-wrap mb-4">
+                {['All Customers', 'Active', 'Inactive', 'High Quality', 'Low Quality'].map(filter => (
+                  <Badge
+                    key={filter}
+                    variant="outline"
+                    className={`cursor-pointer transition-colors ${
+                      activeFilters.includes(filter) 
+                        ? 'bg-blue-100 text-blue-800 border-blue-300' 
+                        : 'bg-white hover:bg-gray-50'
+                    }`}
+                    onClick={() => toggleFilter(filter)}
+                  >
+                    {filter}
+                  </Badge>
+                ))}
+              </div>
+              
+              {/* Advanced Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Select value={warehouseFilter} onValueChange={setWarehouseFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="By Warehouse" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Warehouses</SelectItem>
+                    <SelectItem value="Cairo Main">Cairo Main</SelectItem>
+                    <SelectItem value="Alexandria Hub">Alexandria Hub</SelectItem>
+                    <SelectItem value="Giza Center">Giza Center</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={cityFilter} onValueChange={setCityFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="By Governorate" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Governorates</SelectItem>
+                    <SelectItem value="Cairo">Cairo</SelectItem>
+                    <SelectItem value="Alexandria">Alexandria</SelectItem>
+                    <SelectItem value="Giza">Giza</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={courierFilter} onValueChange={setCourierFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="By Courier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Couriers</SelectItem>
+                    <SelectItem value="Aramex">Aramex</SelectItem>
+                    <SelectItem value="Bosta">Bosta</SelectItem>
+                    <SelectItem value="Mylerz">Mylerz</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Button
+                  onClick={clearAllFilters}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <X size={16} /> Clear Filters
+                </Button>
               </div>
             </div>
             
@@ -267,6 +507,18 @@ const CustomersPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedCustomers.size === filteredCustomers.length && filteredCustomers.length > 0}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedCustomers(new Set(filteredCustomers.map(c => c.id)));
+                          } else {
+                            setSelectedCustomers(new Set());
+                          }
+                        }}
+                      />
+                    </TableHead>
                     <TableHead></TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Contact</TableHead>
@@ -280,6 +532,12 @@ const CustomersPage = () => {
                   {filteredCustomers.map((customer) => (
                     <React.Fragment key={customer.id}>
                       <TableRow className="hover:bg-gray-50 transition-colors">
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedCustomers.has(customer.id)}
+                            onCheckedChange={() => toggleCustomerSelection(customer.id)}
+                          />
+                        </TableCell>
                         <TableCell>
                           <Collapsible>
                             <CollapsibleTrigger asChild>
@@ -299,7 +557,25 @@ const CustomersPage = () => {
                             </CollapsibleTrigger>
                           </Collapsible>
                         </TableCell>
-                        <TableCell className="font-medium">{customer.name}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="font-medium flex items-center gap-2">
+                              {customer.name}
+                              {isInactive30Days(customer.lastOrderDate) && (
+                                <AlertTriangle size={14} className="text-red-500" title="Inactive for 30+ days" />
+                              )}
+                              {customer.ordersCount === 0 && (
+                                <AlertTriangle size={14} className="text-orange-500" title="No orders" />
+                              )}
+                            </div>
+                            <Badge 
+                              className={`text-xs ${getCustomerTypeColor(customer.customerType)} flex items-center gap-1 w-fit`}
+                            >
+                              {getCustomerTypeIcon(customer.customerType)}
+                              {customer.customerType}
+                            </Badge>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-1 text-sm">
@@ -308,9 +584,19 @@ const CustomersPage = () => {
                             <div className="flex items-center gap-1 text-sm">
                               <Phone size={14} className="text-gray-500" /> {customer.phone}
                             </div>
+                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                              <MapPin size={14} /> {customer.city}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center font-medium">{customer.ordersCount}</TableCell>
+                        <TableCell className="text-center">
+                          <div className="space-y-1">
+                            <div className="font-medium">{customer.ordersCount}</div>
+                            <div className="text-xs text-gray-500">
+                              ${customer.totalOrderValue.toLocaleString()}
+                            </div>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <div className="flex-1 bg-gray-200 rounded-full h-2">
@@ -322,8 +608,8 @@ const CustomersPage = () => {
                             <Badge 
                               variant="outline" 
                               className={
-                                customer.qualityScore >= 90 ? 'bg-green-50 text-green-700' :
-                                customer.qualityScore >= 70 ? 'bg-yellow-50 text-yellow-700' :
+                                customer.qualityScore >= 85 ? 'bg-green-50 text-green-700' :
+                                customer.qualityScore >= 60 ? 'bg-yellow-50 text-yellow-700' :
                                 'bg-red-50 text-red-700'
                               }
                             >
@@ -344,8 +630,18 @@ const CustomersPage = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleEditCustomer(customer)}
+                              onClick={() => handleViewCustomer(customer)}
                               className="hover:bg-blue-50 hover:text-blue-600"
+                              title="View Profile"
+                            >
+                              <Eye size={16} />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditCustomer(customer)}
+                              className="hover:bg-green-50 hover:text-green-600"
+                              title="Edit Customer"
                             >
                               <Edit size={16} />
                             </Button>
@@ -354,6 +650,7 @@ const CustomersPage = () => {
                               size="sm"
                               onClick={() => handleDeleteCustomer(customer)}
                               className="hover:bg-red-50 hover:text-red-600"
+                              title="Delete Customer"
                             >
                               <Trash2 size={16} />
                             </Button>
@@ -362,30 +659,49 @@ const CustomersPage = () => {
                       </TableRow>
                       {expandedRows.has(customer.id) && (
                         <TableRow>
-                          <TableCell colSpan={7} className="bg-gray-50 p-0">
+                          <TableCell colSpan={8} className="bg-gray-50 p-0">
                             <Collapsible open={expandedRows.has(customer.id)}>
                               <CollapsibleContent>
-                                <div className="p-4">
-                                  <h4 className="font-medium mb-3">Recent Orders</h4>
-                                  <div className="grid gap-2">
-                                    {customer.orders.map((order) => (
-                                      <div key={order.id} className="flex items-center justify-between bg-white p-3 rounded border">
-                                        <div className="flex items-center gap-4">
-                                          <span className="font-medium">{order.id}</span>
-                                          <span className="text-sm text-gray-500">{new Date(order.date).toLocaleDateString()}</span>
-                                          <Badge variant="outline" className={
-                                            order.status === 'Delivered' ? 'bg-green-50 text-green-700' :
-                                            order.status === 'Rejected' ? 'bg-red-50 text-red-700' :
-                                            order.status === 'In Transit' ? 'bg-blue-50 text-blue-700' :
-                                            'bg-yellow-50 text-yellow-700'
-                                          }>
-                                            {order.status}
-                                          </Badge>
-                                          <span className="text-sm">{order.courier}</span>
-                                        </div>
-                                        <span className="font-medium">${order.amount.toFixed(2)}</span>
+                                <div className="p-4 space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="bg-white p-3 rounded border">
+                                      <h5 className="font-medium text-gray-700 mb-2">Order Details</h5>
+                                      <div className="space-y-1 text-sm">
+                                        <div>Total Value: <span className="font-medium">${customer.totalOrderValue.toLocaleString()}</span></div>
+                                        <div>Last Order: <span className="font-medium">{new Date(customer.lastOrderDate).toLocaleDateString()}</span></div>
+                                        <div>Warehouse: <span className="font-medium">{customer.warehouse}</span></div>
                                       </div>
-                                    ))}
+                                    </div>
+                                    
+                                    <div className="bg-white p-3 rounded border">
+                                      <h5 className="font-medium text-gray-700 mb-2">Preferences</h5>
+                                      <div className="space-y-1 text-sm">
+                                        <div>Preferred Courier: <span className="font-medium">{customer.courierPreference}</span></div>
+                                        <div>Frequent Cities: <span className="font-medium">{customer.frequentCities.join(', ')}</span></div>
+                                        <div>Governorate: <span className="font-medium">{customer.governorate}</span></div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="bg-white p-3 rounded border">
+                                      <h5 className="font-medium text-gray-700 mb-2">Recent Orders</h5>
+                                      <div className="space-y-2">
+                                        {customer.orders.slice(0, 2).map((order) => (
+                                          <div key={order.id} className="flex justify-between items-center text-sm">
+                                            <span>{order.id}</span>
+                                            <Badge 
+                                              variant="outline" 
+                                              className={
+                                                order.status === 'Delivered' ? 'bg-green-50 text-green-700' :
+                                                order.status === 'Rejected' ? 'bg-red-50 text-red-700' :
+                                                'bg-blue-50 text-blue-700'
+                                              }
+                                            >
+                                              {order.status}
+                                            </Badge>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </CollapsibleContent>
@@ -420,6 +736,15 @@ const CustomersPage = () => {
         }}
         onConfirm={confirmDelete}
         customerName={deletingCustomer?.name || ''}
+      />
+
+      <CustomerProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          setProfileCustomer(null);
+        }}
+        customer={profileCustomer}
       />
     </div>
   );
