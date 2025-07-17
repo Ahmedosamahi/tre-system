@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { TicketTable } from '@/components/crm/TicketTable';
 import { CreateTicketModal } from '@/components/crm/CreateTicketModal';
+import { ViewTicketModal } from '@/components/crm/ViewTicketModal';
+import { RespondToTicketModal } from '@/components/crm/RespondToTicketModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -148,6 +150,9 @@ const CrmCustomerService = () => {
 
   const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isRespondModalOpen, setIsRespondModalOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'responded' | 'not-responded' | 'closed'>('all');
   const [sortField, setSortField] = useState('dateCreated');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -285,11 +290,35 @@ const CrmCustomerService = () => {
   };
 
   const handleView = (id: string) => {
-    console.log('View ticket:', id);
+    const ticket = tickets.find(t => t.id === id);
+    if (ticket) {
+      setSelectedTicket(ticket);
+      setIsViewModalOpen(true);
+    }
   };
 
   const handleRespond = (id: string) => {
-    console.log('Respond to ticket:', id);
+    const ticket = tickets.find(t => t.id === id);
+    if (ticket) {
+      setSelectedTicket(ticket);
+      setIsRespondModalOpen(true);
+    }
+  };
+
+  const handleRespondSubmit = (ticketId: string, response: string, newStatus: string) => {
+    setTickets(prev => 
+      prev.map(ticket => 
+        ticket.id === ticketId 
+          ? { ...ticket, status: newStatus as 'Open' | 'Responded' | 'Closed' }
+          : ticket
+      )
+    );
+    
+    toast({
+      title: 'Success',
+      description: `Ticket ${ticketId} updated successfully`,
+      variant: 'default'
+    });
   };
 
   return (
@@ -604,6 +633,21 @@ const CrmCustomerService = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateTicket}
+      />
+      
+      {/* View Ticket Modal */}
+      <ViewTicketModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        ticket={selectedTicket}
+      />
+      
+      {/* Respond to Ticket Modal */}
+      <RespondToTicketModal
+        isOpen={isRespondModalOpen}
+        onClose={() => setIsRespondModalOpen(false)}
+        ticket={selectedTicket}
+        onSubmit={handleRespondSubmit}
       />
     </div>
   );
