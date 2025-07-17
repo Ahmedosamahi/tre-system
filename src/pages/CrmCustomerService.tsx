@@ -1,245 +1,500 @@
-
 import React, { useState } from 'react';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Calendar,
   Download,
   Search,
   CheckCircle,
   AlertTriangle,
   Clock,
-  FileText,
-  MessageSquare
+  Plus,
+  Filter,
+  X
 } from 'lucide-react';
 import { DatePicker } from '@/components/crm/DatePicker';
 import { StatCard } from '@/components/crm/StatCard';
-import { AbnormalShipmentTable } from '@/components/crm/AbnormalShipmentTable';
+import { TicketTable } from '@/components/crm/TicketTable';
+import { CreateTicketModal } from '@/components/crm/CreateTicketModal';
 import { StatusTabs } from '@/components/crm/StatusTabs';
+import { Ticket, TicketFormData } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
-// Sample data for the CRM page
-const mockStats = [
-  { 
-    title: 'Total Abnormal', 
-    value: 256, 
-    icon: <AlertTriangle className="text-danger" />, 
-    bgColor: 'bg-danger-light'
-  },
-  { 
-    title: 'Total Solved', 
-    value: 182, 
-    icon: <CheckCircle className="text-success" />, 
-    bgColor: 'bg-success-light'
-  },
-  { 
-    title: 'Unanswered', 
-    value: 74, 
-    icon: <Clock className="text-warning" />, 
-    bgColor: 'bg-warning-light' 
-  }
-];
-
-// Sample shipment data
-const mockShipments = [
+// Sample ticket data
+const mockTickets: Ticket[] = [
   {
     id: '1',
-    awbNumber: 'AWB10023456',
-    referenceNumber: 'ORD-2023-789',
-    abnormalTime: '2023-05-08 14:30',
+    ticketId: 'TIC-2025-001',
+    orderNumber: 'ORD-2025-10021',
+    referenceNumber: 'REF-2025-001',
+    issueType: 'Incorrect Phone Number',
+    shippingCompany: 'Aramex',
+    dateCreated: '2025-01-15 14:30',
+    issueCategory: 'Customer Error',
+    description: 'Customer provided incorrect phone number, delivery attempted but failed',
+    priority: 'High',
+    status: 'Not Responded',
     customerName: 'Ahmed Mohamed',
     phone: '+20 123 456 7890',
-    mainReason: 'Delivery Issue',
-    subReason: 'Wrong Address',
-    courierNote: 'Customer provided incorrect apartment number, building was found but couldn\'t locate the specific unit',
-    isReplied: false
+    attachments: ['screenshot.jpg'],
+    createdBy: 'system'
   },
   {
     id: '2',
-    awbNumber: 'AWB10023457',
-    referenceNumber: 'ORD-2023-790',
-    abnormalTime: '2023-05-08 15:45',
+    ticketId: 'TIC-2025-002',
+    orderNumber: 'ORD-2025-10022',
+    referenceNumber: 'REF-2025-002',
+    issueType: 'Delivery Delay',
+    shippingCompany: 'DHL',
+    dateCreated: '2025-01-15 15:45',
+    issueCategory: 'Shipping Error',
+    description: 'Package has been delayed due to weather conditions',
+    priority: 'Medium',
+    status: 'Responded',
     customerName: 'Sarah Ahmed',
     phone: '+20 123 456 7891',
-    mainReason: 'Package Issue',
-    subReason: 'Damaged Package',
-    courierNote: 'Package appears to have been crushed during transport, contents may be damaged',
-    isReplied: true
+    lastResponse: '2025-01-15 16:00',
+    createdBy: 'cs_agent_1'
   },
   {
     id: '3',
-    awbNumber: 'AWB10023458',
-    referenceNumber: 'ORD-2023-791',
-    abnormalTime: '2023-05-08 16:20',
+    ticketId: 'TIC-2025-003',
+    orderNumber: 'ORD-2025-10023',
+    referenceNumber: 'REF-2025-003',
+    issueType: 'Damaged Package',
+    shippingCompany: 'FedEx',
+    dateCreated: '2025-01-15 16:20',
+    issueCategory: 'Shipping Error',
+    description: 'Package arrived damaged, contents may be affected',
+    priority: 'High',
+    status: 'Not Responded',
     customerName: 'Mahmoud Ali',
     phone: '+20 123 456 7892',
-    mainReason: 'Customer Issue',
-    subReason: 'Customer Unavailable',
-    courierNote: 'Called customer multiple times but no answer. Left notice at the door.',
-    isReplied: false
+    attachments: ['damage_photo1.jpg', 'damage_photo2.jpg'],
+    createdBy: 'system'
   },
   {
     id: '4',
-    awbNumber: 'AWB10023459',
-    referenceNumber: 'ORD-2023-792',
-    abnormalTime: '2023-05-09 09:15',
+    ticketId: 'TIC-2025-004',
+    orderNumber: 'ORD-2025-10024',
+    referenceNumber: 'REF-2025-004',
+    issueType: 'Wrong Address',
+    shippingCompany: 'UPS',
+    dateCreated: '2025-01-14 09:15',
+    issueCategory: 'Customer Error',
+    description: 'Customer provided incorrect delivery address',
+    priority: 'Medium',
+    status: 'Resolved',
     customerName: 'Fatima Hassan',
     phone: '+20 123 456 7893',
-    mainReason: 'Payment Issue',
-    subReason: 'Insufficient Funds',
-    courierNote: 'Customer didn\'t have the full amount for COD payment. Requested to reschedule.',
-    isReplied: false
+    lastResponse: '2025-01-14 10:30',
+    createdBy: 'cs_agent_2'
   },
   {
     id: '5',
-    awbNumber: 'AWB10023460',
-    referenceNumber: 'ORD-2023-793',
-    abnormalTime: '2023-05-09 10:30',
+    ticketId: 'TIC-2025-005',
+    orderNumber: 'ORD-2025-10025',
+    referenceNumber: 'REF-2025-005',
+    issueType: 'Customer Unavailable',
+    shippingCompany: 'Mylerz',
+    dateCreated: '2025-01-14 10:30',
+    issueCategory: 'Customer Error',
+    description: 'Multiple delivery attempts failed - customer unavailable',
+    priority: 'Low',
+    status: 'Responded',
     customerName: 'Omar Khalid',
     phone: '+20 123 456 7894',
-    mainReason: 'Delivery Issue',
-    subReason: 'Access Restricted',
-    courierNote: 'Security at the compound did not allow entry without prior arrangement.',
-    isReplied: true
-  },
+    lastResponse: '2025-01-14 11:00',
+    createdBy: 'system'
+  }
 ];
 
 const CrmCustomerService = () => {
-  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
-  const [toDate, setToDate] = useState<Date | undefined>(undefined);
-  const [searchParams, setSearchParams] = useState({
-    orderNumber: '',
-    awbNumber: '',
-    referenceNumber: '',
-    phoneNumber: '',
-  });
+  const { toast } = useToast();
+  const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
+  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>(mockTickets);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortField, setSortField] = useState<string>('dateCreated');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setSearchParams({ ...searchParams, [name]: value });
-  };
-  
-  const handleSearch = () => {
-    // In a real app, this would trigger an API call with filters
-    console.log('Searching with params:', { fromDate, toDate, ...searchParams });
-  };
-  
-  const handleClear = () => {
-    setFromDate(undefined);
-    setToDate(undefined);
-    setSearchParams({
-      orderNumber: '',
-      awbNumber: '',
-      referenceNumber: '',
-      phoneNumber: '',
-    });
-  };
-  
-  const filteredShipments = mockShipments.filter(shipment => {
-    if (activeTab === 'replied') return shipment.isReplied;
-    if (activeTab === 'unanswered') return !shipment.isReplied;
-    return true; // 'all' tab
+  // Filter states
+  const [filters, setFilters] = useState({
+    orderNumber: '',
+    referenceNumber: '',
+    ticketId: '',
+    issueType: '',
+    shippingCompany: '',
+    issueCategory: '',
+    priority: '',
+    fromDate: undefined as Date | undefined,
+    toDate: undefined as Date | undefined
   });
+
+  const issueTypes = [
+    'Incorrect Phone Number',
+    'Delivery Delay',
+    'Damaged Package',
+    'Wrong Address',
+    'Customer Unavailable',
+    'Payment Issue',
+    'Package Lost',
+    'Delivery Refused',
+    'Other'
+  ];
+
+  const shippingCompanies = [
+    'Aramex',
+    'DHL',
+    'FedEx',
+    'UPS',
+    'Egypt Post',
+    'Mylerz',
+    'Bosta',
+    'Vhubs',
+    'Other'
+  ];
+
+  const issueCategories = [
+    'Customer Error',
+    'Shipping Error',
+    'System Error',
+    'Product Issue',
+    'Address Issue',
+    'Payment Issue',
+    'Other'
+  ];
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSearch = () => {
+    let filtered = tickets;
+
+    // Apply filters
+    if (filters.orderNumber) {
+      filtered = filtered.filter(ticket => 
+        ticket.orderNumber.toLowerCase().includes(filters.orderNumber.toLowerCase())
+      );
+    }
+    if (filters.referenceNumber) {
+      filtered = filtered.filter(ticket => 
+        ticket.referenceNumber.toLowerCase().includes(filters.referenceNumber.toLowerCase())
+      );
+    }
+    if (filters.ticketId) {
+      filtered = filtered.filter(ticket => 
+        ticket.ticketId.toLowerCase().includes(filters.ticketId.toLowerCase())
+      );
+    }
+    if (filters.issueType) {
+      filtered = filtered.filter(ticket => ticket.issueType === filters.issueType);
+    }
+    if (filters.shippingCompany) {
+      filtered = filtered.filter(ticket => ticket.shippingCompany === filters.shippingCompany);
+    }
+    if (filters.issueCategory) {
+      filtered = filtered.filter(ticket => ticket.issueCategory === filters.issueCategory);
+    }
+    if (filters.priority) {
+      filtered = filtered.filter(ticket => ticket.priority === filters.priority);
+    }
+    if (filters.fromDate) {
+      filtered = filtered.filter(ticket => 
+        new Date(ticket.dateCreated) >= filters.fromDate!
+      );
+    }
+    if (filters.toDate) {
+      filtered = filtered.filter(ticket => 
+        new Date(ticket.dateCreated) <= filters.toDate!
+      );
+    }
+
+    // Apply tab filter
+    if (activeTab === 'responded') {
+      filtered = filtered.filter(ticket => ticket.status === 'Responded' || ticket.status === 'Resolved');
+    } else if (activeTab === 'not-responded') {
+      filtered = filtered.filter(ticket => ticket.status === 'Not Responded');
+    }
+
+    setFilteredTickets(filtered);
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      orderNumber: '',
+      referenceNumber: '',
+      ticketId: '',
+      issueType: '',
+      shippingCompany: '',
+      issueCategory: '',
+      priority: '',
+      fromDate: undefined,
+      toDate: undefined
+    });
+    setFilteredTickets(tickets);
+    setCurrentPage(1);
+  };
+
+  const handleSort = (field: string) => {
+    const newOrder = sortField === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortField(field);
+    setSortOrder(newOrder);
+    
+    const sorted = [...filteredTickets].sort((a, b) => {
+      const aValue = a[field as keyof Ticket];
+      const bValue = b[field as keyof Ticket];
+      
+      if (aValue < bValue) return newOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return newOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+    
+    setFilteredTickets(sorted);
+  };
+
+  const handleCreateTicket = async (formData: TicketFormData) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const newTicket: Ticket = {
+      id: Date.now().toString(),
+      ticketId: `TIC-2025-${String(tickets.length + 1).padStart(3, '0')}`,
+      orderNumber: formData.orderNumber,
+      referenceNumber: formData.referenceNumber,
+      issueType: formData.issueType,
+      shippingCompany: formData.shippingCompany,
+      dateCreated: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      issueCategory: formData.issueCategory,
+      description: formData.description,
+      priority: formData.priority,
+      status: 'Not Responded',
+      customerName: 'Unknown', // Would be fetched from order data
+      phone: 'Unknown', // Would be fetched from order data
+      attachments: formData.attachments?.map(file => file.name) || [],
+      createdBy: 'current_user'
+    };
+    
+    setTickets(prev => [newTicket, ...prev]);
+    setFilteredTickets(prev => [newTicket, ...prev]);
+  };
+
+  const handleViewTicket = (id: string) => {
+    console.log('Viewing ticket:', id);
+    // Implement ticket detail view
+  };
+
+  const handleRespondToTicket = (id: string) => {
+    console.log('Responding to ticket:', id);
+    // Implement ticket response functionality
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    let filtered = tickets;
+
+    if (tab === 'responded') {
+      filtered = filtered.filter(ticket => ticket.status === 'Responded' || ticket.status === 'Resolved');
+    } else if (tab === 'not-responded') {
+      filtered = filtered.filter(ticket => ticket.status === 'Not Responded');
+    }
+
+    setFilteredTickets(filtered);
+    setCurrentPage(1);
+  };
+
+  const stats = [
+    {
+      title: 'Total Tickets',
+      value: tickets.length,
+      icon: <AlertTriangle className="text-blue-600" />,
+      bgColor: 'bg-blue-50'
+    },
+    {
+      title: 'Responded',
+      value: tickets.filter(t => t.status === 'Responded' || t.status === 'Resolved').length,
+      icon: <CheckCircle className="text-green-600" />,
+      bgColor: 'bg-green-50'
+    },
+    {
+      title: 'Not Responded',
+      value: tickets.filter(t => t.status === 'Not Responded').length,
+      icon: <Clock className="text-red-600" />,
+      bgColor: 'bg-red-50'
+    }
+  ];
+
+  const tabs = [
+    { id: 'all', label: 'All', count: tickets.length },
+    { id: 'responded', label: 'Responded', count: tickets.filter(t => t.status === 'Responded' || t.status === 'Resolved').length },
+    { id: 'not-responded', label: 'Not Responded', count: tickets.filter(t => t.status === 'Not Responded').length }
+  ];
 
   return (
     <PageLayout>
       <div className="space-y-6">
         {/* Header Section */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">CRM Customer Service (Abnormal)</h1>
-          <Button className="bg-brand text-white hover:bg-brand-dark">
-            <Download className="mr-2 h-5 w-5" />
-            Export All
-          </Button>
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <h1 className="text-2xl font-bold">CRM Customer Service</h1>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Ticket
+            </Button>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export All
+            </Button>
+          </div>
         </div>
 
-        {/* Search & Filters Panel */}
+        {/* Filters Panel */}
         <Card className="p-6">
-          <h2 className="text-lg font-medium mb-4">Search by</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium">Filters</h2>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearFilters}
+              >
+                <X className="mr-2 h-4 w-4" />
+                Clear Filters
+              </Button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">From</label>
-              <DatePicker 
-                date={fromDate}
-                setDate={setFromDate}
+              <Label>Date From</Label>
+              <DatePicker
+                date={filters.fromDate}
+                setDate={(date) => setFilters(prev => ({ ...prev, fromDate: date }))}
                 placeholder="Select start date"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">To</label>
-              <DatePicker 
-                date={toDate}
-                setDate={setToDate}
+              <Label>Date To</Label>
+              <DatePicker
+                date={filters.toDate}
+                setDate={(date) => setFilters(prev => ({ ...prev, toDate: date }))}
                 placeholder="Select end date"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Order Number</label>
+              <Label>Order Number</Label>
               <Input
-                name="orderNumber"
-                value={searchParams.orderNumber}
-                onChange={handleSearchChange}
+                value={filters.orderNumber}
+                onChange={(e) => handleFilterChange('orderNumber', e.target.value)}
                 placeholder="Enter order number"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">AWB Number</label>
+              <Label>Reference Number</Label>
               <Input
-                name="awbNumber"
-                value={searchParams.awbNumber}
-                onChange={handleSearchChange}
-                placeholder="Enter AWB number"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Reference Number</label>
-              <Input
-                name="referenceNumber"
-                value={searchParams.referenceNumber}
-                onChange={handleSearchChange}
+                value={filters.referenceNumber}
+                onChange={(e) => handleFilterChange('referenceNumber', e.target.value)}
                 placeholder="Enter reference number"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Phone Number</label>
+              <Label>Ticket ID</Label>
               <Input
-                name="phoneNumber"
-                value={searchParams.phoneNumber}
-                onChange={handleSearchChange}
-                placeholder="Enter phone number"
+                value={filters.ticketId}
+                onChange={(e) => handleFilterChange('ticketId', e.target.value)}
+                placeholder="Enter ticket ID"
               />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Issue Type</Label>
+              <Select value={filters.issueType} onValueChange={(value) => handleFilterChange('issueType', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select issue type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Types</SelectItem>
+                  {issueTypes.map(type => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Shipping Company</Label>
+              <Select value={filters.shippingCompany} onValueChange={(value) => handleFilterChange('shippingCompany', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select shipping company" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Companies</SelectItem>
+                  {shippingCompanies.map(company => (
+                    <SelectItem key={company} value={company}>{company}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Issue Category</Label>
+              <Select value={filters.issueCategory} onValueChange={(value) => handleFilterChange('issueCategory', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select issue category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Categories</SelectItem>
+                  {issueCategories.map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Priority</Label>
+              <Select value={filters.priority} onValueChange={(value) => handleFilterChange('priority', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Priorities</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
-          <div className="flex justify-end mt-6 space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={handleClear}
-            >
-              Clear
-            </Button>
-            <Button 
+          <div className="flex justify-end mt-6">
+            <Button
               onClick={handleSearch}
-              className="bg-brand text-white hover:bg-brand-dark"
+              className="bg-primary hover:bg-primary/90"
             >
               <Search className="mr-2 h-4 w-4" />
-              Search
+              Apply Filters
             </Button>
           </div>
         </Card>
-        
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {mockStats.map((stat, index) => (
-            <StatCard 
+          {stats.map((stat, index) => (
+            <StatCard
               key={index}
               title={stat.title}
               value={stat.value}
@@ -248,45 +503,51 @@ const CrmCustomerService = () => {
             />
           ))}
         </div>
-        
-        {/* Status Tabs and Data Table */}
+
+        {/* Tickets Table */}
         <div className="bg-white rounded-lg shadow">
-          <StatusTabs 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            tabs={[
-              { id: 'all', label: 'All', count: mockShipments.length },
-              { id: 'replied', label: 'Replied', count: mockShipments.filter(s => s.isReplied).length },
-              { id: 'unanswered', label: 'Unanswered', count: mockShipments.filter(s => !s.isReplied).length }
-            ]} 
+          <StatusTabs
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            tabs={tabs}
           />
           
-          <AbnormalShipmentTable 
-            shipments={filteredShipments}
-            onView={(id) => console.log('Viewing shipment:', id)}
-            onReply={(id) => console.log('Replying to shipment:', id)}
+          <TicketTable
+            tickets={filteredTickets}
+            onView={handleViewTicket}
+            onRespond={handleRespondToTicket}
+            onSort={handleSort}
+            sortField={sortField}
+            sortOrder={sortOrder}
           />
           
           {/* Pagination */}
           <div className="py-4 px-6 border-t">
             <nav className="flex items-center justify-between">
               <div className="flex-1 flex justify-between sm:hidden">
-                <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p-1))}>
+                <Button 
+                  variant="outline" 
+                  disabled={currentPage === 1} 
+                  onClick={() => setCurrentPage(p => Math.max(1, p-1))}
+                >
                   Previous
                 </Button>
-                <Button variant="outline" onClick={() => setCurrentPage(p => p+1)}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setCurrentPage(p => p+1)}
+                >
                   Next
                 </Button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
-                    Showing page <span className="font-medium">{currentPage}</span>
+                    Showing page <span className="font-medium">{currentPage}</span> of tickets
                   </p>
                 </div>
                 <div>
-                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                    <Button 
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    <Button
                       variant="outline"
                       className="relative inline-flex items-center px-2 py-2 rounded-l-md border text-sm font-medium"
                       disabled={currentPage === 1}
@@ -295,7 +556,7 @@ const CrmCustomerService = () => {
                       Previous
                     </Button>
                     {[1, 2, 3].map((page) => (
-                      <Button 
+                      <Button
                         key={page}
                         variant={currentPage === page ? "default" : "outline"}
                         className="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
@@ -304,7 +565,7 @@ const CrmCustomerService = () => {
                         {page}
                       </Button>
                     ))}
-                    <Button 
+                    <Button
                       variant="outline"
                       className="relative inline-flex items-center px-2 py-2 rounded-r-md border text-sm font-medium"
                       onClick={() => setCurrentPage(p => p+1)}
@@ -317,6 +578,13 @@ const CrmCustomerService = () => {
             </nav>
           </div>
         </div>
+
+        {/* Create Ticket Modal */}
+        <CreateTicketModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreateTicket}
+        />
       </div>
     </PageLayout>
   );

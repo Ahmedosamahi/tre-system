@@ -96,3 +96,34 @@ export type Courier = {
   connectedApis: string[];
   rating?: number;
 };
+
+export interface Ticket {
+  id: string;
+  ticketId: string;
+  orderNumber: string;
+  referenceNumber: string;
+  issueType: string;
+  shippingCompany: string;
+  dateCreated: string;
+  issueCategory: string;
+  description: string;
+  priority: 'Low' | 'Medium' | 'High';
+  status: 'Not Responded' | 'Responded' | 'Resolved';
+  customerName: string;
+  phone: string;
+  attachments?: string[];
+  assignedTo?: string;
+  lastResponse?: string;
+  createdBy: string;
+}
+
+export interface TicketFormData {
+  orderNumber: string;
+  referenceNumber: string;
+  issueType: string;
+  shippingCompany: string;
+  issueCategory: string;
+  description: string;
+  priority: 'Low' | 'Medium' | 'High';
+  attachments?: File[];
+}
