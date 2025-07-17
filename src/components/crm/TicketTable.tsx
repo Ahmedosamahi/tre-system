@@ -57,10 +57,10 @@ export const TicketTable: React.FC<TicketTableProps> = ({
     switch (status) {
       case 'Responded':
         return <Badge variant="default" className="bg-green-100 text-green-800">Responded</Badge>;
-      case 'Not Responded':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800">Not Responded</Badge>;
-      case 'Resolved':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800">Resolved</Badge>;
+      case 'Open':
+        return <Badge variant="destructive" className="bg-red-100 text-red-800">Open</Badge>;
+      case 'Closed':
+        return <Badge variant="default" className="bg-blue-100 text-blue-800">Closed</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -181,7 +181,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                     <FileText className="h-4 w-4 mr-1" />
                     View
                   </Button>
-                  {ticket.status === 'Not Responded' && (
+                  {ticket.status === 'Open' && (
                     <Button 
                       variant="outline" 
                       size="sm" 

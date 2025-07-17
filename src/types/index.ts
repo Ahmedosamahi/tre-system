@@ -108,7 +108,7 @@ export interface Ticket {
   issueCategory: string;
   description: string;
   priority: 'Low' | 'Medium' | 'High';
-  status: 'Not Responded' | 'Responded' | 'Resolved';
+  status: 'Open' | 'Responded' | 'Closed';
   customerName: string;
   phone: string;
   attachments?: string[];

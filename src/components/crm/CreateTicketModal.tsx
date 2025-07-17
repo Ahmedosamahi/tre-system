@@ -17,14 +17,14 @@ interface CreateTicketModalProps {
 }
 
 const issueTypes = [
-  'Incorrect Phone Number',
+  'Incorrect Customer Information',
   'Delivery Delay',
-  'Damaged Package',
-  'Wrong Address',
-  'Customer Unavailable',
-  'Payment Issue',
-  'Package Lost',
-  'Delivery Refused',
+  'Damaged Goods',
+  'Lost Shipment',
+  'Incorrect Shipment',
+  'Customs Issue',
+  'Payment Dispute',
+  'Label Error',
   'Other'
 ];
 
