@@ -127,10 +127,10 @@ const CrmCustomerService = () => {
     orderNumber: '',
     referenceNumber: '',
     ticketId: '',
-    issueType: '',
-    shippingCompany: '',
-    issueCategory: '',
-    priority: '',
+    issueType: 'all',
+    shippingCompany: 'all',
+    issueCategory: 'all',
+    priority: 'all',
     fromDate: undefined as Date | undefined,
     toDate: undefined as Date | undefined
   });
@@ -192,16 +192,16 @@ const CrmCustomerService = () => {
         ticket.ticketId.toLowerCase().includes(filters.ticketId.toLowerCase())
       );
     }
-    if (filters.issueType) {
+    if (filters.issueType && filters.issueType !== 'all') {
       filtered = filtered.filter(ticket => ticket.issueType === filters.issueType);
     }
-    if (filters.shippingCompany) {
+    if (filters.shippingCompany && filters.shippingCompany !== 'all') {
       filtered = filtered.filter(ticket => ticket.shippingCompany === filters.shippingCompany);
     }
-    if (filters.issueCategory) {
+    if (filters.issueCategory && filters.issueCategory !== 'all') {
       filtered = filtered.filter(ticket => ticket.issueCategory === filters.issueCategory);
     }
-    if (filters.priority) {
+    if (filters.priority && filters.priority !== 'all') {
       filtered = filtered.filter(ticket => ticket.priority === filters.priority);
     }
     if (filters.fromDate) {
@@ -231,10 +231,10 @@ const CrmCustomerService = () => {
       orderNumber: '',
       referenceNumber: '',
       ticketId: '',
-      issueType: '',
-      shippingCompany: '',
-      issueCategory: '',
-      priority: '',
+      issueType: 'all',
+      shippingCompany: 'all',
+      issueCategory: 'all',
+      priority: 'all',
       fromDate: undefined,
       toDate: undefined
     });
@@ -426,7 +426,7 @@ const CrmCustomerService = () => {
                   <SelectValue placeholder="Select issue type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   {issueTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
@@ -441,7 +441,7 @@ const CrmCustomerService = () => {
                   <SelectValue placeholder="Select shipping company" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Companies</SelectItem>
+                  <SelectItem value="all">All Companies</SelectItem>
                   {shippingCompanies.map(company => (
                     <SelectItem key={company} value={company}>{company}</SelectItem>
                   ))}
@@ -456,7 +456,7 @@ const CrmCustomerService = () => {
                   <SelectValue placeholder="Select issue category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {issueCategories.map(category => (
                     <SelectItem key={category} value={category}>{category}</SelectItem>
                   ))}
@@ -471,7 +471,7 @@ const CrmCustomerService = () => {
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Priorities</SelectItem>
+                  <SelectItem value="all">All Priorities</SelectItem>
                   <SelectItem value="Low">Low</SelectItem>
                   <SelectItem value="Medium">Medium</SelectItem>
                   <SelectItem value="High">High</SelectItem>
