@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TicketTable } from '@/components/crm/TicketTable';
 import { CreateTicketModal } from '@/components/crm/CreateTicketModal';
-import { ViewTicketModal } from '@/components/crm/ViewTicketModal';
+import { TicketDetailsPanel } from '@/components/crm/TicketDetailsPanel';
 import { RespondToTicketModal } from '@/components/crm/RespondToTicketModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,12 +64,12 @@ const CrmCustomerService = () => {
     'Other'
   ];
 
-  // Mock data for demonstration
   const mockTickets: Ticket[] = [
     {
       id: '1',
       ticketId: 'TK-001',
       orderNumber: 'ORD-2025-10021',
+      awb: 'AWB123456789',
       referenceNumber: 'REF-2025-001',
       issueType: 'Incorrect Customer Information',
       shippingCompany: 'Aramex',
@@ -86,6 +86,7 @@ const CrmCustomerService = () => {
       id: '2',
       ticketId: 'TK-002',
       orderNumber: 'ORD-2025-10022',
+      awb: 'AWB987654321',
       referenceNumber: 'REF-2025-002',
       issueType: 'Delivery Delay',
       shippingCompany: 'DHL',
@@ -102,6 +103,7 @@ const CrmCustomerService = () => {
       id: '3',
       ticketId: 'TK-003',
       orderNumber: 'ORD-2025-10023',
+      awb: 'AWB456789123',
       referenceNumber: 'REF-2025-003',
       issueType: 'Damaged Goods',
       shippingCompany: 'FedEx',
@@ -118,6 +120,7 @@ const CrmCustomerService = () => {
       id: '4',
       ticketId: 'TK-004',
       orderNumber: 'ORD-2025-10024',
+      awb: 'AWB789123456',
       referenceNumber: 'REF-2025-004',
       issueType: 'Lost Shipment',
       shippingCompany: 'UPS',
@@ -134,6 +137,7 @@ const CrmCustomerService = () => {
       id: '5',
       ticketId: 'TK-005',
       orderNumber: 'ORD-2025-10025',
+      awb: 'AWB321654987',
       referenceNumber: 'REF-2025-005',
       issueType: 'Payment Dispute',
       shippingCompany: 'Bosta',
@@ -150,7 +154,7 @@ const CrmCustomerService = () => {
 
   const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isRespondModalOpen, setIsRespondModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'responded' | 'not-responded' | 'closed'>('all');
@@ -160,6 +164,7 @@ const CrmCustomerService = () => {
 
   const [filters, setFilters] = useState({
     orderNumber: '',
+    awb: '',
     referenceNumber: '',
     ticketId: '',
     issueType: 'all',
@@ -177,6 +182,11 @@ const CrmCustomerService = () => {
     if (filters.orderNumber) {
       filtered = filtered.filter(ticket => 
         ticket.orderNumber.toLowerCase().includes(filters.orderNumber.toLowerCase())
+      );
+    }
+    if (filters.awb) {
+      filtered = filtered.filter(ticket => 
+        ticket.awb.toLowerCase().includes(filters.awb.toLowerCase())
       );
     }
     if (filters.referenceNumber) {
@@ -247,6 +257,7 @@ const CrmCustomerService = () => {
   const handleClearFilters = () => {
     setFilters({
       orderNumber: '',
+      awb: '',
       referenceNumber: '',
       ticketId: '',
       issueType: 'all',
@@ -260,13 +271,13 @@ const CrmCustomerService = () => {
   };
 
   const handleCreateTicket = async (formData: TicketFormData) => {
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const newTicket: Ticket = {
       id: Date.now().toString(),
       ticketId: `TK-${String(tickets.length + 1).padStart(3, '0')}`,
       orderNumber: formData.orderNumber,
+      awb: formData.awb || `AWB${Date.now()}`,
       referenceNumber: formData.referenceNumber,
       issueType: formData.issueType,
       shippingCompany: formData.shippingCompany,
@@ -293,7 +304,7 @@ const CrmCustomerService = () => {
     const ticket = tickets.find(t => t.id === id);
     if (ticket) {
       setSelectedTicket(ticket);
-      setIsViewModalOpen(true);
+      setIsPanelOpen(true);
     }
   };
 
@@ -321,9 +332,24 @@ const CrmCustomerService = () => {
     });
   };
 
+  const handleStatusUpdate = (ticketId: string, status: string) => {
+    setTickets(prev => 
+      prev.map(ticket => 
+        ticket.id === ticketId 
+          ? { ...ticket, status: status as 'Open' | 'Responded' | 'Closed' }
+          : ticket
+      )
+    );
+    
+    toast({
+      title: 'Success',
+      description: `Ticket status updated to ${status}`,
+      variant: 'default'
+    });
+  };
+
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">CRM Customer Service</h1>
         <div className="flex items-center gap-2">
@@ -345,7 +371,6 @@ const CrmCustomerService = () => {
         </div>
       </div>
 
-      {/* Filters */}
       {showFilters && (
         <Card className="p-6">
           <div className="flex justify-between items-center mb-4">
@@ -368,6 +393,16 @@ const CrmCustomerService = () => {
                 value={filters.orderNumber}
                 onChange={(e) => setFilters({...filters, orderNumber: e.target.value})}
                 placeholder="Enter order number"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="awb">AWB Number</Label>
+              <Input
+                id="awb"
+                value={filters.awb}
+                onChange={(e) => setFilters({...filters, awb: e.target.value})}
+                placeholder="Enter AWB number"
               />
             </div>
             
@@ -521,7 +556,6 @@ const CrmCustomerService = () => {
         </Card>
       )}
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -572,7 +606,6 @@ const CrmCustomerService = () => {
         </Card>
       </div>
 
-      {/* Table */}
       <Card>
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'all' | 'responded' | 'not-responded' | 'closed')}>
           <TabsList className="grid w-full grid-cols-4">
@@ -628,21 +661,20 @@ const CrmCustomerService = () => {
         </Tabs>
       </Card>
 
-      {/* Create Ticket Modal */}
       <CreateTicketModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateTicket}
       />
       
-      {/* View Ticket Modal */}
-      <ViewTicketModal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
+      <TicketDetailsPanel
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
         ticket={selectedTicket}
+        onRespond={handleRespond}
+        onStatusUpdate={handleStatusUpdate}
       />
       
-      {/* Respond to Ticket Modal */}
       <RespondToTicketModal
         isOpen={isRespondModalOpen}
         onClose={() => setIsRespondModalOpen(false)}

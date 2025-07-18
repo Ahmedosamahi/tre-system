@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,9 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { X, Upload, FileText, AlertCircle } from 'lucide-react';
-import { TicketFormData } from '@/types';
+import { X, Upload, FileText, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { TicketFormData, OrderData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { fetchOrderByNumber, fetchOrderByAWB, fetchOrderByReference } from '@/services/orderService';
 
 interface CreateTicketModalProps {
   isOpen: boolean;
@@ -58,6 +59,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
   const { toast } = useToast();
   const [formData, setFormData] = useState<TicketFormData>({
     orderNumber: '',
+    awb: '',
     referenceNumber: '',
     issueType: '',
     shippingCompany: '',
@@ -69,6 +71,9 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const [autoFillSuccess, setAutoFillSuccess] = useState(false);
+  const [orderData, setOrderData] = useState<OrderData | null>(null);
   
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -76,6 +81,69 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
+    
+    // Reset auto-fill status when manual changes are made
+    if (['orderNumber', 'awb', 'referenceNumber'].includes(field)) {
+      setAutoFillSuccess(false);
+      setOrderData(null);
+    }
+  };
+  
+  const performAutoFill = useCallback(async (orderNumber: string, awb: string, referenceNumber: string) => {
+    if (!orderNumber && !awb && !referenceNumber) return;
+    
+    setIsAutoFilling(true);
+    setAutoFillSuccess(false);
+    
+    try {
+      let fetchedOrderData: OrderData | null = null;
+      
+      // Try different fetch methods based on available data
+      if (orderNumber) {
+        fetchedOrderData = await fetchOrderByNumber(orderNumber);
+      } else if (awb) {
+        fetchedOrderData = await fetchOrderByAWB(awb);
+      } else if (referenceNumber) {
+        fetchedOrderData = await fetchOrderByReference(referenceNumber);
+      }
+      
+      if (fetchedOrderData) {
+        setOrderData(fetchedOrderData);
+        setFormData(prev => ({
+          ...prev,
+          orderNumber: fetchedOrderData.orderNumber,
+          shippingCompany: fetchedOrderData.shippingCompany,
+          // Keep user-entered values if they exist
+          awb: prev.awb || '',
+          referenceNumber: prev.referenceNumber || ''
+        }));
+        setAutoFillSuccess(true);
+        toast({
+          title: "Auto-fill successful",
+          description: "Order details have been automatically populated",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Order not found",
+          description: "No matching order found for the provided information",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Auto-fill failed",
+        description: "Failed to fetch order details. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAutoFilling(false);
+    }
+  }, [toast]);
+  
+  const handleAutoFillTrigger = () => {
+    const { orderNumber, awb, referenceNumber } = formData;
+    performAutoFill(orderNumber, awb, referenceNumber);
   };
   
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,8 +178,9 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.orderNumber.trim()) {
-      newErrors.orderNumber = 'Order number is required';
+    if (!formData.orderNumber.trim() && !formData.awb.trim()) {
+      newErrors.orderNumber = 'Order number or AWB is required';
+      newErrors.awb = 'Order number or AWB is required';
     }
     
     if (!formData.issueType) {
@@ -145,11 +214,6 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
     
     try {
       await onSubmit(formData);
-      toast({
-        title: "Success",
-        description: "Ticket created successfully",
-        variant: "default"
-      });
       onClose();
       resetForm();
     } catch (error) {
@@ -166,6 +230,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
   const resetForm = () => {
     setFormData({
       orderNumber: '',
+      awb: '',
       referenceNumber: '',
       issueType: '',
       shippingCompany: '',
@@ -175,6 +240,8 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
       attachments: []
     });
     setErrors({});
+    setAutoFillSuccess(false);
+    setOrderData(null);
   };
   
   const handleClose = () => {
@@ -184,40 +251,98 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Ticket</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="orderNumber">Order Number *</Label>
-              <Input
-                id="orderNumber"
-                value={formData.orderNumber}
-                onChange={(e) => handleInputChange('orderNumber', e.target.value)}
-                placeholder="ORD-2025-10021"
-                className={errors.orderNumber ? 'border-red-500' : ''}
-              />
-              {errors.orderNumber && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
+          {/* Auto-fill Section */}
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-blue-900">Smart Auto-Fill</h4>
+                {autoFillSuccess && (
+                  <div className="flex items-center gap-1 text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-xs">Auto-filled successfully</span>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                <div className="space-y-1">
+                  <Label htmlFor="orderNumber" className="text-xs">Order Number</Label>
+                  <Input
+                    id="orderNumber"
+                    value={formData.orderNumber}
+                    onChange={(e) => handleInputChange('orderNumber', e.target.value)}
+                    placeholder="ORD-2025-10021"
+                    className={errors.orderNumber ? 'border-red-500' : ''}
+                  />
+                </div>
+                
+                <div className="space-y-1">
+                  <Label htmlFor="awb" className="text-xs">AWB Number</Label>
+                  <Input
+                    id="awb"
+                    value={formData.awb}
+                    onChange={(e) => handleInputChange('awb', e.target.value)}
+                    placeholder="AWB123456789"
+                    className={errors.awb ? 'border-red-500' : ''}
+                  />
+                </div>
+                
+                <div className="space-y-1">
+                  <Label htmlFor="referenceNumber" className="text-xs">Reference Number</Label>
+                  <Input
+                    id="referenceNumber"
+                    value={formData.referenceNumber}
+                    onChange={(e) => handleInputChange('referenceNumber', e.target.value)}
+                    placeholder="REF-2025-001"
+                  />
+                </div>
+              </div>
+              
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAutoFillTrigger}
+                disabled={isAutoFilling || (!formData.orderNumber && !formData.awb && !formData.referenceNumber)}
+                className="w-full"
+              >
+                {isAutoFilling ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Fetching order details...
+                  </>
+                ) : (
+                  'Auto-fill from Order Details'
+                )}
+              </Button>
+              
+              {(errors.orderNumber || errors.awb) && (
+                <p className="text-sm text-red-500 flex items-center gap-1 mt-2">
                   <AlertCircle className="h-3 w-3" />
                   {errors.orderNumber}
                 </p>
               )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="referenceNumber">Reference Number</Label>
-              <Input
-                id="referenceNumber"
-                value={formData.referenceNumber}
-                onChange={(e) => handleInputChange('referenceNumber', e.target.value)}
-                placeholder="REF-2025-001"
-              />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+
+          {/* Order Preview */}
+          {orderData && (
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="p-4">
+                <h4 className="text-sm font-medium text-green-900 mb-2">Order Details Preview</h4>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div><strong>Customer:</strong> {orderData.customerName}</div>
+                  <div><strong>Phone:</strong> {orderData.customerPhone}</div>
+                  <div><strong>Shipping:</strong> {orderData.shippingCompany}</div>
+                  <div><strong>Amount:</strong> ${orderData.totalAmount}</div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">

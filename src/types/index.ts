@@ -101,6 +101,7 @@ export interface Ticket {
   id: string;
   ticketId: string;
   orderNumber: string;
+  awb: string;
   referenceNumber: string;
   issueType: string;
   shippingCompany: string;
@@ -119,6 +120,7 @@ export interface Ticket {
 
 export interface TicketFormData {
   orderNumber: string;
+  awb: string;
   referenceNumber: string;
   issueType: string;
   shippingCompany: string;
@@ -126,4 +128,26 @@ export interface TicketFormData {
   description: string;
   priority: 'Low' | 'Medium' | 'High';
   attachments?: File[];
+}
+
+export interface OrderData {
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  shippingCompany: string;
+  shippingAddress: string;
+  totalAmount: number;
+  paymentMethod: string;
+  orderDate: string;
+  status: string;
+  items: OrderItem[];
+}
+
+export interface OrderItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  sku: string;
 }

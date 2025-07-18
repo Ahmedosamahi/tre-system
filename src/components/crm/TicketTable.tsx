@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Table, 
@@ -109,6 +110,9 @@ export const TicketTable: React.FC<TicketTableProps> = ({
               <SortButton field="orderNumber">Order Number</SortButton>
             </TableHead>
             <TableHead>
+              <SortButton field="awb">AWB</SortButton>
+            </TableHead>
+            <TableHead>
               <SortButton field="referenceNumber">Reference Number</SortButton>
             </TableHead>
             <TableHead>
@@ -151,6 +155,9 @@ export const TicketTable: React.FC<TicketTableProps> = ({
               </TableCell>
               <TableCell>
                 <span className="font-medium text-blue-600">{ticket.orderNumber}</span>
+              </TableCell>
+              <TableCell>
+                <span className="text-sm font-mono">{ticket.awb}</span>
               </TableCell>
               <TableCell>{ticket.referenceNumber}</TableCell>
               <TableCell>
@@ -199,7 +206,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
           
           {tickets.length === 0 && (
             <TableRow>
-              <TableCell colSpan={11} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={12} className="text-center py-8 text-gray-500">
                 No tickets found
               </TableCell>
             </TableRow>
