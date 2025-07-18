@@ -23,63 +23,87 @@ interface FAQAccordionProps {
 
 const faqData: FAQItem[] = [
   {
-    id: 'gs-1',
-    question: 'How do I create my first order?',
-    answer: 'To create your first order, navigate to the Orders page and click "Create New Order". Fill in the pickup and delivery details, select your preferred courier, and submit the order.',
-    category: 'getting-started'
+    id: 'om-1',
+    question: 'How do I create a new shipping order?',
+    answer: 'Navigate to the Orders page and click "Create New Order". Fill in pickup and delivery details, select your courier, and submit. The smart auto-fill feature will help populate fields when you enter Order Numbers or AWB numbers.',
+    category: 'order-management'
   },
   {
-    id: 'gs-2',
-    question: 'How do I track my shipments?',
-    answer: 'You can track your shipments in real-time from the Dashboard or Orders page. Each order has a tracking number and status updates.',
-    category: 'getting-started'
+    id: 'om-2',
+    question: 'How do I track my orders in real-time?',
+    answer: 'Use the Dashboard or Orders page to view real-time tracking. Each order shows current status, estimated delivery time, and courier information. You can also set up automatic notifications.',
+    category: 'order-management'
   },
   {
-    id: 'sd-1',
-    question: 'What are the delivery timeframes?',
-    answer: 'Standard delivery is 1-3 business days within the same city, and 3-5 business days for intercity deliveries. Express options are available for faster delivery.',
-    category: 'shipping-delivery'
+    id: 'om-3',
+    question: 'What is the AWB number and why is it important?',
+    answer: 'AWB (Air Waybill) is a unique tracking number for your shipment. It helps identify and track packages throughout the delivery process. Enter it during order creation for better tracking.',
+    category: 'order-management'
   },
   {
-    id: 'sd-2',
-    question: 'Can I schedule a pickup time?',
-    answer: 'Yes, you can schedule pickup times when creating an order. We offer flexible pickup windows to accommodate your schedule.',
-    category: 'shipping-delivery'
+    id: 'si-1',
+    question: 'My shipment is delayed, what should I do?',
+    answer: 'Check the tracking status on your Orders page. If delayed beyond expected time, create a support ticket in the CRM Customer Service section with your Order Number or AWB for investigation.',
+    category: 'shipment-issues'
+  },
+  {
+    id: 'si-2',
+    question: 'How do I report damaged or lost shipments?',
+    answer: 'Go to CRM Customer Service > Create New Ticket. Select "Damaged Goods" or "Lost Shipment" as the issue type. The system will auto-fill order details when you provide the Order Number or AWB.',
+    category: 'shipment-issues'
+  },
+  {
+    id: 'si-3',
+    question: 'How do I handle incorrect customer information?',
+    answer: 'Create a ticket in CRM Customer Service with issue type "Incorrect Customer Information". Include the correct details and our team will update the shipping information.',
+    category: 'shipment-issues'
+  },
+  {
+    id: 'int-1',
+    question: 'How do I integrate with shipping companies?',
+    answer: 'Visit Settings > Integrations to connect with supported shipping companies. Each integration provides real-time tracking, automated label generation, and rate calculations.',
+    category: 'integrations'
+  },
+  {
+    id: 'int-2',
+    question: 'Can I use the API for custom integrations?',
+    answer: 'Yes, our REST API allows custom integrations. Access API documentation in Settings > API Management. Use your API key for authentication and webhook endpoints for real-time updates.',
+    category: 'integrations'
   },
   {
     id: 'fb-1',
-    question: 'What payment methods do you accept?',
-    answer: 'We accept all major credit cards, bank transfers, and digital wallets. You can manage your payment methods in the Settings page.',
+    question: 'How do COD payments work?',
+    answer: 'COD (Cash on Delivery) payments are collected by the courier and transferred to your account. Track COD collections in the Financial section and set up automatic settlements.',
     category: 'financial-billing'
   },
   {
     id: 'fb-2',
-    question: 'How do I view my invoices?',
-    answer: 'All invoices are available in the Financial section of your dashboard. You can download PDF copies and set up automatic billing.',
+    question: 'Where can I view financial reports?',
+    answer: 'Access comprehensive financial reports in the Financial section. View revenue analytics, payment summaries, and download detailed reports for accounting purposes.',
     category: 'financial-billing'
   },
   {
     id: 'ti-1',
-    question: 'The dashboard is loading slowly, what should I do?',
-    answer: 'Try refreshing the page or clearing your browser cache. If the issue persists, check your internet connection or contact our support team.',
+    question: 'The platform is running slowly, what should I do?',
+    answer: 'Clear your browser cache and cookies. Ensure you have a stable internet connection. If issues persist, check our status page or contact support.',
     category: 'technical-issues'
   },
   {
     id: 'ti-2',
-    question: 'I cannot upload files, what\'s wrong?',
-    answer: 'Ensure your files are under 10MB and in supported formats (PDF, JPG, PNG). Check your browser permissions for file uploads.',
+    question: 'I\'m getting API errors, how do I troubleshoot?',
+    answer: 'Check your API key validity in Settings > API Management. Ensure proper authentication headers and review API documentation for correct endpoint usage.',
     category: 'technical-issues'
   },
   {
     id: 'as-1',
-    question: 'How do I change my password?',
-    answer: 'Go to Settings > Account Security to change your password. We recommend using a strong password with at least 8 characters.',
+    question: 'How do I manage user permissions?',
+    answer: 'Admin users can manage permissions in Settings > User Management. Assign roles like Admin, Manager, or Operator with appropriate access levels.',
     category: 'account-settings'
   },
   {
     id: 'as-2',
-    question: 'How do I update my company information?',
-    answer: 'Company details can be updated in Settings > Company Profile. Changes may require verification for security purposes.',
+    question: 'How do I configure notification preferences?',
+    answer: 'Go to Settings > Notifications to customize email and SMS alerts for order updates, delivery confirmations, and system notifications.',
     category: 'account-settings'
   }
 ];
@@ -110,8 +134,9 @@ export const FAQAccordion = ({ searchQuery, activeCategory }: FAQAccordionProps)
   }, {} as { [key: string]: FAQItem[] });
 
   const categoryTitles = {
-    'getting-started': 'Getting Started',
-    'shipping-delivery': 'Shipping & Delivery',
+    'order-management': 'Order Management',
+    'shipment-issues': 'Shipment Issues',
+    'integrations': 'Integrations',
     'financial-billing': 'Financial & Billing',
     'technical-issues': 'Technical Issues',
     'account-settings': 'Account & Settings'
