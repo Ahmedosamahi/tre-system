@@ -15,44 +15,37 @@ interface HelpCategoriesProps {
 
 const categories = [
   {
-    id: 'order-management',
-    title: 'Order Management',
-    description: 'Creating, tracking, and managing orders',
+    id: 'getting-started',
+    title: 'Getting Started',
+    description: 'Learn the basics of using our platform',
     icon: BookOpen,
     color: 'bg-blue-50 hover:bg-blue-100 border-blue-200'
   },
   {
-    id: 'shipment-issues',
-    title: 'Shipment Issues',
-    description: 'Delivery delays, damaged goods, and lost shipments',
+    id: 'shipping-delivery',
+    title: 'Shipping & Delivery',
+    description: 'Track orders and manage shipments',
     icon: Truck,
-    color: 'bg-red-50 hover:bg-red-100 border-red-200'
-  },
-  {
-    id: 'integrations',
-    title: 'Integrations',
-    description: 'API integration and shipping company connections',
-    icon: Settings,
     color: 'bg-green-50 hover:bg-green-100 border-green-200'
   },
   {
     id: 'financial-billing',
     title: 'Financial & Billing',
-    description: 'COD payments, billing, and financial reports',
+    description: 'Payment methods and billing questions',
     icon: CreditCard,
     color: 'bg-purple-50 hover:bg-purple-100 border-purple-200'
   },
   {
     id: 'technical-issues',
     title: 'Technical Issues',
-    description: 'Platform troubleshooting and technical support',
+    description: 'Troubleshooting and technical support',
     icon: AlertTriangle,
     color: 'bg-orange-50 hover:bg-orange-100 border-orange-200'
   },
   {
     id: 'account-settings',
     title: 'Account & Settings',
-    description: 'User management and platform configuration',
+    description: 'Manage your account and preferences',
     icon: Settings,
     color: 'bg-gray-50 hover:bg-gray-100 border-gray-200'
   }
